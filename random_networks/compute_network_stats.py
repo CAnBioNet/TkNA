@@ -62,7 +62,8 @@ def nodesByType(args, network):
 		nodeMapReader = csv.reader(nodeMapFile)
 		for row in nodeMapReader:
 			node, nodeType = row[0], row[1]
-			nodeMap[nodeType].append(node)
+			if node in network.nodes:
+				nodeMap[nodeType].append(node)
 	return nodeMap[args.nodeGroups[0]], nodeMap[args.nodeGroups[1]]
 
 # Calculates restricted betweeness centrality for two groups of nodes.
