@@ -26,7 +26,7 @@ class NoBibc:
 		return True
 
 	def __eq__(self, other):
-		return self is other
+		return isinstance(other, NoBibc)
 
 if __name__ == "__main__":
 	args = getArgs()
