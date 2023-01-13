@@ -45,7 +45,7 @@ if __name__ == "__main__":
 			stat1, stat2 = "degree", "bibc"
 		else:
 			stat1, stat2 = "bibc", "degree"
-		sortedStats = sorted(sorted(networkStats.items(), key=lambda nodeStats: nodeStats[1][stat1], reverse=True), key=lambda nodeStats: nodeStats[1][stat2], reverse=True)
+		sortedStats = sorted(sorted(networkStats.items(), key=lambda nodeStats: nodeStats[1][stat2], reverse=True), key=lambda nodeStats: nodeStats[1][stat1], reverse=True)
 
 		topNode = sortedStats[0]
 		synthesizedStats.append({"node": topNode[0], "degree": topNode[1]["degree"], "bibc": topNode[1]["bibc"]})
