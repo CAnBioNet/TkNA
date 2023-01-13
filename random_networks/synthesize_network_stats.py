@@ -55,5 +55,6 @@ if __name__ == "__main__":
 		synthesizedStatsWriter = csv.writer(synthesizedStatsFile)
 		synthesizedStatsWriter.writerow(["Network Index", "Node", "Degree", "BiBC"])
 		for index, networkStats in enumerate(synthesizedStats):
-			synthesizedStatsWriter.writerow([index, networkStats["node"], networkStats["degree"], networkStats["bibc"]])
+			bibc = "N/A" if isinstance(networkStats["bibc"], NoBibc) else networkStats["bibc"]
+			synthesizedStatsWriter.writerow([index, networkStats["node"], networkStats["degree"], bibc])
 
