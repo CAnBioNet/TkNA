@@ -70,6 +70,9 @@ if args.bibc:
         
     bibc_calc_type = args.bibc_calc_type
 
+def connected_component_subgraphs(network):
+	return [network.subgraph(component) for component in nx.connected_components(network)]
+
 if __name__ == '__main__':
 
     # Unpack the pickle
@@ -412,14 +415,14 @@ if __name__ == '__main__':
         ### Mean geodesic path length ###
         # Finds ASPL for each node in the giant component, then find the average of those nodes
         #print("Finding average shortest path...")
-        gc = max(nx.connected_component_subgraphs(G), key=len)
+        gc = max(connected_component_subgraphs(G), key=len)
         #ASPL = nx.average_shortest_path_length(gc)
         #ASPL = ASPL + str(a) + "\t"  
         #file.write("Mean_geodesic_path_length\t" + str(round(ASPL, 5)) + "\n")    
 
         ### Giant component ###
         print("Finding size of giant component...")
-        giant = len(max(nx.connected_component_subgraphs(G), key=len))/len(G)
+        giant = len(max(connected_component_subgraphs(G), key=len))/len(G)
         file.write("Giant_component\t" + str(round(giant, 5)) + "\n")
 
         ### Number of components ###
@@ -464,7 +467,7 @@ if __name__ == '__main__':
         ### Median comp size over total number of nodes ###
         print("Finding median component size over number of nodes...")
         med_list = []
-        for g in nx.connected_component_subgraphs(G):
+        for g in connected_component_subgraphs(G):
             med_list.append(nx.number_of_nodes(g))
         med_over_nnodes = median(med_list)/nnodes
         file.write("Median_comp_size_over_#_nodes\t" + str(round(med_over_nnodes, 5)) + "\n")
@@ -511,7 +514,7 @@ if __name__ == '__main__':
         print("Finding subnetwork mean degree...")
         
         # Find only the giant component
-        gc = max(nx.connected_component_subgraphs(G), key=len)
+        gc = max(connected_component_subgraphs(G), key=len)
         gc_nodes = gc.nodes()
        
         # Assign nodes to subnetworks from the mapping file
@@ -662,7 +665,7 @@ if __name__ == '__main__':
 
         # If the giant component is the same size as the second largest component, then return no values for BiBC.
         # Find the size of the second largest component to see if it is the same size as the largest comp
-        subg = sorted(nx.connected_component_subgraphs(G), key = len, reverse = True)
+        subg = sorted(connected_component_subgraphs(G), key = len, reverse = True)
 
         # Make an empty list and string to add the output to. These will be updated right away if there are multiple giant components, 
         # or will be updated at the end if there is only one gc 
@@ -688,7 +691,7 @@ if __name__ == '__main__':
 
             # Otherwise, if they wish to use modularity as the BiBC parameter...
             elif choice == "modularity":
-                nodes_in_gc_for_bibc_mod = max(nx.connected_component_subgraphs(G), key=len)
+                nodes_in_gc_for_bibc_mod = max(connected_component_subgraphs(G), key=len)
                 nodes_from_bibc_mod = bibc_mod(nodes_in_gc_for_bibc_mod)
                 rbc = restricted_betweenness_centrality(gc, nodes_from_bibc_mod['mod1'], nodes_from_bibc_mod['mod2'], bibc_calc_type)
     

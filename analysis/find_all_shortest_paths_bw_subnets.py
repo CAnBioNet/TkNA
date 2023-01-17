@@ -25,6 +25,9 @@ map = args.node_map
 node_type1 = args.node_groups[0]
 node_type2 = args.node_groups[1]
 
+def connected_component_subgraphs(network):
+	return [network.subgraph(component) for component in nx.connected_components(network)]
+
 if __name__ == '__main__':
     
     class dictionary(dict):
@@ -116,7 +119,7 @@ if __name__ == '__main__':
         
 
     # Find only the giant component
-    gc = max(nx.connected_component_subgraphs(G), key=len)
+    gc = max(connected_component_subgraphs(G), key=len)
     gc_nodes = gc.nodes()
 
     # Call assign_node_types to find the nodes belonging to the two subnetworks
