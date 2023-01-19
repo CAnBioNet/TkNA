@@ -1,17 +1,17 @@
+from io import StringIO
 import json
 import pandas
 import xarray
 
-from .util import readClassificationCsv
+from .util import *
 
 def intakeAggregateData(dataDir):
-	with open(dataDir / "metadata.json") as metadataFile:
-		metadata = json.load(metadataFile)
-	with open(dataDir / metadata["measurableTypeMapFile"]) as measurableTypeMapFile:
-		if metadata["measurableTypeMapFile"].endswith(".json"):
-			measurableTypeMap = json.load(measurableTypeMapFile)
-		elif metadata["measurableTypeMapFile"].endswith(".csv"):
-			measurableTypeMap = readClassificationCsv(measurableTypeMapFile)
+	metadata = json.loads(readAndDecodeFile(dataDir / "metadata.json"))
+	measurableTypeMapString = readAndDecodeFile(dataDir / metadata["measurableTypeMapFile"])
+	if metadata["measurableTypeMapFile"].endswith(".json"):
+		measurableTypeMap = json.loads(measurableTypeMapString)
+	elif metadata["measurableTypeMapFile"].endswith(".csv"):
+		measurableTypeMap = readClassificationCsv(measurableTypeMapString)
 
 	nextOrganismId = 0
 
@@ -19,13 +19,14 @@ def intakeAggregateData(dataDir):
 	for experimentMetadata in metadata["experiments"]:
 		experimentName = experimentMetadata["name"]
 
-		with open(dataDir / experimentMetadata["dataFile"]) as experimentDataFile:
-			experimentDataDataframe = pandas.read_csv(experimentDataFile, index_col=0)
-		with open(dataDir / experimentMetadata["treatmentMapFile"]) as treatmentMapFile:
-			if experimentMetadata["treatmentMapFile"].endswith(".json"):
-				treatmentMap = json.load(treatmentMapFile)
-			elif experimentMetadata["treatmentMapFile"].endswith(".csv"):
-				treatmentMap = readClassificationCsv(treatmentMapFile)
+		experimentDataString = readAndDecodeFile(dataDir / experimentMetadata["dataFile"])
+		experimentDataDataframe = pandas.read_csv(StringIO(experimentDataString), index_col=0)
+
+		treatmentMapString = readAndDecodeFile(dataDir / experimentMetadata["treatmentMapFile"])
+		if experimentMetadata["treatmentMapFile"].endswith(".json"):
+			treatmentMap = json.loads(treatmentMapString)
+		elif experimentMetadata["treatmentMapFile"].endswith(".csv"):
+			treatmentMap = readClassificationCsv(treatmentMapString)
 
 		experimentData = xarray.DataArray(experimentDataDataframe)
 		experimentData = experimentData.rename({"dim_1": "organism", "ID": "measurable"})
