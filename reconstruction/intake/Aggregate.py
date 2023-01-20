@@ -1,5 +1,7 @@
+from functools import partial
 from io import StringIO
 import json
+import numpy
 import pandas
 import xarray
 
@@ -21,6 +23,7 @@ def intakeAggregateData(dataDir):
 
 		experimentDataString = readAndDecodeFile(dataDir / experimentMetadata["dataFile"])
 		experimentDataDataframe = pandas.read_csv(StringIO(experimentDataString), index_col=0)
+		experimentDataDataframe = experimentDataDataframe.replace(["na", "NA", "n/a", "N/A"], numpy.nan).apply(partial(pandas.to_numeric, errors="ignore"))
 
 		treatmentMapString = readAndDecodeFile(dataDir / experimentMetadata["treatmentMapFile"])
 		if experimentMetadata["treatmentMapFile"].endswith(".json"):

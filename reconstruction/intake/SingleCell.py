@@ -1,3 +1,4 @@
+from functools import partial
 import glob
 from io import StringIO
 import json
@@ -82,6 +83,7 @@ def intakeSingleCellData(dataDir):
 			for organism, organismFileName in organismFileMap.items():
 				cellTypeDataString = readAndDecodeFile(cellTypeDir / organismFileName)
 				cellTypeDataFrame = pandas.read_csv(StringIO(cellTypeDataString), index_col=0)
+				cellTypeDataFrame = cellTypeDataFrame.replace(["na", "NA", "n/a", "N/A"], numpy.nan).apply(partial(pandas.to_numeric, errors="ignore"))
 				cellTypeData = xarray.DataArray(cellTypeDataFrame)
 				cellTypeData = cellTypeData.rename({"dim_0": "measurable", "dim_1": "cell"})
 
@@ -97,6 +99,7 @@ def intakeSingleCellData(dataDir):
 				raise Exception("Diff file does not exist for cell type \"{}\" in experiment \"{}\". Expected as [cellTypeDir]/diff.csv.".format(cellType, experimentName))
 			diffString = readAndDecodeFile(diffFilePath)
 			differentials = pandas.read_csv(StringIO(diffString), index_col=0)
+			differentials = differentials.replace(["na", "NA", "n/a", "N/A"], numpy.nan).apply(partial(pandas.to_numeric, errors="ignore"))
 			missingMeasurables = set(differentials.axes[0]).difference(set(allData.coords["measurable"].data))
 			if len(missingMeasurables) != 0:
 				raise Exception("Measurables in {} not found in organism data: {}".format(diffFilePath, missingMeasurables))
