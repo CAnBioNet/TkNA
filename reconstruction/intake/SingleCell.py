@@ -1,28 +1,28 @@
 import glob
+from io import StringIO
 import json
 import numpy
 import pandas
 from pathlib import Path
 import xarray
 
-from .util import readClassificationCsv
+from .util import *
 
 def intakeSingleCellData(dataDir):
-	with open(dataDir / "metadata.json") as metadataFile:
-		metadata = json.load(metadataFile)
+	metadata = json.loads(readAndDecodeFile(dataDir / "metadata.json"))
 	cellTypes = metadata["cellTypes"]
 
 	measurableTypeMapPaths = list(dataDir.glob("measurable_type_map.*"))
 	if len(measurableTypeMapPaths) == 0:
 		raise Exception("No measurable type map found. Expected as [dataDir]/measurable_type_map.[json|csv].")
 	measurableTypeMapPath = measurableTypeMapPaths[0]
-	with open(measurableTypeMapPath) as measurableTypeMapFile:
-		if measurableTypeMapPath.suffix == ".json":
-			measurableTypeMap = json.load(measurableTypeMapFile)
-		elif measurableTypeMapPath.suffix == ".csv":
-			measurableTypeMap = readClassificationCsv(measurableTypeMapFile)
-		else:
-			raise Exception("Unrecognized file extension for measurable type map")
+	measurableTypeMapString = readAndDecodeFile(measurableTypeMapPath)
+	if measurableTypeMapPath.suffix == ".json":
+		measurableTypeMap = json.loads(measurableTypeMapString)
+	elif measurableTypeMapPath.suffix == ".csv":
+		measurableTypeMap = readClassificationCsv(measurableTypeMapString)
+	else:
+		raise Exception("Unrecognized file extension for measurable type map")
 	inverseMeasurableTypeMap = {}
 	for measurableType, measurables in measurableTypeMap.items():
 		for measurable in measurables:
@@ -47,13 +47,13 @@ def intakeSingleCellData(dataDir):
 		if len(treatmentMapPaths) == 0:
 			raise Exception("No treatment map found in experiment \"{}\". Expected as [experimentDir]/treatment_map.[json|csv].".format(experimentName))
 		treatmentMapPath = treatmentMapPaths[0]
-		with open(treatmentMapPath) as treatmentMapFile:
-			if treatmentMapPath.suffix == ".json":
-				treatmentMap = json.load(treatmentMapFile)
-			elif treatmentMapPath.suffix == ".csv":
-				treatmentMap = readClassificationCsv(treatmentMapFile)
-			else:
-				raise Exception("Unrecognized file extension for experiment \"{}\" treatment map".format(experimentName))
+		treatmentMapString = readAndDecodeFile(treatmentMapPath)
+		if treatmentMapPath.suffix == ".json":
+			treatmentMap = json.loads(treatmentMapString)
+		elif treatmentMapPath.suffix == ".csv":
+			treatmentMap = readClassificationCsv(treatmentMapString)
+		else:
+			raise Exception("Unrecognized file extension for experiment \"{}\" treatment map".format(experimentName))
 		inverseTreatmentMap = {}
 		for treatment, organisms in treatmentMap.items():
 			for organism in organisms:
@@ -71,16 +71,17 @@ def intakeSingleCellData(dataDir):
 			if len(organismFileMapPaths) == 0:
 				raise Exception("No organism-file map found in {}. Expected as [cellTypeDir]/organism_file_map.[json|csv].".format(cellTypeDir))
 			organismFileMapPath = organismFileMapPaths[0]
-			with open(organismFileMapPath) as organismFileMapFile:
-				if organismFileMapPath.suffix == ".json":
-					organismFileMap = json.load(organismFileMapFile)
-				elif organismFileMapPath.suffix == ".csv":
-					organismFileMap = readClassificationCsv(organismFileMapFile)
-				else:
-					raise Exception("Unrecognized file extension for cell type \"{}\", experiment \"{}\" organism-file map".format(cellType, experimentName))
+			organismFileMapString = readAndDecodeFile(organismFileMapPath)
+			if organismFileMapPath.suffix == ".json":
+				organismFileMap = json.loads(organismFileMapString)
+			elif organismFileMapPath.suffix == ".csv":
+				organismFileMap = readClassificationCsv(organismFileMapString)
+			else:
+				raise Exception("Unrecognized file extension for cell type \"{}\", experiment \"{}\" organism-file map".format(cellType, experimentName))
 
 			for organism, organismFileName in organismFileMap.items():
-				cellTypeDataFrame = pandas.read_csv(cellTypeDir / organismFileName, index_col=0)
+				cellTypeDataString = readAndDecodeFile(cellTypeDir / organismFileName)
+				cellTypeDataFrame = pandas.read_csv(StringIO(cellTypeDataString), index_col=0)
 				cellTypeData = xarray.DataArray(cellTypeDataFrame)
 				cellTypeData = cellTypeData.rename({"dim_0": "measurable", "dim_1": "cell"})
 
@@ -94,7 +95,8 @@ def intakeSingleCellData(dataDir):
 			diffFilePath = cellTypeDir / "diff.csv"
 			if not diffFilePath.exists():
 				raise Exception("Diff file does not exist for cell type \"{}\" in experiment \"{}\". Expected as [cellTypeDir]/diff.csv.".format(cellType, experimentName))
-			differentials = pandas.read_csv(diffFilePath, index_col=0)
+			diffString = readAndDecodeFile(diffFilePath)
+			differentials = pandas.read_csv(StringIO(diffString), index_col=0)
 			missingMeasurables = set(differentials.axes[0]).difference(set(allData.coords["measurable"].data))
 			if len(missingMeasurables) != 0:
 				raise Exception("Measurables in {} not found in organism data: {}".format(diffFilePath, missingMeasurables))
