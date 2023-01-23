@@ -37,12 +37,13 @@ from collections import defaultdict
 from networkx import all_shortest_paths
 from collections import OrderedDict
 import copy
+import os
 import matplotlib.pyplot as plt
 
 #from infomap import Infomap
 
 ####### Get user input ########
-parser = argparse.ArgumentParser(description='Example: python calc_network_properties.py <pickled network file> --bibc --bibc_calc_type bibc --node_map <node map csv> --node_groups micro pheno')
+parser = argparse.ArgumentParser(description='Example: python calc_network_properties.py <pickled network file> --bibc --bibc_groups node_types --bibc_calc_type bibc --node_map <node map csv> --node_groups micro pheno')
 
 # Required args
 # pickle output from import_network_data2.py
@@ -50,8 +51,8 @@ parser.add_argument('pickle', help = 'The pickle file created with import_networ
 
 # Flags and optional arguments
 parser.add_argument("--frag", help = 'Flag; Do you want to compute node fragmentation centrality? (Significantly increases run-time)', action = 'store_true')
-parser.add_argument("--bibc", help = 'Flag; Do you want to compute Bi-BC? (Significantly increases run-time)', action = 'store_true')
-parser.add_argument("--bibc_groups", choices = ['node_types', 'modularity'], help = 'What to compute BiBC on, either distinct groups or on the two most modular regions of the network')
+parser.add_argument("--bibc", help = 'Flag; Do you want to compute BiBC? (Significantly increases run-time)', action = 'store_true', required = True)
+parser.add_argument("--bibc_groups", choices = ['node_types', 'modularity'], help = 'What to compute BiBC on, either distinct groups or on the two most modular regions of the network (found using the Louvain method)')
 parser.add_argument("--bibc_calc_type", choices = ['rbc', 'bibc'], help = 'Would you like to normalize based on amount of nodes in each group (rbc) or not (bibc)?')
 parser.add_argument("--node_map", help = 'Required if node_types is specified for --bibc_groups. CSV of nodes and their types (i.e. otu, pheno, gene, etc.)')
 parser.add_argument("--node_groups", nargs = 2, help = '2 args; Required if node_types is specified for --bibc_groups. Its the two groups of nodes to calculate BiBC/RBC on')
@@ -324,50 +325,50 @@ if __name__ == '__main__':
         plt.loglog(degrees, degree_freq,'go-', linestyle='None')  
         plt.xlabel('Degree')
         plt.ylabel('Frequency')
+     
+    # Deprecated, now plotted in dot_plots.py
+    # def plot_deg_bibc(G):
+    #     '''
+    #     Creates a png of the degree-BiBC distribution of the nodes in the reconstructed network
         
-    def plot_deg_bibc(G):
-        '''
-        Creates a png of the degree-BiBC distribution of the nodes in the reconstructed network
+    #     '''        
         
-        '''        
-        
-        degree_freq = nx.degree_histogram(G)
-        degrees = range(len(degree_freq))
-        plt.figure(figsize=(12, 8)) 
-        plt.loglog(degrees, degree_freq,'go-', linestyle='None')  
-        plt.xlabel('Degree')
-        plt.ylabel('Frequency')
+    #     degree_freq = nx.degree_histogram(G)
+    #     degrees = range(len(degree_freq))
+    #     plt.figure(figsize=(12, 8)) 
+    #     plt.loglog(degrees, degree_freq,'go-', linestyle='None')  
+    #     plt.xlabel('Degree')
+    #     plt.ylabel('Frequency')
 
-# =============================================================================
-#     def infomap_partition(G,n_mod=0):
-#         '''
-#         Wrapper to make networkx graph input compatible with the infomap
-#         package, which just calls wrapped C code and has an annoying API
-#         (i.e. does not talk to networkx directly, does not allow arbitrary
-#         hashable types as nodes, etc.)
-#         '''
-#         im = Infomap()
-#         # make node-to-int and int-to-node dictionaries
-#         j = 0
-#         node_to_int = {}
-#         int_to_node = {}
-#         for n in G.nodes():
-#             node_to_int[n] = j
-#             int_to_node[j] = n
-#             j += 1
-#         # copy the edges into InfoMap
-#         for e in G.edges():
-#             im.add_link(node_to_int[e[0]],node_to_int[e[1]])
-#         # now run in silent mode
-#         options_string = '--silent --preferred-number-of-modules '+str(n_mod)
-#         im.run(options_string)
-#         # set up the node->community id dictionary
-#         partition = {}
-#         for node in im.tree:
-#             if node.is_leaf:
-#                 partition[int_to_node[node.node_id]] = node.module_id - 1
-#         return im.codelength,partition
-# =============================================================================
+    # Deprecated, now calculated in infomap_assignment.py
+    # def infomap_partition(G,n_mod=0):
+    #     '''
+    #     Wrapper to make networkx graph input compatible with the infomap
+    #     package, which just calls wrapped C code and has an annoying API
+    #     (i.e. does not talk to networkx directly, does not allow arbitrary
+    #     hashable types as nodes, etc.)
+    #     '''
+    #     im = Infomap()
+    #     # make node-to-int and int-to-node dictionaries
+    #     j = 0
+    #     node_to_int = {}
+    #     int_to_node = {}
+    #     for n in G.nodes():
+    #         node_to_int[n] = j
+    #         int_to_node[j] = n
+    #         j += 1
+    #     # copy the edges into InfoMap
+    #     for e in G.edges():
+    #         im.add_link(node_to_int[e[0]],node_to_int[e[1]])
+    #     # now run in silent mode
+    #     options_string = '--silent --preferred-number-of-modules '+str(n_mod)
+    #     im.run(options_string)
+    #     # set up the node->community id dictionary
+    #     partition = {}
+    #     for node in im.tree:
+    #         if node.is_leaf:
+    #             partition[int_to_node[node.node_id]] = node.module_id - 1
+    #     return im.codelength,partition
 
     ################################################################################
     ######################## Calculate network properties ##########################
@@ -375,8 +376,9 @@ if __name__ == '__main__':
 
     network_name = args.pickle[:-7]
 
+    filedir = os.path.dirname(os.path.abspath(args.pickle))
 
-    with open("network_properties.txt", "w") as file:
+    with open(filedir + "/network_properties.txt", "w") as file:
 
         #------------------------------------------------#
         ###             Network properties             ###
@@ -502,7 +504,7 @@ if __name__ == '__main__':
         ################################################################################
         ########################## Calculate subnetwork properties #####################
         ################################################################################       
-    with open("subnetwork_properties.txt", "w") as file:
+    with open(filedir + "/subnetwork_properties.txt", "w") as file:
 
         # mean_deg_subnw = mean_degree_each_subnet_move_argparse_1_2_2023.subnw_mean_degree(G, node_input_file)
         
@@ -538,7 +540,7 @@ if __name__ == '__main__':
         ################################################################################
         ########################## Calculate node properties ###########################
         ################################################################################
-    with open("node_properties.txt", "w") as file:
+    with open(filedir + "/node_properties.txt", "w") as file:
     
         ###    Empty cell   ###
         file.write("name\t")    
@@ -766,4 +768,4 @@ if __name__ == '__main__':
                 
     file.close()
 
-print("\nNetwork and node properties have been calculated. Check the network_properties.txt file.\n")
+print("\nNetwork and node properties have been calculated. Check the *properties.txt files in " + filedir + "/.\n")
