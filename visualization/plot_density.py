@@ -60,13 +60,24 @@ if __name__ == '__main__':
     
     else:    
         print("")
-        parser = argparse.ArgumentParser(description="Example command: python plot_density.py random_network_condensed.csv inputs_for_downstream_plots.pickle")
-        parser.add_argument("rand_net", type=str, help="Random network file output by condense_random_networks.py")
-        parser.add_argument("pickle", type=str, help="inputs_for_downstream_plots.pickle file output by dot_plots.py")
-        # parser.add_argument("--nnodes_density", type=str, help="The number of total nodes you want to plot on top of the density plot, regardless of node type")
-        # parser.add_argument("--nnodes_density_per_type", type=str, help="The number of nodes you want to plot on top of the density plot of each node type")
-        # parser.add_argument("--density_node_types", type=list, help="The node types to plot on top of density plot")
-        parser.add_argument("--dens_list_to_plot", type=str, nargs='+', help="A list of nodes to plot on the density plot")
+        parser = argparse.ArgumentParser(description="Example command: python plot_density.py random_network_condensed.csv inputs_for_downstream_plots.pickle", add_help=False)
+
+        requiredArgGroup  = parser.add_argument_group('Required arguments') 
+        requiredArgGroup.add_argument("--rand_net", type=str, help="Random network file output by condense_random_networks.py", required=True)
+        requiredArgGroup.add_argument("--pickle", type=str, help="inputs_for_downstream_plots.pickle file output by dot_plots.py", required=True)
+        
+        optionalArgGroup  = parser.add_argument_group('Optional arguments')   
+        optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
+        optionalArgGroup.add_argument("--nodes_to_plot", type=str, nargs='+', help="A list of nodes to plot on the density plot")
+        
+        
+        # parser = argparse.ArgumentParser(description="Example command: python plot_density.py random_network_condensed.csv inputs_for_downstream_plots.pickle")
+        # parser.add_argument("rand_net", type=str, help="Random network file output by condense_random_networks.py")
+        # parser.add_argument("pickle", type=str, help="inputs_for_downstream_plots.pickle file output by dot_plots.py")
+        # # parser.add_argument("--nnodes_density", type=str, help="The number of total nodes you want to plot on top of the density plot, regardless of node type")
+        # # parser.add_argument("--nnodes_density_per_type", type=str, help="The number of nodes you want to plot on top of the density plot of each node type")
+        # # parser.add_argument("--nodes_to_plot", type=list, help="The node types to plot on top of density plot")
+        # parser.add_argument("--dens_list_to_plot", type=str, nargs='+', help="A list of nodes to plot on the density plot")
         
         args = parser.parse_args()    
         
@@ -75,7 +86,7 @@ if __name__ == '__main__':
         # nnodes_density = args.nnodes_density
         # nnodes_density_per_type = args.nnodes_density_per_type
         # node_props = args.density_node_types
-        nodes_to_plot = args.dens_list_to_plot
+        nodes_to_plot = args.nodes_to_plot
 
     ##############################################################
     # Plot random network density for top nodes from the dotplots
@@ -131,8 +142,8 @@ if __name__ == '__main__':
     kdefig = add_text(top_nodes_dict, prob_dict)
 
     #kdefig = kdefig.get_figure()
-    kdefig.savefig("./plots/network_density_with_top_nodes_from_dotplots.png", bbox_inches='tight')
-    print("Plot saved: network_density_with_top_nodes_from_dotplots.png")
+    kdefig.savefig("./plots/density_plot_with_top_nodes_from_dotplots.png", bbox_inches='tight')
+    print("Plot saved: density_plot_with_top_nodes_from_dotplots.png")
     kdefig.clf()
     
     
@@ -187,6 +198,6 @@ if __name__ == '__main__':
         kdefig = plot_kde(rand_nets['BiBC'], rand_nets['Degree'], 'Reds')
         kdefig = add_text(user_selected_nodes_dict, prob_dict)
         
-        kdefig.savefig("./plots/network_density_with_user_defined_node_list.png", bbox_inches='tight')
-        print("Plot saved: network_density_with_user_defined_node_list.png")
+        kdefig.savefig("./plots/density_plot_with_user_defined_node_list.png", bbox_inches='tight')
+        print("Plot saved: density_plot_with_user_defined_node_list.png")
         kdefig.clf()

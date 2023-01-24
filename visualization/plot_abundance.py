@@ -94,7 +94,7 @@ if __name__ == '__main__':
     if testing:
         # node_props = "node_properties_modified.txt"
         pick = "inputs_for_downstream_plots.pickle"
-        network_file = "network_output_comp.csv"
+        # network_file = "network_output_comp.csv"
         # top_abund_prop = "BiBC"
         # node_type = "pheno"
         abund_data = ["Expt1_new.csv", "Expt2_new.csv", "Expt3_new.csv", "Expt4_new.csv"]
@@ -105,22 +105,38 @@ if __name__ == '__main__':
     
     else:
         print("")
-        parser = argparse.ArgumentParser(description="Example command: python plot_abundance.py inputs_for_downstream_plots.pickle --abund_data Expt1.csv Expt2.csv --metadata Expt1_meta.csv Expt2_meta.csv --color_group Treatment --x_axis_abund Experiment --nodes_to_plot geneABC geneDEF")
-        # Args for abundance/expression plots
-        parser.add_argument("pickle", type=str, help="inputs_for_downstream_plots.pickle file output by dot_plots.py")
-        parser.add_argument("network_file", type=str, help="network_output_comp.csv file output by to_csv.py")
-        parser.add_argument("--abund_data", type=str, nargs = '+', help="List of data files containing expresions/abundances, these are the original data files used for intake_data.py", required=True)
-        parser.add_argument("--metadata", type=str, nargs = '+', help="List of metadata files containing Experiment/Treatment columns, these are the original metadata files used for intake_data.py", required=True)
-        # parser.add_argument("--top_abund_prop", type=str, help="Property from node_properties.txt to select top nodes for abundance plots.  Name must match property name in node_properties.txt")  
-        # parser.add_argument("--node_type", type=str, help="The node type (from network_output_comp.csv) to subset for before finding top nodes")
-        parser.add_argument("--color_group", type=str, default='Treatment', choices=['Treatment', 'Experiment'], help="Variable to color the plot by", required=True)        
-        parser.add_argument("--x_axis_abund", type=str, default="Experiment", choices=['Treatment', 'Experiment'], help="Variable you wish to group the data by", required=True)
-        parser.add_argument("--nodes_to_plot", type=str, nargs='+', help="Optional; User can specify any specific node (or a list of node) they wish to plot the abundance of")
+
+        parser = argparse.ArgumentParser(description="Example command: python plot_abundance.py --pickle inputs_for_downstream_plots.pickle --abund_data Expt1.csv Expt2.csv --metadata Expt1_meta.csv Expt2_meta.csv --color_group Treatment --x_axis_abund Experiment --nodes_to_plot geneABC geneDEF", add_help=False)
+
+        requiredArgGroup  = parser.add_argument_group('Required arguments')        
+        requiredArgGroup.add_argument("--pickle", type=str, help="inputs_for_downstream_plots.pickle file output by dot_plots.py", required=True)
+        # requiredArgGroup.add_argument("--network_file", type=str, help="network_output_comp.csv file output by to_csv.py", required=True)
+        requiredArgGroup.add_argument("--abund_data", type=str, nargs = '+', help="List of data files containing expresions/abundances, these are the original data files used for intake_data.py", required=True)
+        requiredArgGroup.add_argument("--metadata", type=str, nargs = '+', help="List of metadata files containing Experiment/Treatment columns, these are the original metadata files used for intake_data.py", required=True)
+        requiredArgGroup.add_argument("--color_group", type=str, default='Treatment', choices=['Treatment', 'Experiment'], help="Variable to color the plot by", required=True)
+        requiredArgGroup.add_argument("--x_axis_abund", type=str, default="Experiment", choices=['Treatment', 'Experiment'], help="Variable you wish to group the data by", required=True)  
+        
+        optionalArgGroup  = parser.add_argument_group('Optional arguments')        
+        optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
+        optionalArgGroup.add_argument("--nodes_to_plot", type=str, nargs='+', help="Specify any specific node (or a list of node) to plot the abundance of")
+
+
+        # parser = argparse.ArgumentParser(description="Example command: python plot_abundance.py inputs_for_downstream_plots.pickle --abund_data Expt1.csv Expt2.csv --metadata Expt1_meta.csv Expt2_meta.csv --color_group Treatment --x_axis_abund Experiment --nodes_to_plot geneABC geneDEF")
+        # # Args for abundance/expression plots
+        # parser.add_argument("pickle", type=str, help="inputs_for_downstream_plots.pickle file output by dot_plots.py")
+        # parser.add_argument("network_file", type=str, help="network_output_comp.csv file output by to_csv.py")
+        # parser.add_argument("--abund_data", type=str, nargs = '+', help="List of data files containing expresions/abundances, these are the original data files used for intake_data.py", required=True)
+        # parser.add_argument("--metadata", type=str, nargs = '+', help="List of metadata files containing Experiment/Treatment columns, these are the original metadata files used for intake_data.py", required=True)
+        # # parser.add_argument("--top_abund_prop", type=str, help="Property from node_properties.txt to select top nodes for abundance plots.  Name must match property name in node_properties.txt")  
+        # # parser.add_argument("--node_type", type=str, help="The node type (from network_output_comp.csv) to subset for before finding top nodes")
+        # parser.add_argument("--color_group", type=str, default='Treatment', choices=['Treatment', 'Experiment'], help="Variable to color the plot by", required=True)        
+        # parser.add_argument("--x_axis_abund", type=str, default="Experiment", choices=['Treatment', 'Experiment'], help="Variable you wish to group the data by", required=True)
+        # parser.add_argument("--nodes_to_plot", type=str, nargs='+', help="Optional; User can specify any specific node (or a list of node) they wish to plot the abundance of")
 
     
         args = parser.parse_args()    
         pick = args.pickle
-        network_file = args.network_file
+        # network_file = args.network_file
         abund_data = args.abund_data
         metadata = args.metadata
         # node_type = args.node_type
@@ -128,8 +144,8 @@ if __name__ == '__main__':
         x_axis_abund = args.x_axis_abund
         user_node_list = args.nodes_to_plot
 
-    nw_df = pd.read_csv(network_file)
-    nw_w_types = assign_type(nw_df)
+    # nw_df = pd.read_csv(network_file)
+    # nw_w_types = assign_type(nw_df)
 
 
 
