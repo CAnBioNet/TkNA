@@ -9,10 +9,13 @@ from zipfile import ZipFile
 from util import CsvWriter
 
 def getArgs():
-	parser = argparse.ArgumentParser(description="Analyze the results of network reconstruction for data subsamples.")
-	parser.add_argument("dataFile", type=str, help="Input data ZIP containing subsample results")
-	parser.add_argument("outFile", type=str, help="CSV file to write analysis results to")
-	parser.add_argument("--singlecell", "-s", action="store_true", default=False, help="Work with single-cell rather than aggregate data")
+	parser = argparse.ArgumentParser(description="Analyze the results of network reconstruction for data subsamples.", add_help=False)
+	requiredArgGroup = parser.add_argument_group("required arguments")
+	optionalArgGroup = parser.add_argument_group("optional arguments")
+	requiredArgGroup.add_argument("--dataFile", type=str, required=True, help="Input data ZIP containing subsample results")
+	requiredArgGroup.add_argument("--outFile", type=str, required=True, help="CSV file to write analysis results to")
+	optionalArgGroup.add_argument("--singlecell", "-s", action="store_true", default=False, help="Work with single-cell rather than aggregate data")
+	group.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 	args = parser.parse_args()
 
 	args.dataFile = Path(args.dataFile)

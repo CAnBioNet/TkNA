@@ -27,11 +27,14 @@ def generateNetwork(nodes, numEdges, seed):
 	return network
 
 def getArgs():
-	parser = argparse.ArgumentParser(description="Generate random networks")
-	parser.add_argument("nodeListFile", type=str, help="Path to a file containing the names of the nodes in the generated networks. Must be one node per line.")
-	parser.add_argument("numEdges", type=int, help="Number of edges in each randomly-generated network")
-	parser.add_argument("networksFile", type=str, help="File to output pickled network list to")
-	parser.add_argument("--numNetworks", "-n", type=int, default=10000, help="Number of networks to generate")
+	parser = argparse.ArgumentParser(description="Generate random networks", add_help=False)
+	requiredArgGroup = parser.add_argument_group("required arguments")
+	optionalArgGroup = parser.add_argument_group("optional arguments")
+	requiredArgGroup.add_argument("--nodeListFile", type=str, required=True, help="Path to a file containing the names of the nodes in the generated networks. Must be one node per line.")
+	requiredArgGroup.add_argument("--numEdges", type=int, required=True, help="Number of edges in each randomly-generated network")
+	requiredArgGroup.add_argument("--networksFile", type=str, required=True, help="File to output pickled network list to")
+	optionalArgGroup.add_argument("--numNetworks", "-n", type=int, default=10000, help="Number of networks to generate")
+	optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 	args = parser.parse_args()
 
 	args.nodeListFile = Path(args.nodeListFile)

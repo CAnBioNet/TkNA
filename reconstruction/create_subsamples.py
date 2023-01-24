@@ -7,13 +7,16 @@ import random
 import xarray
 
 def getArgs():
-	parser = argparse.ArgumentParser(description="Create subsamples of a dataset.")
-	parser.add_argument("dataFile", type=str, help="File in NetCDF format containing expression data")
-	parser.add_argument("subsampleFile", type=str, help="File to write the subsample descriptions to")
-	parser.add_argument("-p", "--proportion", type=float, required=True, help="Proportion of samples to put in each subsample. Must satisfy 0 < p < 1.")
-	parser.add_argument("-n", "--nsubsamples", type=int, required=True, help="Number of subsamples to generate.")
-	parser.add_argument("-s", "--singlecell", action="store_true", default=False, help="Create subsamples for single-cell data instead of aggregate data")
-	parser.add_argument("-o", "--organism", action="store_true", default=False, help="Subsample over organisms, even for single-cell data (this is the default behavior for aggregate data)")
+	parser = argparse.ArgumentParser(description="Create subsamples of a dataset.", add_help=False)
+	requiredArgGroup = parser.add_argument_group("required arguments")
+	optionalArgGroup = parser.add_argument_group("optional arguments")
+	requiredArgGroup.add_argument("--dataFile", type=str, required=True, help="File in NetCDF format containing expression data")
+	requiredArgGroup.add_argument("--subsampleFile", type=str, required=True, help="File to write the subsample descriptions to")
+	requiredArgGroup.add_argument("-p", "--proportion", type=float, required=True, help="Proportion of samples to put in each subsample. Must satisfy 0 < p < 1.")
+	requiredArgGroup.add_argument("-n", "--nsubsamples", type=int, required=True, help="Number of subsamples to generate.")
+	optionalArgGroup.add_argument("-s", "--singlecell", action="store_true", default=False, help="Create subsamples for single-cell data instead of aggregate data")
+	optionalArgGroup.add_argument("-o", "--organism", action="store_true", default=False, help="Subsample over organisms, even for single-cell data (this is the default behavior for aggregate data)")
+	optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 	args = parser.parse_args()
 
 	args.dataFile = Path(args.dataFile)

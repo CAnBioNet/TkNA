@@ -5,10 +5,13 @@ from pathlib import Path
 from intake import intakeAggregateData, intakeSingleCellData
 
 def getArgs():
-	parser = argparse.ArgumentParser(description="Take in data in various formats and output it as a file in NetCDF.")
-	parser.add_argument("dataDir", type=str, help="Directory to read data from")
-	parser.add_argument("outFile", type=str, help="File to output data to in NetCDF")
-	parser.add_argument("--singlecell", "-s", action="store_true", default=False, help="Intake single-cell data instead of aggregate data")
+	parser = argparse.ArgumentParser(description="Take in data in various formats and output it as a file in NetCDF.", add_help=False)
+	requiredArgGroup = parser.add_argument_group("required arguments")
+	optionalArgGroup = parser.add_argument_group("optional arguments")
+	requiredArgGroup.add_argument("--dataDir", type=str, required=True, help="Directory to read data from")
+	requiredArgGroup.add_argument("--outFile", type=str, required=True, help="File to output data to in NetCDF")
+	optionalArgGroup.add_argument("--singlecell", "-s", action="store_true", default=False, help="Intake single-cell data instead of aggregate data")
+	optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 	args = parser.parse_args()
 
 	args.dataDir = Path(args.dataDir)

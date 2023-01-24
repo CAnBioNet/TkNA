@@ -14,12 +14,15 @@ from util import parseConfigFile
 from util.configs import aggregateConfigSpec, singleCellConfigSpec
 
 def getArgs():
-	parser = argparse.ArgumentParser(description="Generate causal networks for the specified subsamples of the data.")
-	parser.add_argument("dataFile", type=str, help="Input data file")
-	parser.add_argument("configFile", type=str, help="JSON configuration file")
-	parser.add_argument("subsampleFile", type=str, help="File specifying the subsamples to run on")
-	parser.add_argument("outputFile", type=str, help="ZIP file to write out the output data to")
-	parser.add_argument("--singlecell", "-s", action="store_true", default=False, help="Work with single-cell rather than aggregate data")
+	parser = argparse.ArgumentParser(description="Generate causal networks for the specified subsamples of the data.", add_help=False)
+	requiredArgGroup = parser.add_argument_group("required arguments")
+	optionalArgGroup = parser.add_argument_group("optional arguments")
+	requiredArgGroup.add_argument("--dataFile", type=str, required=True, help="Input data file")
+	requiredArgGroup.add_argument("--configFile", type=str, required=True, help="JSON configuration file")
+	requiredArgGroup.add_argument("--subsampleFile", type=str, required=True, help="File specifying the subsamples to run on")
+	requiredArgGroup.add_argument("--outputFile", type=str, required=True, help="ZIP file to write out the output data to")
+	optionalArgGroup.add_argument("--singlecell", "-s", action="store_true", default=False, help="Work with single-cell rather than aggregate data")
+	optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 	args = parser.parse_args()
 
 	args.dataFile = Path(args.dataFile)

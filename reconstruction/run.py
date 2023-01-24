@@ -10,13 +10,16 @@ from util import parseConfigFile
 from util.configs import aggregateConfigSpec, singleCellConfigSpec
 
 def getArgs():
-	parser = argparse.ArgumentParser(description="Generate causal network.")
-	parser.add_argument("dataSource", type=str, help="Input data file/directory")
-	parser.add_argument("configFile", type=str, help="JSON configuration file")
-	parser.add_argument("outFile", type=str, help="Writes all generated data to a ZIP file with the specified path")
-	parser.add_argument("--start", nargs=2, type=str, metavar=("startStage", "startData"), help="Start network generation from a particular stage")
-	parser.add_argument("--stop", nargs=1, type=str, metavar="stopStage", help="Stop network generation at a particular stage")
-	parser.add_argument("--singlecell", "-s", action="store_true", default=False, help="Work with single-cell rather than aggregate data")
+	parser = argparse.ArgumentParser(description="Generate causal network.", add_help=False)
+	requiredArgGroup = parser.add_argument_group("required arguments")
+	optionalArgGroup = parser.add_argument_group("optional arguments")
+	requiredArgGroup.add_argument("--dataSource", type=str, required=True, help="Input data file/directory")
+	requiredArgGroup.add_argument("--configFile", type=str, required=True, help="JSON configuration file")
+	optionalArgGroup.add_argument("--outFile", type=str, required=True, help="Writes all generated data to a ZIP file with the specified path")
+	optionalArgGroup.add_argument("--start", nargs=2, type=str, metavar=("startStage", "startData"), help="Start network generation from a particular stage")
+	optionalArgGroup.add_argument("--stop", nargs=1, type=str, metavar="stopStage", help="Stop network generation at a particular stage")
+	optionalArgGroup.add_argument("--singlecell", "-s", action="store_true", default=False, help="Work with single-cell rather than aggregate data")
+	optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 	args = parser.parse_args()
 
 	args.dataSource = Path(args.dataSource)

@@ -12,11 +12,14 @@ from util.configs import aggregateConfigSpec, singleCellConfigSpec
 numpy.seterr(all="raise")
 
 def getArgs():
-	parser = argparse.ArgumentParser(description="Write CSVs in the specified formats from data.")
-	parser.add_argument("dataFile", type=str, help="ZIP file containing data")
-	parser.add_argument("configFile", type=str, help="Config file used to generate the data")
-	parser.add_argument("outDir", type=str, help="Directory to write the CSV files to")
-	parser.add_argument("--singlecell", "-s", action="store_true", default=False, help="Work with single-cell rather than aggregate data")
+	parser = argparse.ArgumentParser(description="Write CSVs in the specified formats from data.", add_help=False)
+	requiredArgGroup = parser.add_argument_group("required arguments")
+	optionalArgGroup = parser.add_argument_group("optional arguments")
+	requiredArgGroup.add_argument("--dataFile", type=str, required=True, help="ZIP file containing data")
+	requiredArgGroup.add_argument("--configFile", type=str, required=True, help="Config file used to generate the data")
+	requiredArgGroup.add_argument("--outDir", type=str, required=True, help="Directory to write the CSV files to")
+	optionalArgGroup.add_argument("--singlecell", "-s", action="store_true", default=False, help="Work with single-cell rather than aggregate data")
+	optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 	args = parser.parse_args()
 
 	args.dataFile = Path(args.dataFile)

@@ -12,13 +12,16 @@ import pickle
 # TODO: Logging
 
 def getArgs():
-	parser = argparse.ArgumentParser(description="Computes degree and BiBC for each node in the given networks")
-	parser.add_argument("networksFile", type=str, help="Pickle file containing the networks to calculate stats for")
-	parser.add_argument("bibcGroups", choices=["node_types", "modularity"], help="Group nodes for BiBC based on type or modularity")
-	parser.add_argument("bibcCalcType", choices=["rbc", "bibc"], help="Compute raw BiBC or normalize (rbc)")
-	parser.add_argument("statsFile", type=str, help="Pickle file to output the network stats to")
-	parser.add_argument("--node-map", "-m", dest="nodeMap", help="CSV file mapping nodes to their types. Required if node_types is specified for --bibc-groups.")
-	parser.add_argument("--node-groups", "-g", metavar="GROUP", dest="nodeGroups", nargs=2, help="Two types of nodes to use for BiBC grouping. Required if node_types is specified for --bibc-groups.")
+	parser = argparse.ArgumentParser(description="Computes degree and BiBC for each node in the given networks", add_help=False)
+	requiredArgGroup = parser.add_argument_group("required arguments")
+	optionalArgGroup = parser.add_argument_group("optional arguments")
+	requiredArgGroup.add_argument("--networksFile", type=str, required=True, help="Pickle file containing the networks to calculate stats for")
+	requiredArgGroup.add_argument("--bibcGroups", choices=["node_types", "modularity"], required=True, help="Group nodes for BiBC based on type or modularity")
+	requiredArgGroup.add_argument("--bibcCalcType", choices=["rbc", "bibc"], required=True, help="Compute raw BiBC or normalize (rbc)")
+	requiredArgGroup.add_argument("--statsFile", type=str, required=True, help="Pickle file to output the network stats to")
+	optionalArgGroup.add_argument("--nodeMap", "-m", help="CSV file mapping nodes to their types. Required if node_types is specified for --bibcGroups.")
+	optionalArgGroup.add_argument("--nodeGroups", "-g", metavar="GROUP", nargs=2, help="Two types of nodes to use for BiBC grouping. Required if node_types is specified for --bibcGroups.")
+	optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 	args = parser.parse_args()
 
 	args.networksFile = Path(args.networksFile)
@@ -29,9 +32,9 @@ def getArgs():
 
 	if args.bibcGroups == "node_types":
 		if args.nodeMap is None:
-			raise Exception("If using node_types, must supply a node map with --node-map")
+			raise Exception("If using node_types, must supply a node map with --nodeMap")
 		if args.nodeGroups is None:
-			raise Exception("If using node_types, must supply node groups with --node-groups")
+			raise Exception("If using node_types, must supply node groups with --nodeGroups")
 
 	if args.nodeMap is not None:
 		args.nodeMap = Path(args.nodeMap)

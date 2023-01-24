@@ -4,10 +4,13 @@ from pathlib import Path
 from zipfile import ZipFile
 
 def getArgs():
-	parser = argparse.ArgumentParser(description="Analyze the results of network reconstruction for data subsamples.")
-	parser.add_argument("dataFile", type=str, help="Input data ZIP containing subsample results")
-	parser.add_argument("keepArrays", type=str, nargs="+", help="Array to keep from each subsample")
-	parser.add_argument("filteredDataFile", type=str, help="Output data ZIP for the filtered subsample results")
+	parser = argparse.ArgumentParser(description="Analyze the results of network reconstruction for data subsamples.", add_help=False)
+	requiredArgGroup = parser.add_argument_group("required arguments")
+	optionalArgGroup = parser.add_argument_group("optional arguments")
+	requiredArgGroup.add_argument("--dataFile", type=str, required=True, help="Input data ZIP containing subsample results")
+	requiredArgGroup.add_argument("--keepArrays", type=str, nargs="+", metavar="ARRAYNAME", required=True, help="Array to keep from each subsample")
+	requiredArgGroup.add_argument("--filteredDataFile", type=str, required=True, help="Output data ZIP for the filtered subsample results")
+	optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 	args = parser.parse_args()
 
 	if args.dataFile == args.filteredDataFile:

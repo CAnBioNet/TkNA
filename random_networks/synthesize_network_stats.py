@@ -6,10 +6,13 @@ from pathlib import Path
 import pickle
 
 def getArgs():
-	parser = argparse.ArgumentParser(description="Synthesize the stats for each network by determining the node with max BiBC and degree. By default, sorts first by BiBC and then by degree.")
-	parser.add_argument("networkStatsFile", type=str, help="Pickle file containing the raw network stats")
-	parser.add_argument("synthesizedStatsFile", type=str, help="CSV file to write the synthesized network stats to")
-	parser.add_argument("--flip-priority", "-f", dest="flipPriority", action="store_true", help="Changes sorting method to use degree first and BiBC second")
+	parser = argparse.ArgumentParser(description="Synthesize the stats for each network by determining the node with max BiBC and degree. By default, sorts first by BiBC and then by degree.", add_help=False)
+	requiredArgGroup = parser.add_argument_group("required arguments")
+	optionalArgGroup = parser.add_argument_group("optional arguments")
+	requiredArgGroup.add_argument("--networkStatsFile", type=str, required=True, help="Pickle file containing the raw network stats")
+	requiredArgGroup.add_argument("--synthesizedStatsFile", type=str, required=True, help="CSV file to write the synthesized network stats to")
+	optionalArgGroup.add_argument("--flip-priority", "-f", dest="flipPriority", action="store_true", help="Changes sorting method to use degree first and BiBC second")
+	optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 	args = parser.parse_args()
 
 	args.networkStatsFile = Path(args.networkStatsFile)
