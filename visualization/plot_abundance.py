@@ -111,10 +111,10 @@ if __name__ == '__main__':
         requiredArgGroup  = parser.add_argument_group('Required arguments')        
         requiredArgGroup.add_argument("--pickle", type=str, help="inputs_for_downstream_plots.pickle file output by dot_plots.py", required=True)
         # requiredArgGroup.add_argument("--network_file", type=str, help="network_output_comp.csv file output by to_csv.py", required=True)
-        requiredArgGroup.add_argument("--abund_data", type=str, nargs = '+', help="List of data files containing expresions/abundances, these are the original data files used for intake_data.py", required=True)
+        requiredArgGroup.add_argument("--abund_data", type=str, nargs = '+', help="List of data files containing expressions/abundances, these are the original data files used for intake_data.py", required=True)
         requiredArgGroup.add_argument("--metadata", type=str, nargs = '+', help="List of metadata files containing Experiment/Treatment columns, these are the original metadata files used for intake_data.py", required=True)
         requiredArgGroup.add_argument("--color_group", type=str, default='Treatment', choices=['Treatment', 'Experiment'], help="Variable to color the plot by", required=True)
-        requiredArgGroup.add_argument("--x_axis_abund", type=str, default="Experiment", choices=['Treatment', 'Experiment'], help="Variable you wish to group the data by", required=True)  
+        requiredArgGroup.add_argument("--x_axis", type=str, default="Experiment", choices=['Treatment', 'Experiment'], help="Variable you wish to group the data by on the x-axis", required=True)  
         
         optionalArgGroup  = parser.add_argument_group('Optional arguments')        
         optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
@@ -141,7 +141,7 @@ if __name__ == '__main__':
         metadata = args.metadata
         # node_type = args.node_type
         color_group = args.color_group
-        x_axis_abund = args.x_axis_abund
+        x_axis_abund = args.x_axis
         user_node_list = args.nodes_to_plot
 
     # nw_df = pd.read_csv(network_file)
