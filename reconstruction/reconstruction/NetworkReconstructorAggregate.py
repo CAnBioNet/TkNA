@@ -64,6 +64,24 @@ class CorrelationWorkerSpearman(CorrelationWorker):
 	def correlationMethod(self, indices):
 		x_ranked = self.ranked[indices[0], :]
 		y_ranked = self.ranked[indices[1], :]
+
+		nans = numpy.isnan(x_ranked) | numpy.isnan(y_ranked)
+		numNans = numpy.sum(nans)
+		if numNans != 0:
+			notNans = ~nans
+			x = self.treatmentData[indices[0], :][notNans]
+			y = self.treatmentData[indices[1], :][notNans]
+
+			if x.size <= 1: # y has the same size as x, so only need to check x
+				# TODO: Warning
+				return numpy.nan, numpy.nan
+
+			x_ranked = bottleneck.rankdata(x)
+			y_ranked = bottleneck.rankdata(y)
+
+			# TODO: Precompute size -> coefficient table instead?
+			self.useCoefficient = False
+
 		if self.useCoefficient:
 			r = 1 - (self.coefficient * numpy.sum(numpy.square(x_ranked - y_ranked)))
 		else:
@@ -106,7 +124,7 @@ def computeDifferencePValues(config, data):
 	def mannWhitneyU(experimentData):
 		grouped = experimentData.groupby("treatment")
 		treatmentData = [grouped[treatment] for treatment in treatments]
-		statistics, pValues = stats.mannwhitneyu(treatmentData[0], treatmentData[1], axis=1)
+		statistics, pValues = stats.mannwhitneyu(treatmentData[0], treatmentData[1], axis=1, nan_policy="omit")
 		pValues = xarray.DataArray(pValues, dims=["measurable"], coords=matchingCoords(data, "measurable"))
 		return pValues
 
@@ -202,18 +220,26 @@ def combineAndFilterFoldChanges(config, foldChanges, foldChangeSigns):
 	filterMethod = config["foldChangeFilterMethod"]
 
 	def allSameSign(experimentFoldChanges, experimentFoldChangeSigns):
-		if numpy.all(experimentFoldChangeSigns == experimentFoldChangeSigns[0]):
+		if numpy.all((experimentFoldChangeSigns == experimentFoldChangeSigns[0]) & ~numpy.isnan(experimentFoldChangeSigns)):
 			return experimentFoldChangeSigns[0]
 		else:
 			return 0
 
 	percentThreshold = config["foldChangeFilterPercentAgreementThreshold"]
 	def percentAgreement(experimentFoldChanges, experimentFoldChangeSigns):
-		signFrac = numpy.sum(experimentFoldChangeSigns) / len(experimentFoldChangeSigns)
-		if 0.5 + abs(signFrac) >= percentThreshold:
-			return numpy.sign(signFrac)
-		else:
-			return 0
+		percentAgreementDecimals = 6
+
+		numExperiments = len(experimentFoldChangeSigns)
+
+		positiveOverThreshold = numpy.around(numpy.count_nonzero(correlationSigns == 1) / numExperiments, decimals=percentAgreementDecimals) >= percentThreshold
+		if positiveOverThreshold:
+			return 1
+
+		negativeOverThreshold = numpy.around(numpy.count_nonzero(correlationSigns == -1) / numExperiments, decimals=percentAgreementDecimals) >= percentThreshold
+		if negativeOverThreshold:
+			return -1
+
+		return 0
 
 	methodMap = {
 		"allsamesign": allSameSign,
@@ -259,7 +285,7 @@ def calculateCorrelations(config, filteredData):
 		rankedSharedMemory = shared_memory.SharedMemory(create=True, size=rankedNBytes, name="spearmanRanked")
 		ranked = numpy.ndarray(rankedParams.shape, rankedParams.dtype, buffer=rankedSharedMemory.buf)
 		# Ranks begin at 1
-		ranked[:] = bottleneck.rankdata(treatmentData, axis=1)
+		ranked[:] = bottleneck.nanrankdata(treatmentData, axis=1)
 
 		spearmanKwargs["rankedParams"] = rankedParams
 
@@ -476,7 +502,7 @@ def combineAndFilterCorrelations(config, correlations, correlationSigns):
 	selectedCorrelations = correlations.sel(metatreatment=metatreatmentsToCombine)
 
 	def allSameSign():
-		filterTable = (correlationSigns.isel(metatreatment=0) == correlationSigns).all(dim="metatreatment")
+		filterTable = ((correlationSigns == correlationSigns.isel(metatreatment=0)) & ~numpy.isnan(correlationSigns)).all(dim="metatreatment")
 		passingMetatreatments = filterTable.expand_dims(dim={"metatreatment": correlationSigns.coords["metatreatment"]})
 		combinedSigns = correlationSigns.isel(metatreatment=0).where(filterTable, 0)
 		return combinedSigns, filterTable, passingMetatreatments
