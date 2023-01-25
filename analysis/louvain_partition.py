@@ -16,8 +16,15 @@ import argparse
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description='Example: python louvain_partition.py <pickled network file>')
-    parser.add_argument("pickle", help = 'pickled network file from import_network_data.py')
+    parser = argparse.ArgumentParser(description="Example command: python louvain_partition.py <file.pickle>", add_help=False)
+
+    requiredArgGroup = parser.add_argument_group('Required arguments')   
+    requiredArgGroup.add_argument("--pickle", type=str, help="network.pickle file output by assess_network.py", required=True)
+    
+    
+    # parser = argparse.ArgumentParser(description='Example: python louvain_partition.py <pickled network file>')
+    # parser.add_argument("pickle", help = 'pickled network file from import_network_data.py')
+    
     # parser.add_argument("--number", help = 'only a one-use instance where this is the number of the file being created in a loop')
     args = parser.parse_args()
     

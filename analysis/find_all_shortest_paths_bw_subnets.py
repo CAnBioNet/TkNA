@@ -10,12 +10,20 @@ import re
 import csv
 # from networkx import all_shortest_paths
 
-parser = argparse.ArgumentParser(description='Example: python find_all_shortest_paths_bw_subnets.py <network.pickle> --node_map <map.csv> --node_groups gene pheno')
-# Required args Arg 1 - pickle output from 
-parser.add_argument("network", help = 'pickled network file from assess_network.py')
-parser.add_argument("--node_map", help = 'Mapping file (csv) of nodes and their subnetworks')
-parser.add_argument("--node_groups", nargs = 2, help = 'The two groups in the mapping file you want to find the shortest paths between')
-#parser.add_argument("--import_type", help = 'Required, "simple" if you imported the network using simple_import_network_data.py, "all" otherwise')
+parser = argparse.ArgumentParser(description="Example command: python find_all_shortest_paths_bw_subnets.py <network.pickle> --node_map <map.csv> --node_groups gene pheno", add_help=False)
+
+requiredArgGroup  = parser.add_argument_group('Required arguments')        
+requiredArgGroup.add_argument("--network", type=str, help="inputs_for_downstream_plots.pickle file output by dot_plots.py", required=True)
+requiredArgGroup.add_argument("--node_map", type=str, help="Mapping file (csv) of nodes and their subnetworks", required=True)
+requiredArgGroup.add_argument("--node_groups", nargs = 2, help = "The two groups in the mapping file you want to find the shortest paths between", required=True)
+
+optionalArgGroup  = parser.add_argument_group('Optional arguments')        
+optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
+
+# parser = argparse.ArgumentParser(description='Example: python find_all_shortest_paths_bw_subnets.py <network.pickle> --node_map <map.csv> --node_groups gene pheno')
+# parser.add_argument("network", help = 'pickled network file from assess_network.py')
+# parser.add_argument("--node_map", help = 'Mapping file (csv) of nodes and their subnetworks')
+# parser.add_argument("--node_groups", nargs = 2, help = 'The two groups in the mapping file you want to find the shortest paths between')
 
 args = parser.parse_args()
 
@@ -24,9 +32,6 @@ net = args.network
 map = args.node_map
 node_type1 = args.node_groups[0]
 node_type2 = args.node_groups[1]
-
-def connected_component_subgraphs(network):
-	return [network.subgraph(component) for component in nx.connected_components(network)]
 
 if __name__ == '__main__':
     
@@ -119,7 +124,7 @@ if __name__ == '__main__':
         
 
     # Find only the giant component
-    gc = max(connected_component_subgraphs(G), key=len)
+    gc = max(nx.connected_component_subgraphs(G), key=len)
     gc_nodes = gc.nodes()
 
     # Call assign_node_types to find the nodes belonging to the two subnetworks

@@ -3,11 +3,6 @@
 Created on Thu Jan 5 23:13:06 2023
 
 @author: Nolan Newman (infomap function by Kevin Brown)
-
-Input: pickled network file created by assess_network.py
-
-Output: CSV file containing the name of each node and which subnetwork (dictated by a number) the node was assigned via infomap
-	
 """
 
 import pickle
@@ -48,8 +43,17 @@ if __name__ == '__main__':
                 partition[int_to_node[node.node_id]] = node.module_id - 1
         return im.codelength,partition
     
-    parser = argparse.ArgumentParser(description='Example: python infomap_assignment.py <pickled network file>')
-    parser.add_argument("pickle", help = 'pickled network file from import_network_data.py')
+    
+    parser = argparse.ArgumentParser(description="Example command: python infomap_assignment.py --pickle <file.pickle>", add_help=False)
+
+    requiredArgGroup = parser.add_argument_group('Required arguments')  
+    requiredArgGroup.add_argument("--pickle", type=str, help="network.pickle file output by assess_network.py", required=True)
+
+    optionalArgGroup  = parser.add_argument_group('Optional arguments')        
+    optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
+        
+    # parser = argparse.ArgumentParser(description='Example: python infomap_assignment.py <pickled network file>')
+    # parser.add_argument("pickle", help = 'pickled network file from import_network_data.py')
     args = parser.parse_args()
     
     #Main driver of the code

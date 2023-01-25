@@ -24,19 +24,28 @@ import pickle
 import networkx as nx
 from collections import Counter
 from math import factorial
+import os
 
 fc_parameters = {}
 # nodes_in_final_nw = []
 
+parser = argparse.ArgumentParser(description="Example command: python assess_network.py --file <correlation file> --source partner1 --target partner2", add_help=False)
+requiredArgGroup = parser.add_argument_group('Required arguments')        
+requiredArgGroup.add_argument("--file", type=str, help="inputs_for_downstream_plots.pickle file output by dot_plots.py", required=True)
+requiredArgGroup.add_argument("--source", type=str, default = 'partner1', help = 'Column name in --file of source node for each edge', required=True)
+requiredArgGroup.add_argument("--target", type=str, default = 'partner2', help = 'Column name in --file of target node for each edge', required=True)
 
-parser = argparse.ArgumentParser(description='Example: python assess_network.py <network file> --source partner1 --target parnter2\n\n')
-parser.add_argument("input", help = 'Correlation file (correlations_bw_signif_measurables.csv)')
-parser.add_argument("--source", default = 'partner1', help = 'Source node for each edge')
-parser.add_argument("--target", default = 'partner2', help = 'Target node for each edge')
+optionalArgGroup = parser.add_argument_group('Optional arguments')   
+optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
+
+# parser = argparse.ArgumentParser(description='Example: python assess_network.py --file <correlation file> --source partner1 --target partner2\n\n')
+# parser.add_argument("file", help = 'Correlation file (correlations_bw_signif_measurables.csv)')
+# parser.add_argument("--source", default = 'partner1', help = 'Source node for each edge')
+# parser.add_argument("--target", default = 'partner2', help = 'Target node for each edge')
 
 args = parser.parse_args()
 
-net_file = args.input
+net_file = args.file
 net_file_trimmed = net_file[:-4] # trim the ".csv" or ".txt" from the input file string   
 
 
@@ -212,8 +221,10 @@ print("Number of positive edges: " + str(pos_nw_edge))
 print("Number of negative edges: " + str(neg_nw_edge))
 print("Number of total edges: " + str(G.number_of_edges()) + "\n")
 
+# Get the directory path to the supplied input file, which will be the path to output results to
+filedir = os.path.dirname(os.path.abspath(args.input))
 
-with open("network_quality_assessment.txt", "w") as file:
+with open(filedir + "/network_quality_assessment.txt", "w") as file:
     file.write("PUC: " + "{}%".format(str(puc)) + "\n")
     file.write("Mean degree: " + str(mdeg) + "\n")
     file.write("Edges in network over the edges in a full graph: " + str(nw_edge_full_graph_ratio) + "\n") 
@@ -235,7 +246,7 @@ with open("network_quality_assessment.txt", "w") as file:
 
 file.close()
 
-pickle.dump(G, open("network.pickle", "wb"))
+pickle.dump(G, open(filedir + "/network.pickle", "wb"))
 
 # pickle_list = [G, dev_dict] # output both tht network and deviation dictionary
 # pickle.dump(pickle_list, pickle_out)

@@ -43,19 +43,36 @@ import matplotlib.pyplot as plt
 #from infomap import Infomap
 
 ####### Get user input ########
-parser = argparse.ArgumentParser(description='Example: python calc_network_properties.py <pickled network file> --bibc --bibc_groups node_types --bibc_calc_type bibc --node_map <node map csv> --node_groups micro pheno')
 
-# Required args
-# pickle output from import_network_data2.py
-parser.add_argument('pickle', help = 'The pickle file created with import_network_data.py')
+parser = argparse.ArgumentParser(description="Example command: python calc_network_properties.py <pickled network file> --bibc --bibc_groups node_types --bibc_calc_type bibc --node_map <node map csv> --node_groups micro pheno", add_help=False)
 
-# Flags and optional arguments
-parser.add_argument("--frag", help = 'Flag; Do you want to compute node fragmentation centrality? (Significantly increases run-time)', action = 'store_true')
-parser.add_argument("--bibc", help = 'Flag; Do you want to compute BiBC? (Significantly increases run-time)', action = 'store_true', required = True)
-parser.add_argument("--bibc_groups", choices = ['node_types', 'modularity'], help = 'What to compute BiBC on, either distinct groups or on the two most modular regions of the network (found using the Louvain method)')
-parser.add_argument("--bibc_calc_type", choices = ['rbc', 'bibc'], help = 'Would you like to normalize based on amount of nodes in each group (rbc) or not (bibc)?')
-parser.add_argument("--node_map", help = 'Required if node_types is specified for --bibc_groups. CSV of nodes and their types (i.e. otu, pheno, gene, etc.)')
-parser.add_argument("--node_groups", nargs = 2, help = '2 args; Required if node_types is specified for --bibc_groups. Its the two groups of nodes to calculate BiBC/RBC on')
+requiredArgGroup = parser.add_argument_group('Required arguments')        
+requiredArgGroup.add_argument("--pickle", type=str, help="The pickle file created with import_network_data.py", required=True)
+
+optionalArgGroup = parser.add_argument_group('Optional arguments') 
+optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
+optionalArgGroup.add_argument("--frag", help = 'Flag; Do you want to compute node fragmentation centrality? (Significantly increases run-time)', action = 'store_true')
+optionalArgGroup.add_argument("--bibc", help= 'Flag; Do you want to compute BiBC? (Significantly increases run-time)', action = 'store_true')
+optionalArgGroup.add_argument("--bibc_groups", choices = ['node_types', 'modularity'], help= "What to compute BiBC on, either distinct groups (node_types) or on the two most modular regions (modularity) of the network (found using the Louvain method). Required if --bibc is set")
+optionalArgGroup.add_argument("--bibc_calc_type", choices = ['rbc', 'bibc'], help= "Would you like to normalize the bibc value based on amount of nodes in each group (rbc) or not (bibc)? Required if --bibc is set.")
+optionalArgGroup.add_argument("--node_map", type=str, help= "Required if node_types is specified for --bibc_groups. CSV of nodes and their types (i.e. otu, pheno, gene, etc.)", required=True)
+optionalArgGroup.add_argument("--node_groups", nargs = 2, type=str, help= "2 args; Required if node_types is specified for --bibc_groups. The two groups of nodes to calculate BiBC/RBC on")
+
+
+
+# parser = argparse.ArgumentParser(description='Example: python calc_network_properties.py <pickled network file> --bibc --bibc_groups node_types --bibc_calc_type bibc --node_map <node map csv> --node_groups micro pheno')
+
+# # Required args
+# # pickle output from import_network_data2.py
+# parser.add_argument('pickle', help = 'The pickle file created with import_network_data.py')
+
+# # Flags and optional arguments
+# parser.add_argument("--frag", help = 'Flag; Do you want to compute node fragmentation centrality? (Significantly increases run-time)', action = 'store_true')
+# parser.add_argument("--bibc", help = 'Flag; Do you want to compute BiBC? (Significantly increases run-time)', action = 'store_true')
+# parser.add_argument("--bibc_groups", choices = ['node_types', 'modularity'], help = 'What to compute BiBC on, either distinct groups or on the two most modular regions of the network (found using the Louvain method)')
+# parser.add_argument("--bibc_calc_type", choices = ['rbc', 'bibc'], help = 'Would you like to normalize based on amount of nodes in each group (rbc) or not (bibc)?')
+# parser.add_argument("--node_map", help = 'Required if node_types is specified for --bibc_groups. CSV of nodes and their types (i.e. otu, pheno, gene, etc.)')
+# parser.add_argument("--node_groups", nargs = 2, help = '2 args; Required if node_types is specified for --bibc_groups. Its the two groups of nodes to calculate BiBC/RBC on')
 # parser.add_argument("--subnw_mean_deg", help = 'Required if you wish to calculate subnetwork mean degree. Also requires a mapping file to be supplied with --node_map')
 
 args = parser.parse_args()
@@ -417,14 +434,14 @@ if __name__ == '__main__':
         ### Mean geodesic path length ###
         # Finds ASPL for each node in the giant component, then find the average of those nodes
         #print("Finding average shortest path...")
-        gc = max(connected_component_subgraphs(G), key=len)
+        gc = max(nx.connected_component_subgraphs(G), key=len)
         #ASPL = nx.average_shortest_path_length(gc)
         #ASPL = ASPL + str(a) + "\t"  
         #file.write("Mean_geodesic_path_length\t" + str(round(ASPL, 5)) + "\n")    
 
         ### Giant component ###
         print("Finding size of giant component...")
-        giant = len(max(connected_component_subgraphs(G), key=len))/len(G)
+        giant = len(max(nx.connected_component_subgraphs(G), key=len))/len(G)
         file.write("Giant_component\t" + str(round(giant, 5)) + "\n")
 
         ### Number of components ###
@@ -469,7 +486,7 @@ if __name__ == '__main__':
         ### Median comp size over total number of nodes ###
         print("Finding median component size over number of nodes...")
         med_list = []
-        for g in connected_component_subgraphs(G):
+        for g in nx.connected_component_subgraphs(G):
             med_list.append(nx.number_of_nodes(g))
         med_over_nnodes = median(med_list)/nnodes
         file.write("Median_comp_size_over_#_nodes\t" + str(round(med_over_nnodes, 5)) + "\n")
@@ -516,7 +533,7 @@ if __name__ == '__main__':
         print("Finding subnetwork mean degree...")
         
         # Find only the giant component
-        gc = max(connected_component_subgraphs(G), key=len)
+        gc = max(nx.connected_component_subgraphs(G), key=len)
         gc_nodes = gc.nodes()
        
         # Assign nodes to subnetworks from the mapping file
@@ -667,7 +684,7 @@ if __name__ == '__main__':
 
         # If the giant component is the same size as the second largest component, then return no values for BiBC.
         # Find the size of the second largest component to see if it is the same size as the largest comp
-        subg = sorted(connected_component_subgraphs(G), key = len, reverse = True)
+        subg = sorted(nx.connected_component_subgraphs(G), key = len, reverse = True)
 
         # Make an empty list and string to add the output to. These will be updated right away if there are multiple giant components, 
         # or will be updated at the end if there is only one gc 
@@ -693,7 +710,7 @@ if __name__ == '__main__':
 
             # Otherwise, if they wish to use modularity as the BiBC parameter...
             elif choice == "modularity":
-                nodes_in_gc_for_bibc_mod = max(connected_component_subgraphs(G), key=len)
+                nodes_in_gc_for_bibc_mod = max(nx.connected_component_subgraphs(G), key=len)
                 nodes_from_bibc_mod = bibc_mod(nodes_in_gc_for_bibc_mod)
                 rbc = restricted_betweenness_centrality(gc, nodes_from_bibc_mod['mod1'], nodes_from_bibc_mod['mod2'], bibc_calc_type)
     
