@@ -15,7 +15,7 @@ def getArgs():
 	requiredArgGroup.add_argument("--dataFile", type=str, required=True, help="Input data ZIP containing subsample results")
 	requiredArgGroup.add_argument("--outFile", type=str, required=True, help="CSV file to write analysis results to")
 	optionalArgGroup.add_argument("--singlecell", "-s", action="store_true", default=False, help="Work with single-cell rather than aggregate data")
-	group.add_argument("-h", "--help", action="help", help="Show this help message and exit")
+	optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 	args = parser.parse_args()
 
 	args.dataFile = Path(args.dataFile)
