@@ -7,9 +7,9 @@ def getArgs():
 	parser = argparse.ArgumentParser(description="Analyze the results of network reconstruction for data subsamples.", add_help=False)
 	requiredArgGroup = parser.add_argument_group("required arguments")
 	optionalArgGroup = parser.add_argument_group("optional arguments")
-	requiredArgGroup.add_argument("--dataFile", type=str, required=True, help="Input data ZIP containing subsample results")
-	requiredArgGroup.add_argument("--keepArrays", type=str, nargs="+", metavar="ARRAYNAME", required=True, help="Array to keep from each subsample")
-	requiredArgGroup.add_argument("--filteredDataFile", type=str, required=True, help="Output data ZIP for the filtered subsample results")
+	requiredArgGroup.add_argument("--data-file", type=str, dest="dataFile", required=True, help="Input data ZIP containing subsample results")
+	requiredArgGroup.add_argument("--keep-arrays", type=str, nargs="+", metavar="ARRAYNAME", dest="keepArrays", required=True, help="Array to keep from each subsample")
+	requiredArgGroup.add_argument("--filtered-data-file", type=str, dest="filteredDataFile", required=True, help="Output data ZIP for the filtered subsample results")
 	optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 	args = parser.parse_args()
 
