@@ -73,8 +73,11 @@ if __name__ == "__main__":
 					dataArrays[arrayName].append(array)
 
 	rVals = xarray.concat(dataArrays["correlationCoefficients"], dim="subsample")
-	combinedPVals = xarray.concat(dataArrays["combinedCorrelationPValues"], dim="subsample").isel(treatment=0)
-	correctedPVals = xarray.concat(dataArrays["correctedCorrelationPValues"], dim="subsample").isel(treatment=0)
+	combinedPVals = xarray.concat(dataArrays["combinedCorrelationPValues"], dim="subsample")
+	correctedPVals = xarray.concat(dataArrays["correctedCorrelationPValues"], dim="subsample")
+	if args.singlecell:
+		combinedPVals = combinedPVals.isel(treatment=0)
+		correctedPVals = correctedPVals.isel(treatment=0)
 
 	if args.singlecell:
 		nodeDims = ["measurableAndCellType1", "measurableAndCellType2"]
@@ -84,20 +87,23 @@ if __name__ == "__main__":
 	combinedPValMedians = combinedPVals.median(dim="subsample")
 	correctedPValMedians = correctedPVals.median(dim="subsample")
 
-	experimentMeans = rVals.mean(dim="experiment").isel(treatment=0)
+	if args.singlecell:
+		combinedData = rVals.mean(dim="experiment").isel(treatment=0)
+	else:
+		combinedData = rVals.mean(dim="metatreatment")
 
-	percentInclusions = experimentMeans.count(dim="subsample") / experimentMeans.sizes["subsample"]
+	percentInclusions = combinedData.count(dim="subsample") / combinedData.sizes["subsample"]
 
-	medians = experimentMeans.median(dim="subsample")
-	maxs = experimentMeans.max(dim="subsample")
-	mins = experimentMeans.min(dim="subsample")
+	medians = combinedData.median(dim="subsample")
+	maxs = combinedData.max(dim="subsample")
+	mins = combinedData.min(dim="subsample")
 
 	# See https://en.wikipedia.org/wiki/68%E2%80%9395%E2%80%9399.7_rule
 	# 1, 2, 3, 4 standard deviations
 	intervals = [0.6827, 0.9545, 0.9974, 0.9999]
 	intervalStrings = [str(interval * 100) for interval in intervals]
-	intervalLowerBoundData = [experimentMeans.quantile((1 - interval) / 2, dim="subsample") for interval in intervals]
-	intervalUpperBoundData = [experimentMeans.quantile(1 - ((1 - interval) / 2), dim="subsample") for interval in intervals]
+	intervalLowerBoundData = [combinedData.quantile((1 - interval) / 2, dim="subsample") for interval in intervals]
+	intervalUpperBoundData = [combinedData.quantile(1 - ((1 - interval) / 2), dim="subsample") for interval in intervals]
 	intervalLowerBoundColumns = [CsvWriter.Column("{}% Confidence Interval Lower Bound".format(intervalString), intervalString + "_lower") for intervalString in reversed(intervalStrings)]
 	intervalUpperBoundColumns = [CsvWriter.Column("{}% Confidence Interval Upper Bound".format(intervalString), intervalString + "_upper") for intervalString in intervalStrings]
 
