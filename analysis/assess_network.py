@@ -31,7 +31,7 @@ fc_parameters = {}
 
 parser = argparse.ArgumentParser(description="Example command: python assess_network.py --file <correlation file> --source partner1 --target partner2", add_help=False)
 requiredArgGroup = parser.add_argument_group('Required arguments')        
-requiredArgGroup.add_argument("--file", type=str, help="inputs_for_downstream_plots.pickle file output by dot_plots.py", required=True)
+requiredArgGroup.add_argument("--file", type=str, help="correlations_bw_signif_measurables.csv file output by to_csv.py", required=True)
 requiredArgGroup.add_argument("--source", type=str, default = 'partner1', help = 'Column name in --file of source node for each edge', required=True)
 requiredArgGroup.add_argument("--target", type=str, default = 'partner2', help = 'Column name in --file of target node for each edge', required=True)
 
@@ -222,7 +222,7 @@ print("Number of negative edges: " + str(neg_nw_edge))
 print("Number of total edges: " + str(G.number_of_edges()) + "\n")
 
 # Get the directory path to the supplied input file, which will be the path to output results to
-filedir = os.path.dirname(os.path.abspath(args.input))
+filedir = os.path.dirname(os.path.abspath(net_file))
 
 with open(filedir + "/network_quality_assessment.txt", "w") as file:
     file.write("PUC: " + "{}%".format(str(puc)) + "\n")
