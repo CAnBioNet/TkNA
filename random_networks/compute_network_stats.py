@@ -19,8 +19,8 @@ def getArgs():
 	requiredArgGroup.add_argument("--bibc-groups", choices=["node_types", "modularity"], dest="bibcGroups", required=True, help="Group nodes for BiBC based on type or modularity")
 	requiredArgGroup.add_argument("--bibc-calc-type", choices=["rbc", "bibc"], dest="bibcCalcType", required=True, help="Compute raw BiBC or normalize (rbc)")
 	requiredArgGroup.add_argument("--stats-file", type=str, dest="statsFile", required=True, help="Pickle file to output the network stats to")
-	optionalArgGroup.add_argument("--node-map", "-m", dest="nodeMap", help="CSV file mapping nodes to their types. Required if node_types is specified for --bibcGroups.")
-	optionalArgGroup.add_argument("--node-groups", "-g", metavar="GROUP", nargs=2, dest="nodeGroups", help="Two types of nodes to use for BiBC grouping. Required if node_types is specified for --bibcGroups.")
+	optionalArgGroup.add_argument("--node-map", "-m", dest="nodeMap", help="CSV file mapping nodes to their types. Required if node_types is specified for --bibc-groups.")
+	optionalArgGroup.add_argument("--node-groups", "-g", metavar="GROUP", nargs=2, dest="nodeGroups", help="Two types of nodes to use for BiBC grouping. Required if node_types is specified for --bibc-groups.")
 	optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 	args = parser.parse_args()
 
