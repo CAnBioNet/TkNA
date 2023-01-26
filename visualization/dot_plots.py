@@ -156,18 +156,18 @@ if __name__ == '__main__':
 
         requiredArgGroup  = parser.add_argument_group('Required arguments')
         requiredArgGroup.add_argument("--pickle", type=str, help="Pickled network file output by assess_network.py", required=True)
-        requiredArgGroup.add_argument("--node_props", type=str, help="node_properties.txt file output by calc_network_properties.py", required=True)
-        requiredArgGroup.add_argument("--network_file", type=str, help="network_output_comp.csv file output by to_csv.py", required=True)        
+        requiredArgGroup.add_argument("--node-props", dest="node_props", type=str, help="node_properties.txt file output by calc_network_properties.py", required=True)
+        requiredArgGroup.add_argument("--network-file", type=str, dest="network_file", help="network_output_comp.csv file output by to_csv.py", required=True)        
         requiredArgGroup.add_argument("--propx", default="Node_Degrees", type=str, help="Node property to plot on X-axis. Name must match property name in node_properties.txt", required=True)
         requiredArgGroup.add_argument("--propy", default="BiBC", type=str, help="Node property to plot on Y-axis. Name must match property name in node_properties.txt", required=True)
-        requiredArgGroup.add_argument("--top_num", default=10, type=int, help="Number of nodes you want to zoom in to on the property v property plot", required=True)
-        requiredArgGroup.add_argument("--top_num_per_type", type=int, help="The number of nodes to plot for each data type when zoomed in on the dot plot", required=True)  
+        requiredArgGroup.add_argument("--top-num", default=10, type=int, dest="top-num", help="Number of nodes you want to zoom in to on the property v property plot", required=True)
+        requiredArgGroup.add_argument("--top-num-per-type", type=int, dest="top_num_per_type", help="The number of nodes to plot for each data type when zoomed in on the dot plot", required=True)  
 
         optionalArgGroup  = parser.add_argument_group('Optional arguments')
         optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
         optionalArgGroup.add_argument("--jitter", action = 'store_true', help="Flag; Plot jitter on property v property plot to avoid completely overlapping data points")
-        optionalArgGroup.add_argument("--top_pct", action = 'store_true', help="Flag; Do you want to plot the top X percent of nodes instead of specifying a number with --top_num? Will calculate which nodes to zoom in on based on propx argument. Requires --top_pct_num")
-        optionalArgGroup.add_argument("--top_pct_num", type=int, help="Percent (in integer format) of top nodes to plot; requires --top_pct")
+        optionalArgGroup.add_argument("--top-pct", action = 'store_true', dest="top_pct", help="Flag; Do you want to plot the top X percent of nodes instead of specifying a number with --top_num? Will calculate which nodes to zoom in on based on propx argument. Requires --top_pct_num")
+        optionalArgGroup.add_argument("--top-pct-num", type=int, dest="top_pct_num", help="Percent (in integer format) of top nodes to plot; requires --top_pct")
          
         
         

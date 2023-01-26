@@ -80,12 +80,12 @@ if __name__ == '__main__':
         parser = argparse.ArgumentParser(description="Example command: python plot_density.py random_network_condensed.csv inputs_for_downstream_plots.pickle", add_help=False)
 
         requiredArgGroup  = parser.add_argument_group('Required arguments') 
-        requiredArgGroup.add_argument("--rand_net", type=str, help="Random network file output by condense_random_networks.py", required=True)
+        requiredArgGroup.add_argument("--rand-net", type=str, dest="rand_net", help="Random network file output by condense_random_networks.py", required=True)
         requiredArgGroup.add_argument("--pickle", type=str, help="inputs_for_downstream_plots.pickle file output by dot_plots.py", required=True)
         
         optionalArgGroup  = parser.add_argument_group('Optional arguments')   
         optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
-        optionalArgGroup.add_argument("--nodes_to_plot", type=str, nargs='+', help="A list of nodes to plot on the density plot")
+        optionalArgGroup.add_argument("--nodes-to-plot", type=str, nargs='+', dest="nodes_to_plot", help="A list of nodes to plot on the density plot")
         
         
         # parser = argparse.ArgumentParser(description="Example command: python plot_density.py random_network_condensed.csv inputs_for_downstream_plots.pickle")

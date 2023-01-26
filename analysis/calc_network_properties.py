@@ -7,9 +7,6 @@ Written in Python v3.5.3
 Description:
 Takes as input the pickled network file created from import_network_data.py and calculates various node and network properties for it
 
-Example usage:
-python calc_network_properties_w_argparse.py <pickled file> --bibc --bibc_groups node_types --bibc_calc_type rbc --node_map <node map csv> --node_groups gene pheno
-
 Developer note: As of 9/29/19, the code no longer relies strictly on positional arguments and instead uses an argparser
 Developer note: As of 2/19/20, the script now has flags to specify whether PUC and BiBC should be calculated. Also added
                 eigenvalue centrality as another node property. On top of that, this version now incorporates positive    
@@ -44,7 +41,7 @@ import matplotlib.pyplot as plt
 
 ####### Get user input ########
 
-parser = argparse.ArgumentParser(description="Example command: python calc_network_properties.py <pickled network file> --bibc --bibc_groups node_types --bibc_calc_type bibc --node_map <node map csv> --node_groups micro pheno", add_help=False)
+parser = argparse.ArgumentParser(description="Example command: python calc_network_properties.py <pickled network file> --bibc --bibc-groups node_types --bibc-calc-type bibc --node-map <node map csv> --node_groups micro pheno", add_help=False)
 
 requiredArgGroup = parser.add_argument_group('Required arguments')        
 requiredArgGroup.add_argument("--pickle", type=str, help="The pickle file created with import_network_data.py", required=True)
@@ -53,10 +50,10 @@ optionalArgGroup = parser.add_argument_group('Optional arguments')
 optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 optionalArgGroup.add_argument("--frag", help = 'Flag; Do you want to compute node fragmentation centrality? (Significantly increases run-time)', action = 'store_true')
 optionalArgGroup.add_argument("--bibc", help= 'Flag; Do you want to compute BiBC? (Significantly increases run-time)', action = 'store_true')
-optionalArgGroup.add_argument("--bibc_groups", choices = ['node_types', 'modularity'], help= "What to compute BiBC on, either distinct groups (node_types) or on the two most modular regions (modularity) of the network (found using the Louvain method). Required if --bibc is set")
-optionalArgGroup.add_argument("--bibc_calc_type", choices = ['rbc', 'bibc'], help= "Would you like to normalize the bibc value based on amount of nodes in each group (rbc) or not (bibc)? Required if --bibc is set.")
-optionalArgGroup.add_argument("--node_map", type=str, help= "Required if node_types is specified for --bibc_groups. CSV of nodes and their types (i.e. otu, pheno, gene, etc.)", required=True)
-optionalArgGroup.add_argument("--node_groups", nargs = 2, type=str, help= "2 args; Required if node_types is specified for --bibc_groups. The two groups of nodes to calculate BiBC/RBC on")
+optionalArgGroup.add_argument("--bibc-groups", dest = "bibc_groups", choices = ['node_types', 'modularity'], help= "What to compute BiBC on, either distinct groups (node_types) or on the two most modular regions (modularity) of the network (found using the Louvain method). Required if --bibc is set")
+optionalArgGroup.add_argument("--bibc-calc-type", dest="bibc_calc_type", choices = ['rbc', 'bibc'], help= "Would you like to normalize the bibc value based on amount of nodes in each group (rbc) or not (bibc)? Required if --bibc is set.")
+optionalArgGroup.add_argument("--node-map", type=str, dest="node_map", help= "Required if node_types is specified for --bibc-groups. CSV of nodes and their types (i.e. otu, pheno, gene, etc.)", required=True)
+optionalArgGroup.add_argument("--node-groups", nargs = 2, type=str, dest="node_groups", help= "2 args; Required if node_types is specified for --bibc-groups. The two groups of nodes to calculate BiBC/RBC on")
 
 
 

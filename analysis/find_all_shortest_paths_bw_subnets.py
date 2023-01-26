@@ -14,8 +14,8 @@ parser = argparse.ArgumentParser(description="Example command: python find_all_s
 
 requiredArgGroup  = parser.add_argument_group('Required arguments')        
 requiredArgGroup.add_argument("--network", type=str, help="inputs_for_downstream_plots.pickle file output by dot_plots.py", required=True)
-requiredArgGroup.add_argument("--node_map", type=str, help="Mapping file (csv) of nodes and their subnetworks", required=True)
-requiredArgGroup.add_argument("--node_groups", nargs = 2, help = "The two groups in the mapping file you want to find the shortest paths between", required=True)
+requiredArgGroup.add_argument("--node-map", type=str, dest="node_map", help="Mapping file (csv) of nodes and their subnetworks", required=True)
+requiredArgGroup.add_argument("--node-groups", nargs = 2, dest="node_groups", help = "The two groups in the mapping file you want to find the shortest paths between", required=True)
 
 optionalArgGroup  = parser.add_argument_group('Optional arguments')        
 optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")

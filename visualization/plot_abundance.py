@@ -111,14 +111,14 @@ if __name__ == '__main__':
         requiredArgGroup  = parser.add_argument_group('Required arguments')        
         requiredArgGroup.add_argument("--pickle", type=str, help="inputs_for_downstream_plots.pickle file output by dot_plots.py", required=True)
         # requiredArgGroup.add_argument("--network_file", type=str, help="network_output_comp.csv file output by to_csv.py", required=True)
-        requiredArgGroup.add_argument("--abund_data", type=str, nargs = '+', help="List of data files containing expressions/abundances, these are the original data files used for intake_data.py", required=True)
+        requiredArgGroup.add_argument("--abund-data", type=str, nargs = '+', dest="abund_data", help="List of data files containing expressions/abundances, these are the original data files used for intake_data.py", required=True)
         requiredArgGroup.add_argument("--metadata", type=str, nargs = '+', help="List of metadata files containing Experiment/Treatment columns, these are the original metadata files used for intake_data.py", required=True)
-        requiredArgGroup.add_argument("--color_group", type=str, default='Treatment', choices=['Treatment', 'Experiment'], help="Variable to color the plot by", required=True)
-        requiredArgGroup.add_argument("--x_axis", type=str, default="Experiment", choices=['Treatment', 'Experiment'], help="Variable you wish to group the data by on the x-axis", required=True)  
+        requiredArgGroup.add_argument("--color-group", type=str, default='Treatment', choices=['Treatment', 'Experiment'], dest="color_group", help="Variable to color the plot by", required=True)
+        requiredArgGroup.add_argument("--x-axis", type=str, default="Experiment", choices=['Treatment', 'Experiment'], dest="x_axis", help="Variable you wish to group the data by on the x-axis", required=True)  
         
         optionalArgGroup  = parser.add_argument_group('Optional arguments')        
         optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
-        optionalArgGroup.add_argument("--nodes_to_plot", type=str, nargs='+', help="Specify any specific node (or a list of node) to plot the abundance of")
+        optionalArgGroup.add_argument("--nodes-to-plot", type=str, nargs='+', dest="nodes_to_plot", help="Specify any specific node (or a list of node) to plot the abundance of")
 
 
         # parser = argparse.ArgumentParser(description="Example command: python plot_abundance.py inputs_for_downstream_plots.pickle --abund_data Expt1.csv Expt2.csv --metadata Expt1_meta.csv Expt2_meta.csv --color_group Treatment --x_axis_abund Experiment --nodes_to_plot geneABC geneDEF")
