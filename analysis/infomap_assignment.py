@@ -69,11 +69,12 @@ if __name__ == '__main__':
 
     print(im_output)
 
-    with open(network_name + "_infomap_partition.txt", "w") as file:
+    with open(network_name + "_infomap_partition.csv", "w") as file:
         file.write("Node,partition\n")
         [file.write(str(k) + "," + str(v) + "\n") for k,v in im_output[1].items()]
     file.close()
     
+    print("\nFile saved: " + network_name + "_infomap_partition.csv\n")
 
     
     

@@ -46,7 +46,7 @@ if __name__ == '__main__':
 
     lou = louvain_assignment(G)
 
-    with open(network_name + "_louvain_partition.txt", "w") as file:
+    with open(network_name + "_louvain_partition.csv", "w") as file:
         file.write("Node,partition\n")
         [file.write(str(k) + "," + str(v) + "\n") for k,v in lou[0].items()]
     file.close()
@@ -57,3 +57,5 @@ if __name__ == '__main__':
     
     print("\nModularity (Q) for this network:")
     print(str(lou[1]) + "\n")
+
+    print("\nFile saved: " + network_name + "_louvain_partition.csv\n")

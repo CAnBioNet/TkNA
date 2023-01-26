@@ -10,10 +10,10 @@ import re
 import csv
 # from networkx import all_shortest_paths
 
-parser = argparse.ArgumentParser(description="Example command: python find_all_shortest_paths_bw_subnets.py <network.pickle> --node_map <map.csv> --node_groups gene pheno", add_help=False)
+parser = argparse.ArgumentParser(description="Example command: python find_all_shortest_paths_bw_subnets.py <network.pickle> --node-map <map.csv> --node-groups gene pheno", add_help=False)
 
 requiredArgGroup  = parser.add_argument_group('Required arguments')        
-requiredArgGroup.add_argument("--network", type=str, help="inputs_for_downstream_plots.pickle file output by dot_plots.py", required=True)
+requiredArgGroup.add_argument("--pickle", type=str, help="network.pickle file output by assess_network.py", required=True)
 requiredArgGroup.add_argument("--node-map", type=str, dest="node_map", help="Mapping file (csv) of nodes and their subnetworks", required=True)
 requiredArgGroup.add_argument("--node-groups", nargs = 2, dest="node_groups", help = "The two groups in the mapping file you want to find the shortest paths between", required=True)
 
@@ -28,7 +28,7 @@ optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this hel
 args = parser.parse_args()
 
 # set command arguments as variables
-net = args.network
+net = args.pickle
 map = args.node_map
 node_type1 = args.node_groups[0]
 node_type2 = args.node_groups[1]
@@ -138,7 +138,7 @@ if __name__ == '__main__':
     print("Number of nodes in " + node_type2 + " group in the giant component: " + str(len(two_subnets['Type2'])))
     print("Total number of pairs in the giant component: " + str(gc_pairs))
 
-    with open("shortest_path_bw_" + node_type1 + "_and_" + node_type2 + "_results.txt", "w") as out_file:
+    with open("shortest_path_bw_" + node_type1 + "_and_" + node_type2 + "_results.csv", "w") as out_file:
         
         # Find the shortest path length and number of shortest paths between each pair of nodes in the two subnetworks
         out_file.write(node_type1 + "_node," + node_type2 + "_node," + "Shortest_path_length,number_of_shortest_paths\n")
@@ -162,4 +162,4 @@ if __name__ == '__main__':
         # Overwrite any previous file with the same name instead of appending
         out_file.truncate()
 
-print("\nFinished calculating all shortest paths. See shortest_path_bw_" + node_type1 + "_and_" + node_type2 + "_results.txt\n")
+print("\nFinished calculating all shortest paths. See shortest_path_bw_" + node_type1 + "_and_" + node_type2 + "_results.csv\n")
