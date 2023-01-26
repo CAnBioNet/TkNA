@@ -28,18 +28,38 @@ def generateNetwork(nodes, numEdges, seed):
 
 def getArgs():
 	parser = argparse.ArgumentParser(description="Generate random networks", add_help=False)
+	inputArgGroup = parser.add_argument_group("input arguments")
 	requiredArgGroup = parser.add_argument_group("required arguments")
 	optionalArgGroup = parser.add_argument_group("optional arguments")
-	requiredArgGroup.add_argument("--node-list-file", type=str, dest="nodeListFile", required=True, help="Path to a file containing the names of the nodes in the generated networks. Must be one node per line.")
-	requiredArgGroup.add_argument("--num-edges", type=int, dest="numEdges", required=True, help="Number of edges in each randomly-generated network")
+
+	inputArgGroup.add_argument("--template-network", type=str, dest="templateNetwork", help="Path to a file containing a pickled networkx network. Alternatively, use --node-list-file and --num-edges to specify the desired network properties.")
+	inputArgGroup.add_argument("--node-list-file", type=str, dest="nodeListFile", help="Path to a file containing the names of the nodes in the generated networks. Must be one node per line. If used, --num-edges must also be provided. Alternatively, use --template-network to base the random networks on an existing one.")
+	inputArgGroup.add_argument("--num-edges", type=int, dest="numEdges", help="Number of edges in each randomly-generated network. If used, --node-list-file must also be provided. Alternatively, use --template-network to base the random networks on an existing one.")
+
 	requiredArgGroup.add_argument("--networks-file", type=str, dest="networksFile", required=True, help="File to output pickled network list to")
+
 	optionalArgGroup.add_argument("--num-networks", "-n", type=int, dest="numNetworks", default=10000, help="Number of networks to generate")
 	optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
+
 	args = parser.parse_args()
 
-	args.nodeListFile = Path(args.nodeListFile)
-	if not args.nodeListFile.exists():
-		raise Exception("Specified node list does not exist")
+	if args.templateNetwork is None and args.nodeListFile is None and args.numEdges is None:
+		raise Exception("Must specify either --template-network or both --node-list-file and --num-edges")
+	if args.templateNetwork is not None and (args.nodeListFile is not None or args.numEdges is not None):
+		raise Exception("Cannot use both --template-network and --node-list-file/--num-edges")
+	if args.nodeListFile is not None and args.numEdges is None:
+		raise Exception("If using --node-list-file, must also specify --num-edges")
+	if args.numEdges is not None and args.nodeListFile is None:
+		raise Exception("If using --num-edges, must also specify --node-list-file")
+
+	if args.templateNetwork is not None:
+		args.templateNetwork = Path(args.templateNetwork)
+		if not args.templateNetwork.exists():
+			raise Exception("Specified template network does not exist")
+	else:
+		args.nodeListFile = Path(args.nodeListFile)
+		if not args.nodeListFile.exists():
+			raise Exception("Specified node list does not exist")
 
 	args.networksFile = Path(args.networksFile)
 
@@ -48,20 +68,27 @@ def getArgs():
 if __name__ == "__main__":
 	args = getArgs()
 
-	with open(args.nodeListFile) as nodeListFile:
-		nodes = nodeListFile.readlines()
-	nodes = [node.strip() for node in nodes]
-	nodes = [node for node in nodes if len(node) > 0]
+	if args.templateNetwork is not None:
+		with open(args.templateNetwork, "rb") as templateNetworkFile:
+			templateNetwork = pickle.load(templateNetworkFile)
+		nodes = templateNetwork.nodes
+		numEdges = len(templateNetwork.edges)
+	else:
+		with open(args.nodeListFile) as nodeListFile:
+			nodes = nodeListFile.readlines()
+		nodes = [node.strip() for node in nodes]
+		nodes = [node for node in nodes if len(node) > 0]
 
-	numMaxEdges = maxEdges(len(nodes))
-	if args.numEdges > numMaxEdges:
-		raise Exception(f"Too many edges desired (must be {numMaxEdges} or fewer for this node list)")
+		numMaxEdges = maxEdges(len(nodes))
+		if args.numEdges > numMaxEdges:
+			raise Exception(f"Too many edges desired (must be {numMaxEdges} or fewer for this node list)")
+		numEdges = args.numEdges
 
 	# Generate seeds ahead of time so that processes don't end up sharing seeds (and hence networks)
 	seeds = np.random.randint(np.iinfo(np.int32).max, dtype=np.int32, size=args.numNetworks)
 
 	with Pool() as pool:
-		networks = pool.map(partial(generateNetwork, nodes, args.numEdges), seeds)
+		networks = pool.map(partial(generateNetwork, nodes, numEdges), seeds)
 
 	args.networksFile.parent.mkdir(parents=True, exist_ok=True)
 	with open(args.networksFile, "wb") as networksFile:
