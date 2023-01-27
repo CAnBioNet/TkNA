@@ -203,7 +203,8 @@ if __name__ == '__main__':
         #print(abund_data[count])
         
         # Subset abundance data for just top nodes
-        ab = pd.read_csv(abund_data[count])
+        # ab = pd.read_csv(abund_data[count])
+        ab = pd.read_csv(args.abund_data[count])
         all_node_names = list(ab['ID'])
 
         # print("BEFORE")
