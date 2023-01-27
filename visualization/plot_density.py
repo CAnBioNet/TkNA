@@ -65,7 +65,7 @@ if __name__ == '__main__':
     
     
     
-    testing = True
+    testing = False
     
     if testing:
         rand_net = "synthesized_stats (1).csv"
