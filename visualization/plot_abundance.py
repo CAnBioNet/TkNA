@@ -99,10 +99,12 @@ if __name__ == '__main__':
         
         for i in name_list:
             if '/' in i:
-                i = i.split('/')[-1]
-                new_names.append(i)
+                newname = i.split('/')[-1]
+                newname = newname[:-4]
+                new_names.append(newname)
             else:
-                new_names.append(i)
+                newname = newname[:-4]
+                new_names.append(newname)
                 
         return(new_names)
 
@@ -114,8 +116,8 @@ if __name__ == '__main__':
         # network_file = "network_output_comp.csv"
         # top_abund_prop = "BiBC"
         # node_type = "pheno"
-        abund_data = ["./blah/Expt1_new.csv", "./blah/blah/Expt2_new.csv", "Expt3_new.csv", "Expt4_new.csv"]
-        metadata = ["group_map_1.csv", "group_map_2.csv", "group_map_3.csv", "group_map_4.csv"]
+        abund_data = ["./fold/expt1_new.csv", "./fold/expt2_new.csv", "./fold/expt3_new.csv", "./fold/expt4_new.csv"]
+        metadata = ["./fold/group_map_1.csv", "./fold/group_map_2.csv", "./fold/group_map_3.csv", "./fold/group_map_4.csv"]
         color_group = "Treatment"
         x_axis_abund = "Experiment"
         user_node_list = []
@@ -165,7 +167,7 @@ if __name__ == '__main__':
     # nw_w_types = assign_type(nw_df)
 
     # Rename the input abundance data if it contains a path to a file
-    abund_data = rename_data(abund_data)    
+    abund_data_renamed = rename_data(abund_data)    
 
 
 
@@ -203,8 +205,9 @@ if __name__ == '__main__':
         #print(abund_data[count])
         
         # Subset abundance data for just top nodes
-        # ab = pd.read_csv(abund_data[count])
-        ab = pd.read_csv(args.abund_data[count])
+        ab = pd.read_csv(abund_data[count])
+        
+        
         all_node_names = list(ab['ID'])
 
         # print("BEFORE")
@@ -222,6 +225,7 @@ if __name__ == '__main__':
 
         # Transform metadata to dictionary of treatment:sample 
         grouped_dict = met.groupby('Treatment').sample_name.apply(list).to_dict()
+        #count += 1 
             
         # Create a data frame that contains the abundance/expression of each top parameter per treatment per experiment
         for k,v in grouped_dict.items():
@@ -231,7 +235,7 @@ if __name__ == '__main__':
             col_subset = col_subset.T
 
             col_subset.insert(len(col_subset.columns), 'Treatment', k)
-            col_subset.insert(len(col_subset.columns), 'Experiment', abund_data[count])
+            col_subset.insert(len(col_subset.columns), 'Experiment', abund_data_renamed[count])
             head_col_subset = []
             head_col_subset.extend(all_node_names)
             head_col_subset.append('Treatment')
