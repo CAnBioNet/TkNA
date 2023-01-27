@@ -160,7 +160,7 @@ if __name__ == '__main__':
         requiredArgGroup.add_argument("--network-file", type=str, dest="network_file", help="network_output_comp.csv file output by to_csv.py", required=True)        
         requiredArgGroup.add_argument("--propx", default="Node_Degrees", type=str, help="Node property to plot on X-axis. Name must match property name in node_properties.txt", required=True)
         requiredArgGroup.add_argument("--propy", default="BiBC", type=str, help="Node property to plot on Y-axis. Name must match property name in node_properties.txt", required=True)
-        requiredArgGroup.add_argument("--top-num", default=10, type=int, dest="top-num", help="Number of nodes you want to zoom in to on the property v property plot", required=True)
+        requiredArgGroup.add_argument("--top-num", default=10, type=int, dest="top_num", help="Number of nodes you want to zoom in to on the property v property plot", required=True)
         requiredArgGroup.add_argument("--top-num-per-type", type=int, dest="top_num_per_type", help="The number of nodes to plot for each data type when zoomed in on the dot plot", required=True)  
 
         optionalArgGroup  = parser.add_argument_group('Optional arguments')
