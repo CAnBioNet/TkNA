@@ -87,7 +87,24 @@ if __name__ == '__main__':
         #           handler_map={tuple: HandlerTuple(ndivide=None)})   
            
         return(ax)
-
+    
+    def rename_data(name_list):
+        '''        
+        Function that checks a list of file names and if they include paths, it keeps just the file name (not the path) in the list
+        
+        Arguments:
+            - name_list: the list of names the user supplies in --abund-data
+        '''
+        new_names = []
+        
+        for i in name_list:
+            if '/' in i:
+                i = i.split('/')[-1]
+                new_names.append(i)
+            else:
+                new_names.append(i)
+                
+        return(new_names)
 
     testing = False
 
@@ -97,7 +114,7 @@ if __name__ == '__main__':
         # network_file = "network_output_comp.csv"
         # top_abund_prop = "BiBC"
         # node_type = "pheno"
-        abund_data = ["Expt1_new.csv", "Expt2_new.csv", "Expt3_new.csv", "Expt4_new.csv"]
+        abund_data = ["./blah/Expt1_new.csv", "./blah/blah/Expt2_new.csv", "Expt3_new.csv", "Expt4_new.csv"]
         metadata = ["group_map_1.csv", "group_map_2.csv", "group_map_3.csv", "group_map_4.csv"]
         color_group = "Treatment"
         x_axis_abund = "Experiment"
@@ -147,6 +164,8 @@ if __name__ == '__main__':
     # nw_df = pd.read_csv(network_file)
     # nw_w_types = assign_type(nw_df)
 
+    # Rename the input abundance data if it contains a path to a file
+    abund_data = rename_data(abund_data)    
 
 
 
