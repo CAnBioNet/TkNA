@@ -20,7 +20,7 @@ Note that the following must be ran from the network_analysis directory that was
 		python3 run.py --data-source <file_name> --config-file <config file> --out-file <zip directory>		
 	
 	Example command
-	python3 run.py --data-source ./output/all_genes/all_data_and_metadata.cdf --config-file ./input/all_genes/cervical_cancer_config.json --out-file ./output/all_genes/network_output.zip
+		python3 run.py --data-source ./output/all_genes/all_data_and_metadata.cdf --config-file ./input/all_genes/cervical_cancer_config.json --out-file ./output/all_genes/network_output.zip
 	
 	Inputs
 		--data-source: Path to the .cdf file created using intake_data.py
