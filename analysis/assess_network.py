@@ -65,7 +65,7 @@ G = nx.Graph()
 # import specified file into python
 with open(net_file) as csvfile:
     file = csv.reader(csvfile, delimiter = ',')
-        
+            
     for row in file:
     
         
@@ -82,9 +82,10 @@ with open(net_file) as csvfile:
         final_nw_edge_column = len(row) - 1 # column that identifies whether edge made it into the final network and its edge value
         
         # Find FC direction of each parameter
-        fc_parameters[parameters[0]] = row[fc_node1_column].strip()
-        fc_parameters[parameters[1]] = row[fc_node2_column].strip()
-        
+        if row_count != 0:   
+            fc_parameters[parameters[0]] = str(int(float(row[fc_node1_column].strip())))
+            fc_parameters[parameters[1]] = str(int(float(row[fc_node2_column].strip())))
+            
         # Find the number of total positive and negative corrs, regardless if they made it into the network
         corr_dir_column = len(row) - 6
         
@@ -98,11 +99,11 @@ with open(net_file) as csvfile:
             
             #print(row[final_nw_edge_column])
             
-            if row[final_nw_edge_column] == str(1.0):
+            if str(int(float(row[final_nw_edge_column]))) == str(1):
                 pos_nw_edge += 1
                 positive_corr_nw += 1
                 G.add_edge(parameters[0], parameters[1])
-            elif row[final_nw_edge_column] == str(-1.0):
+            elif str(int(float(row[final_nw_edge_column]))) == str(-1):
                 neg_nw_edge += 1 
                 negative_corr_nw += 1
                 G.add_edge(parameters[0], parameters[1])
@@ -112,19 +113,19 @@ with open(net_file) as csvfile:
         puc_col = len(row) - 2
         
         #print(row[puc_col].strip())
-        
-        if row[puc_col].strip() == str(1):
-            puc_compliant += 1
-        elif row[puc_col].strip() == str(0):
-            puc_noncompliant += 1
-            
-            
+        if row_count != 0:    
+            if str(int(float(row[puc_col].strip()))) == str(1):
+                puc_compliant += 1
+            elif str(int(float(row[puc_col].strip()))) == str(0):
+                puc_noncompliant += 1
+                
+                
         row_count += 1
 
     csvfile.close()
 
-del fc_parameters[args.source]
-del fc_parameters[args.target]
+#del fc_parameters[args.source]
+#del fc_parameters[args.target]
 
 # function to get unique values
 def unique(list1):
@@ -134,8 +135,6 @@ def unique(list1):
 #print(fc_parameters)
 
 # Subset dictionary holding FC of all params for just nodes in nw
-
-#print(G.nodes())
     
 fc_parameters_final_nw = dict((k, fc_parameters[k]) for k in G.nodes())   
 
@@ -157,8 +156,8 @@ else:
 
 # Count the number of positive and negative nodes in the network  
 nodedir = Counter(fc_parameters_final_nw.values())
-pos_nodes = nodedir['1.0']
-neg_nodes = nodedir['-1.0']
+pos_nodes = nodedir['1']
+neg_nodes = nodedir['-1']
         
 #print(pos_nodes)
 #print(neg_nodes)
