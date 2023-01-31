@@ -103,7 +103,7 @@ if __name__ == '__main__':
                 newname = newname[:-4]
                 new_names.append(newname)
             else:
-                newname = newname[:-4]
+                newname = i[:-4]
                 new_names.append(newname)
                 
         return(new_names)
