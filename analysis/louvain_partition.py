@@ -21,6 +21,8 @@ if __name__ == '__main__':
     requiredArgGroup = parser.add_argument_group('Required arguments')   
     requiredArgGroup.add_argument("--pickle", type=str, help="network.pickle file output by assess_network.py", required=True)
     
+    optionalArgGroup = parser.add_argument_group('Optional arguments')   
+    optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
     
     # parser = argparse.ArgumentParser(description='Example: python louvain_partition.py <pickled network file>')
     # parser.add_argument("pickle", help = 'pickled network file from import_network_data.py')
