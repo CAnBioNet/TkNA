@@ -199,8 +199,11 @@ if __name__ == '__main__':
         jitter_choice = args.jitter
         top_num_per_type = args.top_num_per_type
     
-    if not os.path.exists("./plots"):
-        os.makedirs("./plots")    
+    filedir = os.path.dirname(os.path.abspath(pickle_file)) + "/"
+    plotdir = filedir + "plots/"
+    
+    if not os.path.exists(plotdir):
+        os.makedirs(plotdir)    
     
     # import the file calc_network_properties creates and create a dictionary to store info into
     with open(node_props, newline='') as txtfile:
@@ -232,8 +235,8 @@ if __name__ == '__main__':
     plt.loglog(degrees, degree_freq,'go-', linestyle='None', markersize=10, color='black') 
     plt.xlabel('Degree', fontsize=20)
     plt.ylabel('Frequency', fontsize=20)
-    plt.savefig("./plots/degree_distribution_dotplot.png", bbox_inches='tight')
-    print("Plot saved: degree_distribution_dotplot.png")
+    plt.savefig(plotdir + "degree_distribution_dotplot.png", bbox_inches='tight')
+    print("Plot saved:" + plotdir + "degree_distribution_dotplot.png")
     
     plt.clf()
     
@@ -264,8 +267,8 @@ if __name__ == '__main__':
         
     # Create plot for all data on one figure
     db_figure = plot_scatter(jitter_choice, propx, propy, node_props, node_props.Data_type, None)
-    db_figure.figure.savefig("./plots/" + propx + "_v_" + propy + "_distribution.png", bbox_inches='tight') 
-    print("Plot saved: " +propx + "_v_" + propy + "_distribution.png")
+    db_figure.figure.savefig(plotdir + propx + "_v_" + propy + "_distribution.png", bbox_inches='tight') 
+    print("Plot saved: " + plotdir + propx + "_v_" + propy + "_distribution.png")
 
     degbibc_fig = db_figure.get_figure()
     degbibc_fig.clf()
@@ -289,8 +292,8 @@ if __name__ == '__main__':
         #print(node_props_one_type)
     
         data_type_figure = plot_scatter(jitter_choice, propx, propy, node_props_one_type, None, sns.color_palette()[color_counter])
-        data_type_figure.figure.savefig("./plots/" + propx + "_v_" + propy + "_distribution_" + i + "_nodes_only.png", bbox_inches='tight') 
-        print("Plot saved: " + propx + "_v_" + propy + "_distribution_" + i + "_nodes_only.png has been saved")
+        data_type_figure.figure.savefig(plotdir + propx + "_v_" + propy + "_distribution_" + i + "_nodes_only.png", bbox_inches='tight') 
+        print("Plot saved: " + plotdir + propx + "_v_" + propy + "_distribution_" + i + "_nodes_only.png has been saved")
 
         dt_fig = data_type_figure.get_figure()
         dt_fig.clf()
@@ -342,11 +345,11 @@ if __name__ == '__main__':
     add_text(sorted_node_props_top, propx, propy, degbibc) 
 
     if top_pct:
-        degbibc.figure.savefig("./plots/" + propx + "_v_" + propy + "_distribution_top_" + str(top_pct_num) + "_percent.png", bbox_inches='tight') 
-        print("Plot saved: " + propx + "_v_" + propy + "_distribution_top_" + str(top_pct_num) + "_percent.png")
+        degbibc.figure.savefig(plotdir + propx + "_v_" + propy + "_distribution_top_" + str(top_pct_num) + "_percent.png", bbox_inches='tight') 
+        print("Plot saved: " + plotdir + propx + "_v_" + propy + "_distribution_top_" + str(top_pct_num) + "_percent.png")
     else:
-        degbibc.figure.savefig("./plots/" + propx + "_v_" + propy + "_distribution_top_" + str(top_num) + "_nodes.png", bbox_inches='tight') 
-        print("Plot saved: " + propx + "_v_" + propy + "_distribution_top_" + str(top_num) + "_nodes.png")
+        degbibc.figure.savefig(plotdir + propx + "_v_" + propy + "_distribution_top_" + str(top_num) + "_nodes.png", bbox_inches='tight') 
+        print("Plot saved: " + plotdir + propx + "_v_" + propy + "_distribution_top_" + str(top_num) + "_nodes.png")
 
     degbibc_fig_small = degbibc.get_figure()
     degbibc_fig_small.clf()
@@ -381,10 +384,10 @@ if __name__ == '__main__':
             scplot = plot_scatter(jitter_choice, propx, propy, top_x_sorted_node_props_sub, None, sns.color_palette()[color_counter])
             scplot = add_text(top_x_sorted_node_props_sub, propx, propy, scplot)
             
-            scplot.figure.savefig("./plots/" + propx + "_v_" + propy + "_distribution_top_" + str(nnodes_to_plot) + "_nodes_" + i + "_only.png", bbox_inches='tight') 
+            scplot.figure.savefig(plotdir + propx + "_v_" + propy + "_distribution_top_" + str(nnodes_to_plot) + "_nodes_" + i + "_only.png", bbox_inches='tight') 
             
             
-            print("Plot saved: " + propx + "_v_" + propy + "_distribution_top_" + str(nnodes_to_plot) + "_nodes_" + i + "_only.png")
+            print("Plot saved: " + plotdir + propx + "_v_" + propy + "_distribution_top_" + str(nnodes_to_plot) + "_nodes_" + i + "_only.png")
             dt_fig_top = scplot.get_figure()
             dt_fig_top.clf()
             
@@ -394,9 +397,9 @@ if __name__ == '__main__':
     all_top_nodes_flattened = [val for sublist in all_top_nodes for val in sublist]
     pick_list.append(all_top_nodes_flattened) # for plotting abundances
     pick_list.append(all_top_nodes_dict) # for plotting density plots per type
-    
+    pick_list.append(plotdir)
 
-    pickle.dump(pick_list, open("inputs_for_downstream_plots.pickle", "wb")) # dump node_props to pickle for use in abundance code
+    pickle.dump(pick_list, open(filedir + "inputs_for_downstream_plots.pickle", "wb")) # dump node_props to pickle for use in abundance code
 
     
 

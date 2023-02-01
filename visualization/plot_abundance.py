@@ -180,6 +180,7 @@ if __name__ == '__main__':
     node_props = pload[0]
     top_nodes = pload[1]
     top_nodes_per_type = pload[2] # not used in this script
+    plotdir = pload[3] # location of previously created plots directory
 
 
     # # Loop through each unique node type and extract just the top nodes for each type
@@ -253,7 +254,7 @@ if __name__ == '__main__':
 
     # Combine all elements of the subset_dfs list into one data frame so it can be plotted
     concat_df = pd.concat(subset_dfs)
-    concat_df.to_csv('./plots/table_for_manual_abundance_plotting.csv')
+    concat_df.to_csv(plotdir + 'table_for_manual_abundance_plotting.csv')
     
     
     # if the user has entered any specific nodes to plot, plot them
@@ -261,8 +262,8 @@ if __name__ == '__main__':
         for i in user_node_list:
             # print(i)
             plot =  plot_abund(concat_df, x_axis_abund, i, color_group, 'Greys')
-            plot.figure.savefig("./plots/abundance_of_" + i + "_grouped_by_" + color_group + ".png", bbox_inches='tight') 
-            print("Plot saved: abundance_of_" + i + "_grouped_by_" + color_group + ".png")
+            plot.figure.savefig(plotdir + "abundance_of_" + i + "_grouped_by_" + color_group + ".png", bbox_inches='tight') 
+            print("Plot saved: " + plotdir + "abundance_of_" + i + "_grouped_by_" + color_group + ".png")
             plot.figure.clf()
     
     # Plot all the nodes that were in the zoomed in 'per-type' plots of dot_plots.py. Note that by default, 10 nodes per group will be plotted, but that changes if there are not 10 nodes in that group in the network, or if the user specified a smaller number via the --top_num_per_type argument in dot_plots.py
@@ -272,8 +273,8 @@ if __name__ == '__main__':
         #sns.set_context("notebook")
         
         plot =  plot_abund(concat_df, x_axis_abund, i, color_group, 'Greys')
-        plot.figure.savefig("./plots/abundance_of_" + i + "_grouped_by_" + color_group + ".png", bbox_inches='tight') 
-        print("Plot saved: abundance_of_" + i + "_grouped_by_" + color_group + ".png")
+        plot.figure.savefig(plotdir + "abundance_of_" + i + "_grouped_by_" + color_group + ".png", bbox_inches='tight') 
+        print("Plot saved: " + plotdir + "abundance_of_" + i + "_grouped_by_" + color_group + ".png")
         plot.figure.clf()
 
 

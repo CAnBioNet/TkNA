@@ -130,6 +130,8 @@ if __name__ == '__main__':
         node_props = pload[0]
         top_nodes = pload[1]
         top_nodes_per_type = pload[2]
+        plotdir = pload[3] # location of previously created plots directory
+
         
         # First find how many top nodes have both a degree and BiBC greater than the indicated node
         all_nodes_dict = {}
@@ -148,7 +150,7 @@ if __name__ == '__main__':
         
         # Calculate probabilities for all nodes, where chance to find a node randomly is the "square" that can be drawn on the density plot, 
         # meaning it counts the number of nodes found randomly in networks that have both a greater degree and BiBC than each calculated node
-        with open("./plots/probabilities_to_randomly_find_nodes.csv", "w") as file:
+        with open(plotdir + "probabilities_to_randomly_find_nodes.csv", "w") as file:
     
             file.write("Node,Observed degree, Observed BiBC, Probability\n")
             
@@ -173,8 +175,8 @@ if __name__ == '__main__':
         kdefig = add_text(top_nodes_dict, prob_dict)
     
         #kdefig = kdefig.get_figure()
-        kdefig.savefig("./plots/density_plot_with_top_nodes_from_dotplots.png", bbox_inches='tight')
-        print("Plot saved: density_plot_with_top_nodes_from_dotplots.png")
+        kdefig.savefig(plotdir + "density_plot_with_top_nodes_from_dotplots.png", bbox_inches='tight')
+        print("Plot saved: " + plotdir + "density_plot_with_top_nodes_from_dotplots.png")
         kdefig.clf()
         
         
@@ -199,8 +201,8 @@ if __name__ == '__main__':
             kdefig = plot_kde(rand_nets['BiBC'], rand_nets['Degree'], 'Reds')    
             kdefig = add_text(top_dens_nodes_per_type_dict, prob_dict)
             
-            kdefig.savefig("./plots/density_plot_with_top_" + k + "_nodes_only.png", bbox_inches='tight')
-            print("Plot saved: density_plot_with_top_" + k + "_nodes_only.png")
+            kdefig.savefig(plotdir + "density_plot_with_top_" + k + "_nodes_only.png", bbox_inches='tight')
+            print("Plot saved: " + plotdir + "density_plot_with_top_" + k + "_nodes_only.png")
             kdefig.clf()
     
         
@@ -229,8 +231,8 @@ if __name__ == '__main__':
             kdefig = plot_kde(rand_nets['BiBC'], rand_nets['Degree'], 'Reds')
             kdefig = add_text(user_selected_nodes_dict, prob_dict)
             
-            kdefig.savefig("./plots/density_plot_with_user_defined_node_list.png", bbox_inches='tight')
-            print("Plot saved: density_plot_with_user_defined_node_list.png")
+            kdefig.savefig(plotdir + "density_plot_with_user_defined_node_list.png", bbox_inches='tight')
+            print("Plot saved: " + plotdir + "density_plot_with_user_defined_node_list.png")
             kdefig.clf()
 
     # If network is too small/too dense, don't create figure
