@@ -8,6 +8,7 @@ import networkx as nx
 import numpy as np
 import re
 import csv
+import os
 # from networkx import all_shortest_paths
 
 parser = argparse.ArgumentParser(description="Example command: python find_all_shortest_paths_bw_subnets.py <network.pickle> --node-map <map.csv> --node-groups gene pheno", add_help=False)
@@ -33,6 +34,9 @@ map = args.node_map
 node_type1 = args.node_groups[0]
 node_type2 = args.node_groups[1]
 
+filedir = os.path.dirname(os.path.abspath(net))
+
+
 if __name__ == '__main__':
     
     class dictionary(dict):
@@ -47,6 +51,9 @@ if __name__ == '__main__':
     p = pickle.load(p)
     
     G = p
+
+    def connected_component_subgraphs(network):
+    	return [network.subgraph(component) for component in nx.connected_components(network)]
 
     # Function that takes as input the node_type list from the user and creates a 
     # dictionary of the type for each node. Then, for the nodes that are in the 
@@ -124,7 +131,7 @@ if __name__ == '__main__':
         
 
     # Find only the giant component
-    gc = max(nx.connected_component_subgraphs(G), key=len)
+    gc = max(connected_component_subgraphs(G), key=len)
     gc_nodes = gc.nodes()
 
     # Call assign_node_types to find the nodes belonging to the two subnetworks
@@ -138,7 +145,7 @@ if __name__ == '__main__':
     print("Number of nodes in " + node_type2 + " group in the giant component: " + str(len(two_subnets['Type2'])))
     print("Total number of pairs in the giant component: " + str(gc_pairs))
 
-    with open("shortest_path_bw_" + node_type1 + "_and_" + node_type2 + "_results.csv", "w") as out_file:
+    with open(filedir + "/shortest_path_bw_" + node_type1 + "_and_" + node_type2 + "_results.csv", "w") as out_file:
         
         # Find the shortest path length and number of shortest paths between each pair of nodes in the two subnetworks
         out_file.write(node_type1 + "_node," + node_type2 + "_node," + "Shortest_path_length,number_of_shortest_paths\n")
@@ -162,4 +169,4 @@ if __name__ == '__main__':
         # Overwrite any previous file with the same name instead of appending
         out_file.truncate()
 
-print("\nFinished calculating all shortest paths. See shortest_path_bw_" + node_type1 + "_and_" + node_type2 + "_results.csv\n")
+print("\nFinished calculating all shortest paths. See results in " + filedir + "/shortest_path_bw_" + node_type1 + "_and_" + node_type2 + "_results.csv\n")
