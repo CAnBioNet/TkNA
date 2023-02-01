@@ -67,7 +67,7 @@ if __name__ == '__main__':
 
     im_output = infomap_partition(G)
 
-    print(im_output)
+    # print(im_output)
 
     with open(network_name + "_infomap_partition.csv", "w") as file:
         file.write("Node,partition\n")
