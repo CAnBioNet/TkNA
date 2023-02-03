@@ -1,0 +1,16 @@
+{
+	"name": "Lactobacillus",
+	"experiments": [
+		{
+			"name": "experiment1",
+			"dataFile": "Experiment1_noNAs.csv",
+			"treatmentMapFile": "Experiment1_group_map.csv"
+		},
+		{
+			"name": "experiment2",
+			"dataFile": "Experiment2_noNAs.csv",
+			"treatmentMapFile": "Experiment2_group_map.csv"
+		}
+	],
+	"measurableTypeMapFile": "type_map_all_unique.csv"
+}

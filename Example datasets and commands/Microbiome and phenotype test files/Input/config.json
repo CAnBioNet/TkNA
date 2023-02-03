@@ -1,0 +1,45 @@
+{
+	"comparisonTreatments": ["ileum8wkHFHS", "ileum8wkNCD"],
+	"differencePValueThresholds": {
+		"individual": {
+			"microbe": 0.8,
+			"pheno": 0.2
+		},
+		"combined": {
+			"microbe": 0.05,
+			"pheno": 0.05
+		},
+		"corrected": {
+			"microbe": 0.2,
+			"pheno": 0.2
+		}
+	},
+	"correlationFilterMethod": "percentagreement",
+	"correlationFilterPercentAgreementThreshold": 0.66,
+	"metatreatments": {
+		"metatreatment1": [["experiment1", "stool4wkHFHS"]],
+		"metatreatment2": [["experiment1", "stool8wkHFHS"]],
+		"metatreatment3": [["experiment1", "ileum8wkHFHS"]],
+		"metatreatment4": [["experiment2", "stool4wkHFHS"]],
+		"metatreatment5": [["experiment2", "stool8wkHFHS"]],
+		"metatreatment6": [["experiment2", "ileum8wkHFHS"]]
+	},
+	"correlationPValueThresholds": {
+		"individual": {
+			"(microbe, microbe)": 0.8,
+			"(microbe, pheno)": 0.8,
+			"(pheno, pheno)": 1
+		},
+		"combined": {
+			"(microbe, microbe)": 0.05,
+			"(microbe, pheno)": 0.05,
+			"(pheno, pheno)": 0.1
+		},
+		"corrected": {
+			"(microbe, microbe)": 0.1,
+			"(microbe, pheno)": 0.1,
+			"(pheno, pheno)": 0.1
+		}
+	}
+}
+

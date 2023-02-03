@@ -1,0 +1,52 @@
+NOTE: This was ran from the network_analysis directory (cloned from github)
+
+Python version: 3.8.10
+
+# 1. reconstruct network 
+	python3 ./reconstruction/intake_data.py --data-dir ./testing/lactobacillus/input --out-file ./testing/lactobacillus/output/all_data_and_metadata.cdf
+	
+	python3 ./reconstruction/run.py --data-source ./testing/lactobacillus/output/all_data_and_metadata.cdf --config-file ./testing/lactobacillus/input/config_from_amanda.json --out-file ./testing/lactobacillus/output/network_output.zip
+	
+	python3 ./reconstruction/to_csv.py --data-file ./testing/lactobacillus/output/network_output.zip --config-file ./testing/lactobacillus/input/config_from_amanda.json --out-dir ./testing/lactobacillus/output/network_output
+	
+# 2. Assess network quality
+	python analysis/assess_network.py --file ./testing/lactobacillus/output/network_output/correlations_bw_signif_measurables.csv --source partner1 --target partner2
+		
+# 3. Analyze the network
+	(OPTIONAL) - Generate partitions for use in BiBC calculation using either the Louvain algorithm or Infomap
+		python ./analysis/louvain_partition.py --pickle ./testing/lactobacillus/output/network_output/network.pickle
+
+		python ./analysis/infomap_assignment.py --pickle ./testing/lactobacillus/output/network_output/network.pickle
+		
+	(REQUIRED) - Calculate network, subnetwork, and node properties, using the microbes and phenotypes in the network as the two BiBC groups
+		python ./analysis/calc_network_properties.py --pickle ./testing/lactobacillus/output/network_output/network.pickle --bibc --bibc-groups node_types --bibc-calc-type rbc --node-map ./testing/lactobacillus/input/type_map_all_unique.csv --node-groups microbe pheno
+
+# 4. Create random networks and analyze
+	python ./random_networks/create_random_networks.py --template-network ./testing/lactobacillus/output/network_output/network.pickle --networks-file ./testing/lactobacillus/output/network_output/all_random_networks.pickle
+
+	python ./random_networks/compute_network_stats.py --networks-file ./testing/lactobacillus/output/network_output/all_random_networks.pickle --bibc-groups node_types --bibc-calc-type rbc --stats-file ./testing/lactobacillus/output/network_output/random_network_analysis.pickle --node-map ./testing/lactobacillus/input/type_map_all_unique.csv --node-groups microbe pheno
+	
+	python ./random_networks/synthesize_network_stats.py --network-stats-file ./testing/lactobacillus/output/network_output/random_network_analysis.pickle --synthesized-stats-file ./testing/lactobacillus/output/network_output/random_networks_synthesized.csv
+	
+# 5. Visualization
+	python ./visualization/dot_plots.py --pickle ./testing/lactobacillus/output/network_output/network.pickle --node-props ./testing/lactobacillus/output/network_output/node_properties.txt --network-file ./testing/lactobacillus/output/network_output/network_output_comp.csv --propx BiBC --propy Node_degrees --top-num 10 --top-num-per-type 5
+	
+	python ./visualization/plot_abundance.py --pickle ./testing/lactobacillus/output/network_output/inputs_for_downstream_plots.pickle --abund-data ./testing/lactobacillus/input/Experiment1_noNAs.csv ./testing/lactobacillus/input/Experiment2_noNAs.csv --metadata ./testing/lactobacillus/input/Experiment1_group_map.csv ./testing/lactobacillus/input/Experiment2_group_map.csv --color-group Treatment --x-axis Experiment
+
+	python ./visualization/plot_density.py --rand-net ./testing/lactobacillus/output/network_output/random_networks_synthesized.csv --pickle ./testing/lactobacillus/output/network_output/inputs_for_downstream_plots.pickle
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

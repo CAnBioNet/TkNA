@@ -1,0 +1,4 @@
+
+### Subnetwork properties ###
+microbe_mean_degree	11.583333333333334
+pheno_mean_degree	3.7777777777777777
