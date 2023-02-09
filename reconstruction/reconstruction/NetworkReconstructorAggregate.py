@@ -93,8 +93,10 @@ class CorrelationWorkerSpearman(CorrelationWorker):
 			else:
 				r = covariance / (xStd * yStd)
 
-		if abs(r) == 1:
+		rEps = numpy.finfo(type(r)).eps
+		if abs(abs(r) - 1) <= rEps:
 			p = 0
+			r = numpy.sign(r) # Round r to 1 or -1
 		else:
 			dof = len(x_ranked) - 2
 			t = r * numpy.sqrt(dof / (1 - numpy.square(r)))
