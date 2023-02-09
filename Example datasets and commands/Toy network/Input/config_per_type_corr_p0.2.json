@@ -1,0 +1,36 @@
+{
+	"comparisonTreatments": ["Treatment", "Control"],
+	"differencePValueThresholds": {
+		"individual": {
+			"gene": 0.05,
+			"pheno": 0.05
+		},
+		"combined": {
+			"gene": 1,
+			"pheno": 1
+		},
+		"corrected": {
+			"gene": 1,
+			"pheno": 1
+		}
+	},
+	"networkTreatment": "Treatment",
+	"correlationPValueThresholds": {
+		"individual": {
+			"(gene, gene)": 0.2,
+			"(pheno, gene)": 0.2,
+			"(pheno, pheno)": 0.2
+		},
+		"combined": {
+			"(gene, gene)": 1,
+			"(pheno, gene)": 1,
+			"(pheno, pheno)": 1
+		},
+		"corrected": {
+			"(gene, gene)": 1,
+			"(pheno, gene)": 1,
+			"(pheno, pheno)": 1
+		}
+	}
+}
+
