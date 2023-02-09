@@ -67,6 +67,11 @@ def nodesByType(args, network):
 			node, nodeType = row[0], row[1]
 			if node in network.nodes:
 				nodeMap[nodeType].append(node)
+
+	for nodeGroup in args.nodeGroups:
+		if nodeGroup not in nodeMap:
+			raise Exception(f"Specified node group \"{nodeGroup}\" not in node map")
+
 	return nodeMap[args.nodeGroups[0]], nodeMap[args.nodeGroups[1]]
 
 # Calculates restricted betweeness centrality for two groups of nodes.
