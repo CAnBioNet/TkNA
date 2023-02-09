@@ -1,3 +1,5 @@
+!!!IMPORTANT NOTE!!!: If you have not already set up a conda environment and cloned the repo, please complete the steps in "Creating a conda environment.txt" document before running the following commands.
+
 Reconstruction and analysis of a network
 Note that the following must be ran from the network_analysis directory that was created when you cloned the repo to your analysis directory above. 
 1. Import the data and metadata for the run
