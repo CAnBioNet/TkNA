@@ -80,10 +80,12 @@ if args.bibc:
         node_input_file = args.node_map
         node_type1 = args.node_groups[0]
         node_type2 = args.node_groups[1]
+
     elif args.bibc_groups == "modularity":
         bibc_choice = "modularity"
         
     bibc_calc_type = args.bibc_calc_type
+
 
 def connected_component_subgraphs(network):
 	return [network.subgraph(component) for component in nx.connected_components(network)]
@@ -129,6 +131,11 @@ if __name__ == '__main__':
             
             for row in node_file:
                 node_type_dict[row[0]] = row[1]
+
+        # ensure the node groups supplied are both present in the mapping file
+        for nodeGroup in args.node_groups:
+            if nodeGroup not in list(node_type_dict.values()):
+                raise Exception(f"Specified node group \"{nodeGroup}\" not in node map")
 
         # Search the previously created dictionary and, for each 'otu' value in the second column of the input file, assign 
         # the corresponding key to otu_list, then do the same thing for each 'pheno' value and its corresponding list 
