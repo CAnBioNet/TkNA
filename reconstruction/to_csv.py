@@ -119,6 +119,7 @@ def setupEdgeCsv(data, config):
 		CsvWriter.CoordComponentPer("partner2_MedianLog2FoldChange ({})", "medianFoldChanges", 1, "measurable", "experiment"),
 		CsvWriter.CoordComponentPer("partner2_MeanLog2FoldChange ({})", "meanFoldChanges", 1, "measurable", "experiment"),
 		CsvWriter.Column("Correlations Consistent", "consistentCorrelation"),
+		CsvWriter.Column("All Non-PUC Filters Passed", "nonPucPassed"),
 		CsvWriter.Column("combined Coefficient correlation Direction", "combinedCorrelationSigns"),
 		CsvWriter.CoordComponentColumn("partner1_FC_direction", "combinedFoldChangeSigns", 0, "measurable"),
 		CsvWriter.CoordComponentColumn("partner2_FC_direction", "combinedFoldChangeSigns", 1, "measurable"),
@@ -130,6 +131,7 @@ def setupEdgeCsv(data, config):
 	data["consistentCorrelation"] = None
 	data["combinedCoefficients"] = None
 	data["expectedEdgeFilterInt"] = None
+	data["nonPucPassed"] = None
 
 	data["meanValue"] = None
 	data["medianValue"] = None
@@ -145,6 +147,7 @@ def setupEdgeCsv(data, config):
 	data["consistentCorrelation"] = xarray.apply_ufunc(lambda signs: numpy.all(signs == signs[0]), data["correlationSigns"], input_core_dims=[["metatreatment"]], vectorize=True)
 	data["combinedCoefficients"] = xarray.apply_ufunc(lambda coefficients: numpy.mean(coefficients), data["correlationCoefficients"], input_core_dims=[["metatreatment"]], vectorize=True)
 	data["expectedEdgeFilterInt"] = data["expectedEdgeFilter"].astype(int)
+	data["nonPucPassed"] = data["diagonalFilter"] & data["individualCorrelationPValueFilter"] & data["combinedCorrelationPValueFilter"] & data["correctedCorrelationPValueFilter"] & data["correlationFilter"]
 
 	data["meanValue"] = data["originalData"].groupby("experiment").map(lambda a: a.mean(dim="organism"))
 	data["medianValue"] = data["originalData"].groupby("experiment").map(lambda a: a.median(dim="organism"))
