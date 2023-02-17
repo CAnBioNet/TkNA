@@ -97,6 +97,12 @@ def writeNodes(data, config, outDir):
 
 def setupEdgeCsv(data, config):
 	correlationMethod = config["correlationMethod"]
+	correlationFilterMethod = config["correlationFilterMethod"]
+	if correlationFilterMethod == "percentagreement":
+		percentAgreementThreshold = config["correlationFilterPercentAgreementThreshold"]
+		consistencyDescriptor = "{}% Agreement".format(round(percentAgreementThreshold * 100))
+	else:
+		consistencyDescriptor = "All Agree"
 
 	csvConfig = CsvWriter.Config(CsvWriter.DimTuple("measurable1", "measurable2"),
 		CsvWriter.CoordinateFormatted("Edge name", "{}<==>{}"),
@@ -118,7 +124,7 @@ def setupEdgeCsv(data, config):
 		CsvWriter.CoordComponentPer("partner2_MeanValue ({})", "meanValue", 1, "measurable", "experiment"),
 		CsvWriter.CoordComponentPer("partner2_MedianLog2FoldChange ({})", "medianFoldChanges", 1, "measurable", "experiment"),
 		CsvWriter.CoordComponentPer("partner2_MeanLog2FoldChange ({})", "meanFoldChanges", 1, "measurable", "experiment"),
-		CsvWriter.Column("Correlations Consistent", "consistentCorrelation"),
+		CsvWriter.Column("Correlations Passed Consistency Filter ({})".format(consistencyDescriptor), "correlationFilter"),
 		CsvWriter.Column("combined Coefficient correlation Direction", "combinedCorrelationSigns"),
 		CsvWriter.CoordComponentColumn("partner1_FC_direction", "combinedFoldChangeSigns", 0, "measurable"),
 		CsvWriter.CoordComponentColumn("partner2_FC_direction", "combinedFoldChangeSigns", 1, "measurable"),
@@ -127,7 +133,6 @@ def setupEdgeCsv(data, config):
 		CsvWriter.Column("Final Network Value (0: No edge, 1: Positive edge, -1: Negative edge)", "edges")
 	)
 
-	data["consistentCorrelation"] = None
 	data["combinedCoefficients"] = None
 	data["expectedEdgeFilterInt"] = None
 
@@ -142,7 +147,6 @@ def setupEdgeCsv(data, config):
 	if not all(key in data for key in dataKeys):
 		return
 
-	data["consistentCorrelation"] = xarray.apply_ufunc(lambda signs: numpy.all(signs == signs[0]), data["correlationSigns"], input_core_dims=[["metatreatment"]], vectorize=True)
 	data["combinedCoefficients"] = xarray.apply_ufunc(lambda coefficients: numpy.mean(coefficients), data["correlationCoefficients"], input_core_dims=[["metatreatment"]], vectorize=True)
 	data["expectedEdgeFilterInt"] = data["expectedEdgeFilter"].astype(int)
 
