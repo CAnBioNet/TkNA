@@ -100,7 +100,7 @@ def setupEdgeCsv(data, config):
 	correlationFilterMethod = config["correlationFilterMethod"]
 	if correlationFilterMethod == "percentagreement":
 		percentAgreementThreshold = config["correlationFilterPercentAgreementThreshold"]
-		consistencyDescriptor = "{}% Agreement".format(round(percentAgreementThreshold * 100))
+		consistencyDescriptor = "{}% Agreement".format(percentAgreementThreshold * 100)
 	else:
 		consistencyDescriptor = "All Agree"
 
