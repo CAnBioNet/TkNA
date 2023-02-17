@@ -52,7 +52,7 @@ optionalArgGroup.add_argument("--frag", help = 'Flag; Do you want to compute nod
 optionalArgGroup.add_argument("--bibc", help= 'Flag; Do you want to compute BiBC? (Significantly increases run-time)', action = 'store_true')
 optionalArgGroup.add_argument("--bibc-groups", dest = "bibc_groups", choices = ['node_types', 'modularity'], help= "What to compute BiBC on, either distinct groups (node_types) or on the two most modular regions (modularity) of the network (found using the Louvain method). Required if --bibc is set")
 optionalArgGroup.add_argument("--bibc-calc-type", dest="bibc_calc_type", choices = ['rbc', 'bibc'], help= "Would you like to normalize the bibc value based on amount of nodes in each group (rbc) or not (bibc)? Required if --bibc is set.")
-optionalArgGroup.add_argument("--node-map", type=str, dest="node_map", help= "Required if node_types is specified for --bibc-groups. CSV of nodes and their types (i.e. otu, pheno, gene, etc.)", required=True)
+optionalArgGroup.add_argument("--node-map", type=str, dest="node_map", help= "Required if node_types is specified for --bibc-groups. CSV of nodes and their types (i.e. otu, pheno, gene, etc.)")
 optionalArgGroup.add_argument("--node-groups", nargs = 2, type=str, dest="node_groups", help= "2 args; Required if node_types is specified for --bibc-groups. The two groups of nodes to calculate BiBC/RBC on")
 
 
