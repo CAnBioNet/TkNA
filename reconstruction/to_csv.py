@@ -104,7 +104,7 @@ def setupEdgeCsv(data, config):
 	else:
 		consistencyDescriptor = "All Agree"
 
-	csvConfig = CsvWriter.Config(CsvWriter.DimTuple("measurable1", "measurable2"),
+	csvConfig = CsvWriter.Config(["measurable1", "measurable2"],
 		CsvWriter.CoordinateFormatted("Edge name", "{}<==>{}"),
 		CsvWriter.CoordinateFunction("partner1", lambda m1, m2: m1),
 		CsvWriter.CoordinateFunction("partner2", lambda m1, m2: m2),
@@ -163,7 +163,7 @@ def writeCorrelations(data, config, outDir):
 	csvConfig, data = setupEdgeCsv(data, config)
 
 	fileName = "correlations_bw_signif_measurables.csv"
-	CsvWriter.writeCsv(outDir / fileName, csvConfig, data, itertools.combinations(data["filteredData"].coords["measurable"].data, 2))
+	CsvWriter.writeCsv(outDir / fileName, csvConfig, data, list(itertools.combinations(data["filteredData"].coords["measurable"].data, 2)))
 
 def writeSummary(data, config, outDir):
 	csvConfig, data = setupEdgeCsv(data, config)
@@ -232,7 +232,7 @@ def writeEdgeCsvSingleCell(data, config, filePath, finalOnly=False):
 		allEdges = list(itertools.combinations(data["filteredData"].coords["measurableAndCellType"].data, 2))
 		edgeList = [edge for edge in allEdges if data["edges"].sel(measurableAndCellType1=edge[0], measurableAndCellType2=edge[1]) != 0]
 	else:
-		edgeList = itertools.combinations(data["filteredData"].coords["measurableAndCellType"].data, 2)
+		edgeList = list(itertools.combinations(data["filteredData"].coords["measurableAndCellType"].data, 2))
 
 	cellTypeCoords = [data["filteredData"].sel(measurableAndCellType=m).cellType.item() for m in data["filteredData"].coords["measurableAndCellType"].data]
 	measurableCoords = [data["filteredData"].sel(measurableAndCellType=m).measurable.item() for m in data["filteredData"].coords["measurableAndCellType"].data]
@@ -241,7 +241,7 @@ def writeEdgeCsvSingleCell(data, config, filePath, finalOnly=False):
 	data["foldChangesStacked"] = data["foldChanges"].stack({"measurableAndCellType": ("measurable", "differentialCellType")}).reset_index("measurableAndCellType")
 	data["combinedFoldChangeSignsStacked"] = data["combinedFoldChangeSigns"].stack({"measurableAndCellType": ("measurable", "differentialCellType")}).reset_index("measurableAndCellType")
 
-	csvConfig = CsvWriter.Config(CsvWriter.DimTuple("measurableAndCellType1", "measurableAndCellType2"),
+	csvConfig = CsvWriter.Config(["measurableAndCellType1", "measurableAndCellType2"],
 		CsvWriter.Property("Measurable 1", "correlationCoefficients", "measurable1"),
 		CsvWriter.Property("Measurable 2", "correlationCoefficients", "measurable2"),
 		CsvWriter.PropertiesFormatted("Measurables", "correlationCoefficients", "{}<==>{}", ["measurable1", "measurable2"]),

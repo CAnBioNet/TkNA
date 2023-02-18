@@ -1,42 +1,26 @@
 import csv
 from itertools import chain
+import numpy
 
-# TODO: Always use tuples of dimensions/coordinates
-
-class DimTuple:
-	def __init__(self, *dims):
-		self.dims = dims
-
-	def __getitem__(self, item):
-		return self.dims[item]
+def getArr(data, dataKey, dim):
+	dataArr = data[dataKey]
+	if isinstance(dim, list):
+		newDim = "_".join(dim)
+		dataArr = dataArr.stack({newDim: dim})
+		dim = newDim
+	return dataArr, dim
 
 class Column:
-	def __init__(self, title, dataKey, rowCoordConversionDict=None, missingOk=False):
+	def __init__(self, title, dataKey):
 		self.title = title
 		self.dataKey = dataKey
-		self.missingOk = missingOk
-		self.rowCoordConversionDict = rowCoordConversionDict
 
 	def getHeaders(self, data):
-		if self.dataKey not in data:
-			if self.missingOk:
-				return []
-			else:
-				raise Exception("Specified data array not present")
 		return [self.title]
 
-	def getValues(self, data, rowDim, rowCoord):
-		if self.dataKey not in data:
-			if self.missingOk:
-				return []
-			else:
-				raise Exception("Specified data array not present")
-		if self.rowCoordConversionDict is not None:
-			rowCoord = self.rowCoordConversionDict[rowCoord]
-		if isinstance(rowDim, DimTuple):
-			return [data[self.dataKey].sel({dim: coord for dim, coord in zip(rowDim.dims, rowCoord)}).item()]
-		else:
-			return [data[self.dataKey].sel({rowDim: rowCoord}).item()]
+	def getValues(self, data, dim, coords):
+		dataArr, dim = getArr(data, self.dataKey, dim)
+		return [dataArr.sel({dim: coords}).data]
 
 	def getDataKeys(self):
 		return [self.dataKey]
@@ -50,11 +34,9 @@ class Property:
 	def getHeaders(self, data):
 		return [self.title]
 
-	def getValues(self, data, rowDim, rowCoord):
-		if isinstance(rowDim, DimTuple):
-			return [data[self.dataKey].sel({dim: coord for dim, coord in zip(rowDim.dims, rowCoord)}).coords[self.propertyDim].item()]
-		else:
-			return [data[self.dataKey].sel({rowDim: rowCoord}).coords[self.propertyDim].item()]
+	def getValues(self, data, dim, coords):
+		dataArr, dim = getArr(data, self.dataKey, dim)
+		return [dataArr.sel({dim: coords}).coords[self.propertyDim].data]
 
 	def getDataKeys(self):
 		return [self.dataKey]
@@ -69,35 +51,27 @@ class PropertiesFormatted:
 	def getHeaders(self, data):
 		return [self.title]
 
-	def getValues(self, data, rowDim, rowCoord):
-		if isinstance(rowDim, DimTuple):
-			value = data[self.dataKey].sel({dim: coord for dim, coord in zip(rowDim.dims, rowCoord)})
-		else:
-			value = data[self.dataKey].sel({rowDim: rowCoord})
-		return [self.formatStr.format(*[value.coords[propertyDim].item() for propertyDim in self.propertyDims])]
+	def getValues(self, data, dim, coords):
+		dataArr, dim = getArr(data, self.dataKey, dim)
+		properties = numpy.array([dataArr.sel({dim: coords}).coords[propertyDim].data for propertyDim in propertyDims])
+		return [numpy.apply_along_axis(lambda properties: formatStr.format(properties))]
 
 	def getDataKeys(self):
 		return [self.dataKey]
 
 class Per:
-	def __init__(self, titleTemplate, dataKey, perDim, rowCoordConversionDict=None):
+	def __init__(self, titleTemplate, dataKey, perDim):
 		self.titleTemplate = titleTemplate
 		self.dataKey = dataKey
 		self.perDim = perDim
-		self.rowCoordConversionDict = rowCoordConversionDict
 
 	def getHeaders(self, data):
 		self.perCoords = data[self.dataKey].coords[self.perDim].data # Save coordinates to keep order consistent with values
 		return [self.titleTemplate.format(coord) for coord in self.perCoords]
 
-	def getValues(self, data, rowDim, rowCoord):
-		if self.rowCoordConversionDict is not None:
-			rowCoord = self.rowCoordConversionDict[rowCoord]
-		if isinstance(rowDim, DimTuple):
-			selDict = {dim: coord for dim, coord in zip(rowDim.dims, rowCoord)}
-			return [data[self.dataKey].sel(dict(chain(selDict.items(), {self.perDim: perCoord}.items()))).item() for perCoord in self.perCoords]
-		else:
-			return [data[self.dataKey].sel({rowDim: rowCoord, self.perDim: perCoord}).item() for perCoord in self.perCoords]
+	def getValues(self, data, dim, coords):
+		dataArr, dim = getArr(data, self.dataKey, dim)
+		return [dataArr.sel({self.perDim: perCoord, dim: coords}).data for perCoord in self.perCoords]
 
 	def getDataKeys(self):
 		return [self.dataKey]
@@ -109,8 +83,8 @@ class Coordinate:
 	def getHeaders(self, data):
 		return [self.title]
 
-	def getValues(self, data, rowDim, rowCoord):
-		return [rowCoord]
+	def getValues(self, data, dim, coords):
+		return [coords]
 
 	def getDataKeys(self):
 		return []
@@ -123,11 +97,11 @@ class CoordinateFormatted:
 	def getHeaders(self, data):
 		return [self.title]
 
-	def getValues(self, data, rowDim, rowCoord):
-		if isinstance(rowDim, DimTuple):
-			return [self.valueTemplate.format(*rowCoord)]
+	def getValues(self, data, dim, coords):
+		if isinstance(dim, list):
+			return [[self.valueTemplate.format(*coord) for coord in coords]]
 		else:
-			return [self.valueTemplate.format(rowCoord)]
+			return [[self.valueTemplate.format(coord) for coord in coords]]
 
 	def getDataKeys(self):
 		return []
@@ -140,69 +114,49 @@ class CoordinateFunction:
 	def getHeaders(self, data):
 		return [self.title]
 
-	def getValues(self, data, rowDim, rowCoord):
-		if isinstance(rowDim, DimTuple):
-			return [self.func(*rowCoord)]
+	def getValues(self, data, dim, coords):
+		if isinstance(dim, list):
+			return [[self.func(*coord) for coord in coords]]
 		else:
-			return [self.func(rowCoord)]
+			return [[self.func(coord) for coord in coords]]
 
 	def getDataKeys(self):
 		return []
 
 class CoordComponentColumn:
-	def __init__(self, title, dataKey, componentIndex, componentDim, rowCoordConversionDict=None):
+	def __init__(self, title, dataKey, componentIndex, componentDim):
 		self.title = title
 		self.dataKey = dataKey
 		self.componentIndex = componentIndex
 		self.componentDim = componentDim
-		self.rowCoordConversionDict = rowCoordConversionDict
 
 	def getHeaders(self, data):
 		return [self.title]
 
-	def getValues(self, data, rowDim, rowCoord):
-		rowCoord = rowCoord[self.componentIndex]
-		if self.rowCoordConversionDict is not None:
-			rowCoord = self.rowCoordConversionDict[rowCoord]
-		return [data[self.dataKey].sel({self.componentDim: rowCoord}).item()]
+	def getValues(self, data, dim, coords):
+		dataArr = data[self.dataKey]
+		components = [coord[self.componentIndex] for coord in coords]
+		return [dataArr.sel({self.componentDim: components}).data]
 
 	def getDataKeys(self):
 		return [self.dataKey]
 
 class CoordComponentPer:
-	def __init__(self, titleTemplate, dataKey, componentIndex, componentDim, perDim, rowCoordConversionDict=None):
+	def __init__(self, titleTemplate, dataKey, componentIndex, componentDim, perDim):
 		self.titleTemplate = titleTemplate
 		self.dataKey = dataKey
 		self.componentIndex = componentIndex
 		self.componentDim = componentDim
 		self.perDim = perDim
-		self.rowCoordConversionDict = rowCoordConversionDict
 
 	def getHeaders(self, data):
 		self.perCoords = data[self.dataKey].coords[self.perDim].data # Save coordinates to keep order consistent with values
 		return [self.titleTemplate.format(coord) for coord in self.perCoords]
 
-	def getValues(self, data, rowDim, rowCoord):
-		rowCoord = rowCoord[self.componentIndex]
-		if self.rowCoordConversionDict is not None:
-			rowCoord = self.rowCoordConversionDict[rowCoord]
-		return [data[self.dataKey].sel({self.componentDim: rowCoord, self.perDim: perCoord}).item() for perCoord in self.perCoords]
-
-	def getDataKeys(self):
-		return [self.dataKey]
-
-class CoordinateValueFunction:
-	def __init__(self, title, dataKey, componentDim, func):
-		self.title = title
-		self.dataKey = dataKey
-		self.componentDim = componentDim
-		self.func = func
-
-	def getHeaders(self, data):
-		return [self.title]
-
-	def getValues(self, data, rowDim, rowCoord):
-		return [self.func(*[data[self.dataKey].sel({self.componentDim: component}).item() for component in rowCoord])]
+	def getValues(self, data, dim, coords):
+		dataArr = data[self.dataKey]
+		components = [coord[self.componentIndex] for coord in coords]
+		return [dataArr.sel({self.perDim: perCoord, self.componentDim: components}).data for perCoord in self.perCoords]
 
 	def getDataKeys(self):
 		return [self.dataKey]
@@ -215,30 +169,15 @@ class Config:
 	def getDataKeys(self):
 		return list(chain(*[col.getDataKeys() for col in self.columns]))
 
-class RowGenerator:
-	def __init__(self, config):
-		self.config = config
-
-	def getHeader(self, data):
-		return chain(*[col.getHeaders(data) for col in self.config.columns])
-
-	def getRow(self, data, rowCoord):
-		return chain(*[col.getValues(data, self.config.rowDim, rowCoord) for col in self.config.columns])
-
-	# TODO: Ideally wouldn't need to pass rowCoords, as all datasets used must have the same set of rowCoords.
-	# Should do some kind of verification of this and can get the coordinates through that.
-	def getRows(self, data, rowCoords):
-		for rowCoord in rowCoords:
-			yield self.getRow(data, rowCoord)
-
 def writeCsv(filePath, config, data, rowCoords):
+	header = list(chain(*[col.getHeaders(data) for col in config.columns]))
+	values = numpy.stack(list(chain(*[col.getValues(data, config.rowDim, rowCoords) for col in config.columns])))
+
 	csvFile = open(filePath, "w")
 	csvWriter = csv.writer(csvFile)
 
-	rowGenerator = RowGenerator(config)
-	csvWriter.writerow(rowGenerator.getHeader(data))
-	for row in rowGenerator.getRows(data, rowCoords):
-		csvWriter.writerow(row)
+	csvWriter.writerow(header)
+	numpy.apply_along_axis(lambda row: csvWriter.writerow(row), 0, values)
 
 	csvFile.close()
 
