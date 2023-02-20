@@ -39,7 +39,7 @@ if __name__ == '__main__':
         '''        
         for k,v in dic_obs.items():    
             plt.plot(v[1],v[0], "ko", zorder = 10)
-            plt.annotate(k + "\n" + dic_prob[k], (v[1]+0.01,v[0]), fontsize=12)
+            plt.annotate(k + "\n" + dic_prob[k], (v[1]+0.01,v[0]), fontsize=8)
         return(plt)
     
     def check_rand_net_output(df):
