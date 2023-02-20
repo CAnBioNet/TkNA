@@ -39,7 +39,7 @@ if __name__ == '__main__':
         '''        
         for k,v in dic_obs.items():    
             plt.plot(v[1],v[0], "ko", zorder = 10)
-            plt.annotate(k + "\n" + dic_prob[k], (v[1]+0.01,v[0]), fontsize=18)
+            plt.annotate(k + "\n" + dic_prob[k], (v[1]+0.01,v[0]), fontsize=12)
         return(plt)
     
     def check_rand_net_output(df):
@@ -193,7 +193,7 @@ if __name__ == '__main__':
             top_dens_nodes_per_type = BiBC_deg_sorted[BiBC_deg_sorted['index'].isin(v)]
             top_dens_nodes_per_type = top_dens_nodes_per_type[['index','Node_degrees', 'BiBC']]
            
-            # Convert df to dicctionary to plot
+            # Convert df to dictionary to plot
             top_dens_nodes_per_type_dict = {} 
             for index, row in top_dens_nodes_per_type.iterrows():
                 top_dens_nodes_per_type_dict[row[0]] = [row[1], row[2]]
