@@ -123,6 +123,20 @@ class CoordinateFunction:
 	def getDataKeys(self):
 		return []
 
+class CoordComponent:
+	def __init__(self, title, componentIndex):
+		self.title = title
+		self.componentIndex = componentIndex
+
+	def getHeaders(self, data):
+		return [self.title]
+
+	def getValues(self, data, dim, coords):
+		return [[coord[self.componentIndex] for coord in coords]]
+
+	def getDataKeys(self):
+		return []
+
 class CoordComponentColumn:
 	def __init__(self, title, dataKey, componentIndex, componentDim):
 		self.title = title
@@ -157,6 +171,26 @@ class CoordComponentPer:
 		dataArr = data[self.dataKey]
 		components = [coord[self.componentIndex] for coord in coords]
 		return [dataArr.sel({self.perDim: perCoord, self.componentDim: components}).data for perCoord in self.perCoords]
+
+	def getDataKeys(self):
+		return [self.dataKey]
+
+class CoordComponentPropertyFormatted:
+	def __init__(self, title, dataKey, formatStr, componentDim, propertyDim):
+		self.title = title
+		self.dataKey = dataKey
+		self.formatStr = formatStr
+		self.componentDim = componentDim
+		self.propertyDim = propertyDim
+
+	def getHeaders(self, data):
+		return [self.title]
+
+	def getValues(self, data, dim, coords):
+		dataArr = data[self.dataKey]
+		components = numpy.array(coords).T
+		componentProperties = numpy.array([dataArr.sel({self.componentDim: componentList}).coords[self.propertyDim].data for componentList in components])
+		return [numpy.apply_along_axis(lambda properties: self.formatStr.format(*properties), 0, componentProperties)]
 
 	def getDataKeys(self):
 		return [self.dataKey]
