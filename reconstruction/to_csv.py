@@ -168,8 +168,10 @@ def writeCorrelations(data, config, outDir):
 def writeSummary(data, config, outDir):
 	csvConfig, data = setupEdgeCsv(data, config)
 
-	allEdges = list(itertools.combinations(data["filteredData"].coords["measurable"].data, 2))
-	includedEdges = [edge for edge in allEdges if data["edges"].sel(measurable1=edge[0], measurable2=edge[1]) != 0]
+	includedEdgeIndices = numpy.argwhere((data["edges"] != 0 & ~(data["edges"].isnull())).data)
+	includedEdgeEntries = [data["edges"][index[0], index[1]] for index in includedEdgeIndices]
+	includedEdges = {frozenset((entry.measurable1.item(), entry.measurable2.item())) for entry in includedEdgeEntries}
+	includedEdges = [tuple(edge) for edge in includedEdges]
 
 	fileName = "network_output_comp.csv"
 	CsvWriter.writeCsv(outDir / fileName, csvConfig, data, includedEdges)
