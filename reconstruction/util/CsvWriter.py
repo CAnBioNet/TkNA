@@ -53,8 +53,8 @@ class PropertiesFormatted:
 
 	def getValues(self, data, dim, coords):
 		dataArr, dim = getArr(data, self.dataKey, dim)
-		properties = numpy.array([dataArr.sel({dim: coords}).coords[propertyDim].data for propertyDim in propertyDims])
-		return [numpy.apply_along_axis(lambda properties: formatStr.format(properties))]
+		properties = numpy.array([dataArr.sel({dim: coords}).coords[propertyDim].data for propertyDim in self.propertyDims])
+		return [numpy.apply_along_axis(lambda properties: self.formatStr.format(properties))]
 
 	def getDataKeys(self):
 		return [self.dataKey]
