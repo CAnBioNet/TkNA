@@ -147,7 +147,7 @@ def setupEdgeCsv(data, config):
 	if not all(key in data for key in dataKeys):
 		return
 
-	data["combinedCoefficients"] = xarray.apply_ufunc(lambda coefficients: numpy.mean(coefficients), data["correlationCoefficients"], input_core_dims=[["metatreatment"]], vectorize=True)
+	data["combinedCoefficients"] = data["correlationCoefficients"].mean(dim="metatreatment")
 	data["expectedEdgeFilterInt"] = data["expectedEdgeFilter"].astype(int)
 
 	data["meanValue"] = data["originalData"].groupby("experiment").map(lambda a: a.mean(dim="organism"))
