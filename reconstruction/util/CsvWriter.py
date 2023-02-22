@@ -211,7 +211,7 @@ def writeCsv(filePath, config, data, rowCoords):
 	csvWriter = csv.writer(csvFile)
 
 	csvWriter.writerow(header)
-	numpy.apply_along_axis(lambda row: csvWriter.writerow(row), 0, values)
+	numpy.apply_along_axis(csvWriter.writerow, 0, values)
 
 	csvFile.close()
 
