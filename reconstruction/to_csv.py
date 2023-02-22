@@ -80,17 +80,13 @@ def setupMeasurableCsv(data, config):
 
 	return csvConfig, data
 
-def writeComparisons(data, config, outDir):
-	csvConfig, data = setupMeasurableCsv(data, config)
-
+def writeComparisons(data, config, csvConfig, outDir):
 	fileName = "all_comparisons.csv"
 	CsvWriter.writeCsv(outDir / fileName, csvConfig, data, data["differencePValues"].coords["measurable"].data)
 
-def writeNodes(data, config, outDir):
+def writeNodes(data, config, csvConfig, outDir):
 	if "filteredData" not in data:
 		return
-
-	csvConfig, data = setupMeasurableCsv(data, config)
 
 	fileName = "node_comparisons.csv"
 	CsvWriter.writeCsv(outDir / fileName, csvConfig, data, data["filteredData"].coords["measurable"].data)
@@ -159,15 +155,11 @@ def setupEdgeCsv(data, config):
 
 	return csvConfig, data
 
-def writeCorrelations(data, config, outDir):
-	csvConfig, data = setupEdgeCsv(data, config)
-
+def writeCorrelations(data, config, csvConfig, outDir):
 	fileName = "correlations_bw_signif_measurables.csv"
 	CsvWriter.writeCsv(outDir / fileName, csvConfig, data, list(itertools.combinations(data["filteredData"].coords["measurable"].data, 2)))
 
-def writeSummary(data, config, outDir):
-	csvConfig, data = setupEdgeCsv(data, config)
-
+def writeSummary(data, config, csvConfig, outDir):
 	includedEdgeIndices = numpy.argwhere((data["edges"] != 0 & ~(data["edges"].isnull())).data)
 	includedEdgeEntries = [data["edges"][index[0], index[1]] for index in includedEdgeIndices]
 	includedEdges = {frozenset((entry.measurable1.item(), entry.measurable2.item())) for entry in includedEdgeEntries}
@@ -337,9 +329,13 @@ if __name__ == "__main__":
 		writeCorrelationsSingleCell(data, config, args.outDir)
 		writeSummarySingleCell(data, config, args.outDir)
 	else:
-		writeComparisons(data, config, args.outDir)
-		writeNodes(data, config, args.outDir)
-		writeCorrelations(data, config, args.outDir)
-		writeSummary(data, config, args.outDir)
+		nodeCsvConfig, data = setupMeasurableCsv(data, config)
+		writeComparisons(data, config, nodeCsvConfig, args.outDir)
+		writeNodes(data, config, nodeCsvConfig, args.outDir)
+
+		edgeCsvConfig, data = setupEdgeCsv(data, config)
+		writeCorrelations(data, config, edgeCsvConfig, args.outDir)
+		writeSummary(data, config, edgeCsvConfig, args.outDir)
+
 	writeConfigValues(config, args.outDir)
 
