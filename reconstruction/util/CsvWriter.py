@@ -190,7 +190,7 @@ class CoordComponentPropertyFormatted:
 		dataArr = data[self.dataKey]
 		components = numpy.array(coords).T
 		componentProperties = numpy.array([dataArr.sel({self.componentDim: componentList}).coords[self.propertyDim].data for componentList in components])
-		return [numpy.apply_along_axis(lambda properties: self.formatStr.format(*properties), 0, componentProperties)]
+		return [[self.formatStr.format(p1, p2) for p1, p2 in zip(componentProperties[0], componentProperties[1])]]
 
 	def getDataKeys(self):
 		return [self.dataKey]
