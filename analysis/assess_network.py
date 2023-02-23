@@ -109,14 +109,27 @@ with open(net_file) as csvfile:
                 G.add_edge(parameters[0], parameters[1])
             
       
-        # Is each edge PUC-compliant?
+        # Is each correlation PUC-compliant? 
         puc_col = len(row) - 2
         
+        #This column contains whether the correlations passed the statistical and meta-analysis thresholds
+        signif_edge_col = len(row) - 7
+        
         #print(row[puc_col].strip())
-        if row_count != 0:    
-            if str(int(float(row[puc_col].strip()))) == str(1):
+
+        print(row_count)
+
+        if row_count != 0: 
+            
+            print("row[puc_col] = " + str(row[puc_col]))
+            print("row[signif_edge_col] = " + str(row[signif_edge_col]))                
+            
+            if str(int(float(row[puc_col].strip()))) != str(0) and str(row[signif_edge_col]) == "True":
+                print("Edge is compliant\n")
                 puc_compliant += 1
-            elif str(int(float(row[puc_col].strip()))) == str(0):
+            elif str(int(float(row[puc_col].strip()))) == str(0) or str(row[signif_edge_col]) == "False":
+                print("Edge is NOT compliant\n")
+  
                 puc_noncompliant += 1
                 
                 
@@ -194,6 +207,9 @@ dens_dev = (abs(obs_edge_node_ratio - expec_edge_node_ratio)) / expec_edge_node_
 
 
 # Calculate PUC (the proportion of edges that do not follow the expected direction). Remember row_count is number of rows in input file
+print("Number of noncompliant corrs: " + str(puc_noncompliant))
+print("Number of compliant corrs: " + str(puc_compliant))
+
 puc = round((100 * (puc_noncompliant / (row_count - 1))), 2)
 
 # mean degree
