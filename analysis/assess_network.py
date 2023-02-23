@@ -50,7 +50,7 @@ net_file_trimmed = net_file[:-4] # trim the ".csv" or ".txt" from the input file
 
 
 # Counters 
-puc_compliant = 0 # number of puc-compliant correlations
+# puc_compliant = 0 # number of puc-compliant correlations
 puc_noncompliant = 0 # number of puc-compliant correlations
 positive_corr_all = 0 # number of positive correlations, regardless of if they are in the final graph
 positive_corr_nw = 0 # number of positive correlations, ONLY if they are in the final graph
@@ -59,6 +59,7 @@ negative_corr_nw = 0 # number of negative correlations, ONLY if they are in the 
 pos_nw_edge = 0 # number of positive edges (in the final graph)
 neg_nw_edge = 0 # number of positive edges (in the final graph) 
 row_count = 0 
+signif_meta_edge = 0 # number of edges that are significant and pass the meta-analysis thresholds
 
 G = nx.Graph() 
     
@@ -117,21 +118,17 @@ with open(net_file) as csvfile:
         
         #print(row[puc_col].strip())
 
-        print(row_count)
-
         if row_count != 0: 
             
-            print("row[puc_col] = " + str(row[puc_col]))
-            print("row[signif_edge_col] = " + str(row[signif_edge_col]))                
-            
-            if str(int(float(row[puc_col].strip()))) != str(0) and str(row[signif_edge_col]) == "True":
-                print("Edge is compliant\n")
-                puc_compliant += 1
-            elif str(int(float(row[puc_col].strip()))) == str(0) or str(row[signif_edge_col]) == "False":
-                print("Edge is NOT compliant\n")
-  
-                puc_noncompliant += 1
-                
+            # Count the number of significant edges that pass meta-analysis thresholds for the
+            # denominator of the PUC calculation
+            if str(row[signif_edge_col]) == "True":
+                signif_meta_edge += 1
+ 
+                # For just those edges that are significant and pass those thresholds, also 
+                # check if they are an expected edge for the numerator of the PUC calculation               
+                if str(int(float(row[puc_col].strip()))) == str(0):
+                    puc_noncompliant += 1             
                 
         row_count += 1
 
@@ -207,10 +204,7 @@ dens_dev = (abs(obs_edge_node_ratio - expec_edge_node_ratio)) / expec_edge_node_
 
 
 # Calculate PUC (the proportion of edges that do not follow the expected direction). Remember row_count is number of rows in input file
-print("Number of noncompliant corrs: " + str(puc_noncompliant))
-print("Number of compliant corrs: " + str(puc_compliant))
-
-puc = round((100 * (puc_noncompliant / (row_count - 1))), 2)
+puc = round((100 * (puc_noncompliant / signif_meta_edge)), 2)
 
 # mean degree
 mdeg = 2 * G.number_of_edges() / G.number_of_nodes()
