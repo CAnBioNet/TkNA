@@ -32,7 +32,7 @@ def intakeAggregateData(dataDir):
 			treatmentMap = readClassificationCsv(treatmentMapString)
 
 		experimentData = xarray.DataArray(experimentDataDataframe)
-		experimentData = experimentData.rename({"dim_1": "organism", "ID": "measurable"})
+		experimentData = experimentData.rename({experimentData.dims[0]: "measurable", experimentData.dims[1]: "organism"})
 
 		organismCoords = experimentData.coords["organism"]
 
