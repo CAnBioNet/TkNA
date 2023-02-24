@@ -47,7 +47,7 @@ def setupMeasurableCsv(data, config):
 
 	csvConfig = CsvWriter.Config("measurable",
 		CsvWriter.Coordinate("ID"),
-		CsvWriter.CoordinateFunction("Type", lambda m: "{}".format(data["originalData"].sel(measurable=m).measurableType.item())),
+		CsvWriter.Property("Type", "originalData", "measurableType"),
 		CsvWriter.Per("Median Value ({})", "medianValue", "experiment"),
 		CsvWriter.Per("Mean Value ({})", "meanValue", "experiment"),
 		CsvWriter.Per("Comparison p-value ({})", "differencePValues", "experiment"),
@@ -80,45 +80,47 @@ def setupMeasurableCsv(data, config):
 
 	return csvConfig, data
 
-def writeComparisons(data, config, outDir):
-	csvConfig, data = setupMeasurableCsv(data, config)
-
+def writeComparisons(data, config, csvConfig, outDir):
 	fileName = "all_comparisons.csv"
 	CsvWriter.writeCsv(outDir / fileName, csvConfig, data, data["differencePValues"].coords["measurable"].data)
 
-def writeNodes(data, config, outDir):
+def writeNodes(data, config, csvConfig, outDir):
 	if "filteredData" not in data:
 		return
-
-	csvConfig, data = setupMeasurableCsv(data, config)
 
 	fileName = "node_comparisons.csv"
 	CsvWriter.writeCsv(outDir / fileName, csvConfig, data, data["filteredData"].coords["measurable"].data)
 
 def setupEdgeCsv(data, config):
 	correlationMethod = config["correlationMethod"]
+	correlationFilterMethod = config["correlationFilterMethod"]
+	if correlationFilterMethod == "percentagreement":
+		percentAgreementThreshold = config["correlationFilterPercentAgreementThreshold"]
+		consistencyDescriptor = "{}% Agreement".format(percentAgreementThreshold * 100)
+	else:
+		consistencyDescriptor = "All Agree"
 
-	csvConfig = CsvWriter.Config(CsvWriter.DimTuple("measurable1", "measurable2"),
+	csvConfig = CsvWriter.Config(["measurable1", "measurable2"],
 		CsvWriter.CoordinateFormatted("Edge name", "{}<==>{}"),
-		CsvWriter.CoordinateFunction("partner1", lambda m1, m2: m1),
-		CsvWriter.CoordinateFunction("partner2", lambda m1, m2: m2),
-		CsvWriter.CoordinateFunction("Edge Type", lambda m1, m2: "{}<==>{}".format(data["originalData"].sel(measurable=m1).measurableType.item(), data["originalData"].sel(measurable=m2).measurableType.item())),
+		CsvWriter.CoordComponent("partner1", 0),
+		CsvWriter.CoordComponent("partner2", 1),
+		CsvWriter.CoordComponentPropertyFormatted("Edge Type", "originalData", "{}<==>{}", "measurable", "measurableType"),
 		CsvWriter.Per(correlationMethod.capitalize() + " corr pval ({})", "correlationPValues", "metatreatment"),
 		CsvWriter.Column("Combined corr Pvalue", "combinedCorrelationPValues"),
 		CsvWriter.Per("rho Coefficient ({})", "correlationCoefficients", "metatreatment"),
 		CsvWriter.Column("Mean rho Coefficient", "combinedCoefficients"),
 		CsvWriter.Column("Combined corr FDR", "correctedCorrelationPValues"),
-		CsvWriter.CoordinateFunction("partner1 name", lambda m1, m2: m1),
+		CsvWriter.CoordComponent("partner1 name", 0),
 		CsvWriter.CoordComponentPer("partner1_MedianValue ({})", "medianValue", 0, "measurable", "experiment"),
 		CsvWriter.CoordComponentPer("partner1_MeanValue ({})", "meanValue", 0, "measurable", "experiment"),
 		CsvWriter.CoordComponentPer("partner1_MedianLog2FoldChange ({})", "medianFoldChanges", 0, "measurable", "experiment"),
 		CsvWriter.CoordComponentPer("partner1_MeanLog2FoldChange ({})", "meanFoldChanges", 0, "measurable", "experiment"),
-		CsvWriter.CoordinateFunction("partner2 name", lambda m1, m2: m2),
+		CsvWriter.CoordComponent("partner2 name", 1),
 		CsvWriter.CoordComponentPer("partner2_MedianValue ({})", "medianValue", 1, "measurable", "experiment"),
 		CsvWriter.CoordComponentPer("partner2_MeanValue ({})", "meanValue", 1, "measurable", "experiment"),
 		CsvWriter.CoordComponentPer("partner2_MedianLog2FoldChange ({})", "medianFoldChanges", 1, "measurable", "experiment"),
 		CsvWriter.CoordComponentPer("partner2_MeanLog2FoldChange ({})", "meanFoldChanges", 1, "measurable", "experiment"),
-		CsvWriter.Column("Correlations Consistent", "consistentCorrelation"),
+		CsvWriter.Column("Correlations Passed Consistency Filter ({})".format(consistencyDescriptor), "correlationFilter"),
 		CsvWriter.Column("All Non-PUC Filters Passed", "nonPucPassed"),
 		CsvWriter.Column("combined Coefficient correlation Direction", "combinedCorrelationSigns"),
 		CsvWriter.CoordComponentColumn("partner1_FC_direction", "combinedFoldChangeSigns", 0, "measurable"),
@@ -128,7 +130,6 @@ def setupEdgeCsv(data, config):
 		CsvWriter.Column("Final Network Value (0: No edge, 1: Positive edge, -1: Negative edge)", "edges")
 	)
 
-	data["consistentCorrelation"] = None
 	data["combinedCoefficients"] = None
 	data["expectedEdgeFilterInt"] = None
 	data["nonPucPassed"] = None
@@ -144,8 +145,7 @@ def setupEdgeCsv(data, config):
 	if not all(key in data for key in dataKeys):
 		return
 
-	data["consistentCorrelation"] = xarray.apply_ufunc(lambda signs: numpy.all(signs == signs[0]), data["correlationSigns"], input_core_dims=[["metatreatment"]], vectorize=True)
-	data["combinedCoefficients"] = xarray.apply_ufunc(lambda coefficients: numpy.mean(coefficients), data["correlationCoefficients"], input_core_dims=[["metatreatment"]], vectorize=True)
+	data["combinedCoefficients"] = data["correlationCoefficients"].mean(dim="metatreatment")
 	data["expectedEdgeFilterInt"] = data["expectedEdgeFilter"].astype(int)
 	data["nonPucPassed"] = data["diagonalFilter"] & data["individualCorrelationPValueFilter"] & data["combinedCorrelationPValueFilter"] & data["correctedCorrelationPValueFilter"] & data["correlationFilter"]
 
@@ -158,17 +158,15 @@ def setupEdgeCsv(data, config):
 
 	return csvConfig, data
 
-def writeCorrelations(data, config, outDir):
-	csvConfig, data = setupEdgeCsv(data, config)
-
+def writeCorrelations(data, config, csvConfig, outDir):
 	fileName = "correlations_bw_signif_measurables.csv"
-	CsvWriter.writeCsv(outDir / fileName, csvConfig, data, itertools.combinations(data["filteredData"].coords["measurable"].data, 2))
+	CsvWriter.writeCsv(outDir / fileName, csvConfig, data, list(itertools.combinations(data["filteredData"].coords["measurable"].data, 2)))
 
-def writeSummary(data, config, outDir):
-	csvConfig, data = setupEdgeCsv(data, config)
-
-	allEdges = list(itertools.combinations(data["filteredData"].coords["measurable"].data, 2))
-	includedEdges = [edge for edge in allEdges if data["edges"].sel(measurable1=edge[0], measurable2=edge[1]) != 0]
+def writeSummary(data, config, csvConfig, outDir):
+	includedEdgeIndices = numpy.argwhere((data["edges"] != 0 & ~(data["edges"].isnull())).data)
+	includedEdgeEntries = [data["edges"][index[0], index[1]] for index in includedEdgeIndices]
+	includedEdges = {frozenset((entry.measurable1.item(), entry.measurable2.item())) for entry in includedEdgeEntries}
+	includedEdges = [tuple(edge) for edge in includedEdges]
 
 	fileName = "network_output_comp.csv"
 	CsvWriter.writeCsv(outDir / fileName, csvConfig, data, includedEdges)
@@ -231,7 +229,7 @@ def writeEdgeCsvSingleCell(data, config, filePath, finalOnly=False):
 		allEdges = list(itertools.combinations(data["filteredData"].coords["measurableAndCellType"].data, 2))
 		edgeList = [edge for edge in allEdges if data["edges"].sel(measurableAndCellType1=edge[0], measurableAndCellType2=edge[1]) != 0]
 	else:
-		edgeList = itertools.combinations(data["filteredData"].coords["measurableAndCellType"].data, 2)
+		edgeList = list(itertools.combinations(data["filteredData"].coords["measurableAndCellType"].data, 2))
 
 	cellTypeCoords = [data["filteredData"].sel(measurableAndCellType=m).cellType.item() for m in data["filteredData"].coords["measurableAndCellType"].data]
 	measurableCoords = [data["filteredData"].sel(measurableAndCellType=m).measurable.item() for m in data["filteredData"].coords["measurableAndCellType"].data]
@@ -240,7 +238,7 @@ def writeEdgeCsvSingleCell(data, config, filePath, finalOnly=False):
 	data["foldChangesStacked"] = data["foldChanges"].stack({"measurableAndCellType": ("measurable", "differentialCellType")}).reset_index("measurableAndCellType")
 	data["combinedFoldChangeSignsStacked"] = data["combinedFoldChangeSigns"].stack({"measurableAndCellType": ("measurable", "differentialCellType")}).reset_index("measurableAndCellType")
 
-	csvConfig = CsvWriter.Config(CsvWriter.DimTuple("measurableAndCellType1", "measurableAndCellType2"),
+	csvConfig = CsvWriter.Config(["measurableAndCellType1", "measurableAndCellType2"],
 		CsvWriter.Property("Measurable 1", "correlationCoefficients", "measurable1"),
 		CsvWriter.Property("Measurable 2", "correlationCoefficients", "measurable2"),
 		CsvWriter.PropertiesFormatted("Measurables", "correlationCoefficients", "{}<==>{}", ["measurable1", "measurable2"]),
@@ -334,9 +332,13 @@ if __name__ == "__main__":
 		writeCorrelationsSingleCell(data, config, args.outDir)
 		writeSummarySingleCell(data, config, args.outDir)
 	else:
-		writeComparisons(data, config, args.outDir)
-		writeNodes(data, config, args.outDir)
-		writeCorrelations(data, config, args.outDir)
-		writeSummary(data, config, args.outDir)
+		nodeCsvConfig, data = setupMeasurableCsv(data, config)
+		writeComparisons(data, config, nodeCsvConfig, args.outDir)
+		writeNodes(data, config, nodeCsvConfig, args.outDir)
+
+		edgeCsvConfig, data = setupEdgeCsv(data, config)
+		writeCorrelations(data, config, edgeCsvConfig, args.outDir)
+		writeSummary(data, config, edgeCsvConfig, args.outDir)
+
 	writeConfigValues(config, args.outDir)
 

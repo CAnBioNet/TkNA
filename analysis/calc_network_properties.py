@@ -52,7 +52,7 @@ optionalArgGroup.add_argument("--frag", help = 'Flag; Do you want to compute nod
 optionalArgGroup.add_argument("--bibc", help= 'Flag; Do you want to compute BiBC? (Significantly increases run-time)', action = 'store_true')
 optionalArgGroup.add_argument("--bibc-groups", dest = "bibc_groups", choices = ['node_types', 'modularity'], help= "What to compute BiBC on, either distinct groups (node_types) or on the two most modular regions (modularity) of the network (found using the Louvain method). Required if --bibc is set")
 optionalArgGroup.add_argument("--bibc-calc-type", dest="bibc_calc_type", choices = ['rbc', 'bibc'], help= "Would you like to normalize the bibc value based on amount of nodes in each group (rbc) or not (bibc)? Required if --bibc is set.")
-optionalArgGroup.add_argument("--node-map", type=str, dest="node_map", help= "Required if node_types is specified for --bibc-groups. CSV of nodes and their types (i.e. otu, pheno, gene, etc.)", required=True)
+optionalArgGroup.add_argument("--node-map", type=str, dest="node_map", help= "Required if node_types is specified for --bibc-groups. CSV of nodes and their types (i.e. otu, pheno, gene, etc.)")
 optionalArgGroup.add_argument("--node-groups", nargs = 2, type=str, dest="node_groups", help= "2 args; Required if node_types is specified for --bibc-groups. The two groups of nodes to calculate BiBC/RBC on")
 
 
@@ -80,10 +80,12 @@ if args.bibc:
         node_input_file = args.node_map
         node_type1 = args.node_groups[0]
         node_type2 = args.node_groups[1]
+
     elif args.bibc_groups == "modularity":
         bibc_choice = "modularity"
         
     bibc_calc_type = args.bibc_calc_type
+
 
 def connected_component_subgraphs(network):
 	return [network.subgraph(component) for component in nx.connected_components(network)]
@@ -129,6 +131,11 @@ if __name__ == '__main__':
             
             for row in node_file:
                 node_type_dict[row[0]] = row[1]
+
+        # ensure the node groups supplied are both present in the mapping file
+        for nodeGroup in args.node_groups:
+            if nodeGroup not in list(node_type_dict.values()):
+                raise Exception(f"Specified node group \"{nodeGroup}\" not in node map")
 
         # Search the previously created dictionary and, for each 'otu' value in the second column of the input file, assign 
         # the corresponding key to otu_list, then do the same thing for each 'pheno' value and its corresponding list 

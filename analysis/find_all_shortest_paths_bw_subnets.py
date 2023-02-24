@@ -78,7 +78,12 @@ if __name__ == '__main__':
             
             for row in node_file:
                 node_type_dict.add(row[0],row[1])
-        
+                
+        # ensure the node groups supplied are both present in the mapping file
+        for nodeGroup in args.node_groups:
+            if nodeGroup not in list(node_type_dict.values()):
+                raise Exception(f"Specified node group \"{nodeGroup}\" not in node map")
+                
         # Generate a list of each specified node type in the giant component.
         # Search the previously created dictionary and, for each value of type1 (i.e. 'otu') 
         # in the second column of the input file, assign the corresponding 
