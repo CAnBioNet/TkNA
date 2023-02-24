@@ -130,8 +130,16 @@ def computeDifferencePValues(config, data):
 		pValues = xarray.DataArray(pValues, dims=["measurable"], coords=matchingCoords(data, "measurable"))
 		return pValues
 
+	def independentTTest(experimentData):
+		grouped = experimentData.groupby("treatment")
+		treatmentData = [grouped[treatment] for treatment in treatments]
+		statistics, pValues = stats.ttest_ind(treatmentData[0], treatmentData[1], axis=1, nan_policy="omit")
+		pValues = xarray.DataArray(pValues, dims=["measurable"], coords=matchingCoords(data, "measurable"))
+		return pValues
+
 	methodMap = {
-		"mannwhitney": mannWhitneyU
+		"mannwhitney": mannWhitneyU,
+		"independentttest": independentTTest
 	}
 	if differenceMethod in methodMap:
 		pValues = data.groupby("experiment").map(methodMap[differenceMethod])
