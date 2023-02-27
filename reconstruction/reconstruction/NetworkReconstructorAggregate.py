@@ -133,7 +133,26 @@ def computeDifferencePValues(config, data):
 	def independentTTest(experimentData):
 		grouped = experimentData.groupby("treatment")
 		treatmentData = [grouped[treatment] for treatment in treatments]
-		statistics, pValues = stats.ttest_ind(treatmentData[0], treatmentData[1], axis=1, nan_policy="omit")
+
+		# This `with` statement is a workaround for two separate bugs.
+		with numpy.errstate(
+			# Workaround for a numpy bug. Details follow:
+			# ttest_ind, if using nan_policy="omit", uses masked-array division from numpy, which tests that the result isn't (effectively) infinity.
+			# However, as part of this check, it multiplies the dividend (in this case, the sum of the squared deviations of the measurements in a treatment)
+			# by the smallest possible float value, which causes an underflow error if it's <1 (i.e. for measurables with low variance).
+			# Therefore we ignore underflow errors for this calculation.
+			# See https://github.com/numpy/numpy/issues/4895 for this particular issue.
+			# See https://github.com/numpy/numpy/issues/22347 for a related issue and more general information on this part of numpy.
+			under="ignore",
+			# Workaround for a scipy bug. Details follow:
+			# In ttest_ind, for Student's t-test, scipy takes the reciprocals of the sample sizes to compute the t statistic.
+			# However, these sample sizes exclude any nans in the data (since we're using nan_policy="omit"),
+			# so if a treatment has no data for a particular measurable a division by 0 error will occur.
+			# See https://github.com/scipy/scipy/issues/14651 for a mention of this issue.
+			divide="ignore"
+		):
+			statistics, pValues = stats.ttest_ind(treatmentData[0], treatmentData[1], axis=1, nan_policy="omit")
+
 		pValues = xarray.DataArray(pValues, dims=["measurable"], coords=matchingCoords(data, "measurable"))
 		return pValues
 
