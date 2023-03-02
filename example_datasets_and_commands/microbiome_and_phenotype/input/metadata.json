@@ -1,16 +1,16 @@
 {
-	"name": "Lactobacillus",
+	"name": "micro_and_pheno_example",
 	"experiments": [
 		{
 			"name": "experiment1",
-			"dataFile": "Experiment1_noNAs.csv",
+			"dataFile": "Experiment1.csv",
 			"treatmentMapFile": "Experiment1_group_map.csv"
 		},
 		{
 			"name": "experiment2",
-			"dataFile": "Experiment2_noNAs.csv",
+			"dataFile": "Experiment2.csv",
 			"treatmentMapFile": "Experiment2_group_map.csv"
 		}
 	],
-	"measurableTypeMapFile": "type_map_all_unique.csv"
+	"measurableTypeMapFile": "type_map.csv"
 }
