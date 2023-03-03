@@ -1,34 +1,32 @@
-# Reconstruct network
-	python ./reconstruction/intake_data.py --data-dir ./example_datasets_and_commands/toy_network/input/ --out-file ./example_datasets_and_commands/toy_network/output/all_data_and_metadata.cdf
+NOTE: This was ran from the root directory of the repo cloned from github
 
-	python ./reconstruction/run.py --data-source ./example_datasets_and_commands/toy_network/output/all_data_and_metadata.cdf --config-file ./example_datasets_and_commands/toy_network/input/config_per_type_corr_p0.2.json --out-file ./example_datasets_and_commands/toy_network/output/network_output.zip
+Python version: 3.8.10
 
-	python reconstruction/to_csv.py --data-file ./example_datasets_and_commands/toy_network/output/network_output.zip --config-file ./example_datasets_and_commands/toy_network/input/config_per_type_corr_p0.2.json --out-dir ./example_datasets_and_commands/toy_network/output/network_output
+# 1. reconstruct network 
 
-# Assess network quality
-	python ./analysis/assess_network.py --file ./example_datasets_and_commands/toy_network/output/network_output/correlations_bw_signif_measurables.csv --source partner1 --target partner2
+	python reconstruction/intake_data.py --data-dir ./example_datasets_and_commands/toy_net/input/ --out-file ./example_datasets_and_commands/toy_net/output/all_data_and_metadata.cdf
 
-# Analyze network, including calculating BiBC and degree for nodes
-	python ./analysis/calc_network_properties.py --pickle ./example_datasets_and_commands/toy_network/output/network_output/network.pickle --bibc --bibc-groups node_types --bibc-calc-type rbc --node-map ./example_datasets_and_commands/toy_network/input/type_map_new.csv --node-groups gene pheno
+	python reconstruction/run.py --data-source ./example_datasets_and_commands/toy_net/output/all_data_and_metadata.cdf --config-file ./example_datasets_and_commands/toy_net/input/config.json --out-file ./example_datasets_and_commands/toy_net/output/network_output.zip
 
-# Create random networks and find top BiBC/degree nodes in each network
-	python ./random_networks/create_random_networks.py --template-network ./example_datasets_and_commands/toy_network/output/network_output/network.pickle --networks-file ./example_datasets_and_commands/toy_network/output/network_output/random_networks.pickle
+	python reconstruction/to_csv.py --data-file ./example_datasets_and_commands/toy_net/output/network_output.zip --config-file ./example_datasets_and_commands/toy_net/input/config.json --out-dir ./example_datasets_and_commands/toy_net/output/network_output
 
-	python ./random_networks/compute_network_stats.py --networks-file ./example_datasets_and_commands/toy_network/output/network_output/random_networks.pickle --bibc-groups node_types --bibc-calc-type rbc --node-map ./example_datasets_and_commands/toy_network/input/type_map_new.csv --node-groups gene pheno  --stats-file ./example_datasets_and_commands/toy_network/output/network_output/random_network_results.pickle
+# 2. Assess network quality
 
-	python ./random_networks/synthesize_network_stats.py --network-stats-file ./example_datasets_and_commands/toy_network/output/network_output/random_network_results.pickle --synthesized-stats-file ./example_datasets_and_commands/toy_network/output/network_output/random_networks_synthesized.csv
+	python analysis/assess_network.py --file ./example_datasets_and_commands/toy_net/output/network_output/correlations_bw_signif_measurables.csv --source partner1 --target partner2
 
-# Visualize results
-	python ./visualization/dot_plots.py --pickle ./example_datasets_and_commands/toy_network/output/network_output/network.pickle --node-props ./example_datasets_and_commands/toy_network/output/network_output/node_properties.txt --network-file ./example_datasets_and_commands/toy_network/output/network_output/network_output_comp.csv --propx BiBC --propy Node_degrees --top-num 4 --top-num-per-type 3
+# 3. Analyze the network
 
-	python ./visualization/plot_abundance.py --pickle ./example_datasets_and_commands/toy_network/output/network_output/inputs_for_downstream_plots.pickle --abund-data ./example_datasets_and_commands/toy_network/input/Expt1_new.csv ./example_datasets_and_commands/toy_network/input/Expt2_new.csv ./example_datasets_and_commands/toy_network/input/Expt3_new.csv ./example_datasets_and_commands/toy_network/input/Expt4_new.csv --metadata ./example_datasets_and_commands/toy_network/input/group_map_1.csv ./example_datasets_and_commands/toy_network/input/group_map_2.csv ./example_datasets_and_commands/toy_network/input/group_map_3.csv ./example_datasets_and_commands/toy_network/input/group_map_4.csv --color-group Treatment --x-axis Experiment
+	Note: The toy network is too small to do the clustering analyses on
 
-	#!!!!!!! Note: The following will throw an error if you try running it because this toy network is too small. So this figure can't be generated for this dataset.
+	python analysis/calc_network_properties.py --pickle ./example_datasets_and_commands/toy_net/output/network_output/network.pickle --bibc --bibc-groups node_types --bibc-calc-type rbc --node-map ./example_datasets_and_commandsesting/toy_net/input/type_map_new.csv --node-groups gene pheno
+
+# 4. Create random networks and analyze
+
+	The toy network is too small for this step
 	
-		python ./visualization/plot_density.py --rand-net ./example_datasets_and_commands/toy_network/output/network_output/random_networks_synthesized.csv --pickle ./example_datasets_and_commands/toy_network/output/network_output/inputs_for_downstream_plots.pickle
+# 5. Visualization
+	python ./visualization/dot_plots.py --pickle ./example_datasets_and_commands/toy_net/output/network_output/network.pickle --node-props ./example_datasets_and_commands/toy_net/output/network_output/node_properties.txt --network-file ./example_datasets_and_commands/toy_net/output/network_output/network_output_comp.csv --propx BiBC --propy Node_degrees --top-num 3 --top-num-per-type 3
+	
+	python ./visualization/plot_abundance.py --pickle ./example_datasets_and_commands/toy_net/output/network_output/inputs_for_downstream_plots.pickle --abund-data ./example_datasets_and_commands/toy_net/input/Experiment1.csv ./example_datasets_and_commands/toy_net/input/Experiment2.csv --metadata ./example_datasets_and_commands/toy_net/input/Experiment1_group_map.csv ./example_datasets_and_commands/toy_net/input/Experiment2_group_map.csv --color-group Treatment --x-axis Experiment
 
-
-
-
-
-
+	Note: The network density plot cannot be created for this small of a network

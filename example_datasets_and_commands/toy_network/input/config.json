@@ -1,0 +1,37 @@
+{
+	"differenceMethod": "independentttest",
+	"comparisonTreatments": ["Treatment", "Control"],
+	"differencePValueThresholds": {
+		"individual": {
+			"gene": 0.05,
+			"pheno": 0.05
+		},
+		"combined": {
+			"gene": 1,
+			"pheno": 1
+		},
+		"corrected": {
+			"gene": 1,
+			"pheno": 1
+		}
+	},
+	"networkTreatment": "Treatment",
+	"correlationMethod": "pearson",
+	"correlationPValueThresholds": {
+		"individual": {
+			"(gene, gene)": 1,
+			"(pheno, gene)": 0.1,
+			"(pheno, pheno)": 0.1
+		},
+		"combined": {
+			"(gene, gene)": 1,
+			"(pheno, gene)": 1,
+			"(pheno, pheno)": 1
+		},
+		"corrected": {
+			"(gene, gene)": 1,
+			"(pheno, gene)": 1,
+			"(pheno, pheno)": 1
+		}
+	}
+}

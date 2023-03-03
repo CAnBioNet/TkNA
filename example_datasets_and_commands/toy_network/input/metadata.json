@@ -1,26 +1,16 @@
 {
-	"name": "Fake test NW new",
+	"name": "Toy NW",
 	"experiments": [
 		{
 			"name": "Expt 1",
-			"dataFile": "Expt1_new.csv",
-			"treatmentMapFile": "group_map_1.csv"
+			"dataFile": "Experiment1.csv",
+			"treatmentMapFile": "Experiment1_group_map.csv"
 		},
 		{
 			"name": "Expt 2",
-			"dataFile": "Expt2_new.csv",
-			"treatmentMapFile": "group_map_2.csv"
-		},
-		{
-			"name": "Expt 3",
-			"dataFile": "Expt3_new.csv",
-			"treatmentMapFile": "group_map_3.csv"
-		},
-		{
-			"name": "Expt 4",
-			"dataFile": "Expt4_new.csv",
-			"treatmentMapFile": "group_map_4.csv"
+			"dataFile": "Experiment2.csv",
+			"treatmentMapFile": "Experiment2_group_map.csv"
 		}
 	],
-	"measurableTypeMapFile": "type_map_new.csv"
+	"measurableTypeMapFile": "type_map.csv"
 }
