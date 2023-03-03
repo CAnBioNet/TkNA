@@ -12,7 +12,7 @@ singleCellConfigSpec = Config([
 		MultiTypeConfigItem("corrected", [Number, dict], default=0.1)
 	]), default=UseSubDefaults()),
 	TypedConfigItem("foldChangeFilterMethod", str, default="allsamesign"),
-	TypedConfigItem("foldChangeFilterPercentAgreementThreshold", Number, default=0.5),
+	TypedConfigItem("foldChangeFilterPercentAgreementThreshold", Number, default=0.75),
 	TypedConfigItem("networkTreatments", list),
 	TypedConfigItem("correlationMethod", str, default="spearman"),
 	TypedConfigItem("correlationCombinePValuesMethod", str, default="fisher"),
@@ -23,7 +23,7 @@ singleCellConfigSpec = Config([
 		MultiTypeConfigItem("corrected", [Number, dict], default=0.1)
 	]), default=UseSubDefaults()),
 	TypedConfigItem("correlationFilterMethod", str, default="allsamesign"),
-	TypedConfigItem("correlationFilterPercentAgreementThreshold", Number, default=0.7),
+	TypedConfigItem("correlationFilterPercentAgreementThreshold", Number, default=0.75),
 	TypedConfigItem("correctCorrelationPValuesAfterConsistencyFiltering", bool, default=False)
 ])
 
