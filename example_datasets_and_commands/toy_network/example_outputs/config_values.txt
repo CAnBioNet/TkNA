@@ -1,0 +1,8 @@
+Comparison thresholds:
+	gene: individual: 0.05, combined: 1, corrected: 1
+	pheno: individual: 0.05, combined: 1, corrected: 1
+
+Correlation thresholds:
+	(gene, gene): individual: 1, combined: 1, corrected: 1
+	(pheno, gene): individual: 0.1, combined: 1, corrected: 1
+	(pheno, pheno): individual: 0.1, combined: 1, corrected: 1
