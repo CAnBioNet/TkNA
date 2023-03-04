@@ -4,6 +4,8 @@ import csv
 from functools import total_ordering
 from pathlib import Path
 import pickle
+import shutil
+import tempfile
 
 def getArgs():
 	parser = argparse.ArgumentParser(description="Synthesize the stats for each network by determining the node with max BiBC and degree. By default, sorts first by BiBC and then by degree.", add_help=False)
@@ -34,11 +36,16 @@ class NoBibc:
 if __name__ == "__main__":
 	args = getArgs()
 
-	with open(args.networkStatsFile, "rb") as networkStatsFile:
-		allStats = pickle.load(networkStatsFile)
+	statsTempDir = tempfile.TemporaryDirectory()
+	statsTempDirPath = Path(statsTempDir.name)
+	shutil.unpack_archive(args.networkStatsFile, statsTempDirPath, "zip")
 
-	synthesizedStats = []
-	for networkStats in allStats:
+	synthesizedStats = {}
+	for statsFilePath in statsTempDirPath.iterdir():
+		networkName = statsFilePath.name
+		with open(statsFilePath, "rb") as statsFile:
+			networkStats = pickle.load(statsFile)
+
 		# None can't be compared with ints, so replace it with instances of a special class that will always compare as lesser
 		for node in networkStats:
 			if networkStats[node]["bibc"] is None:
@@ -51,13 +58,13 @@ if __name__ == "__main__":
 		sortedStats = sorted(sorted(networkStats.items(), key=lambda nodeStats: nodeStats[1][stat2], reverse=True), key=lambda nodeStats: nodeStats[1][stat1], reverse=True)
 
 		topNode = sortedStats[0]
-		synthesizedStats.append({"node": topNode[0], "degree": topNode[1]["degree"], "bibc": topNode[1]["bibc"]})
+		synthesizedStats[networkName] = {"node": topNode[0], "degree": topNode[1]["degree"], "bibc": topNode[1]["bibc"]}
 
 	args.synthesizedStatsFile.parent.mkdir(parents=True, exist_ok=True)
 	with open(args.synthesizedStatsFile, "w") as synthesizedStatsFile:
 		synthesizedStatsWriter = csv.writer(synthesizedStatsFile)
-		synthesizedStatsWriter.writerow(["Network Index", "Node", "Degree", "BiBC"])
-		for index, networkStats in enumerate(synthesizedStats):
+		synthesizedStatsWriter.writerow(["Network", "Node", "Degree", "BiBC"])
+		for networkName, networkStats in synthesizedStats.items():
 			bibc = "N/A" if isinstance(networkStats["bibc"], NoBibc) else networkStats["bibc"]
-			synthesizedStatsWriter.writerow([index, networkStats["node"], networkStats["degree"], bibc])
+			synthesizedStatsWriter.writerow([networkName, networkStats["node"], networkStats["degree"], bibc])
 

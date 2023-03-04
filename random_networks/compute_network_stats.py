@@ -6,8 +6,11 @@ import csv
 from functools import partial
 from multiprocessing import Pool
 import networkx as nx
+import os
 from pathlib import Path
 import pickle
+import shutil
+import tempfile
 
 # TODO: Logging
 
@@ -98,7 +101,9 @@ def restrictedBetweennessCentrality(network, nodes1, nodes2, normalize):
 
 	return rbcs
 
-def calculateNetworkStats(args, network):
+def calculateNetworkStats(args, networksTempDirPath, statsTempDirPath, networkName):
+	network = nx.read_adjlist(networksTempDirPath / networkName)
+
 	sortedSubgraphs = sorted([network.subgraph(component) for component in nx.connected_components(network)], key=len, reverse=True)
 
 	# If the two largest components are the same size, then don't calculate BiBC
@@ -120,18 +125,26 @@ def calculateNetworkStats(args, network):
 		networkStats[node]["degree"] = network.degree(node)
 		networkStats[node]["bibc"] = bibcs[node] if node in bibcs else None
 
-	return networkStats
+	with open(statsTempDirPath / networkName, "wb") as statsFile:
+		pickle.dump(networkStats, statsFile)
 
 if __name__ == "__main__":
 	args = getArgs()
 
-	with open(args.networksFile, "rb") as networksFile:
-		networks = pickle.load(networksFile)
+	networksTempDir = tempfile.TemporaryDirectory()
+	networksTempDirPath = Path(networksTempDir.name)
+	shutil.unpack_archive(args.networksFile, networksTempDirPath, "zip")
+
+	statsTempDir = tempfile.TemporaryDirectory()
+	statsTempDirPath = Path(statsTempDir.name)
 
 	with Pool() as pool:
-		stats = pool.map(partial(calculateNetworkStats, args), networks)
+		pool.map(partial(calculateNetworkStats, args, networksTempDirPath, statsTempDirPath), os.listdir(networksTempDirPath))
+
+	networksTempDir.cleanup()
 
 	args.statsFile.parent.mkdir(parents=True, exist_ok=True)
-	with open(args.statsFile, "wb") as statsFile:
-		pickle.dump(stats, statsFile)
+	shutil.make_archive(args.statsFile.parent / args.statsFile.stem, "zip", statsTempDirPath)
+
+	statsTempDir.cleanup()
 
