@@ -88,45 +88,45 @@ Note that the following must be ran from the network_analysis directory that was
 
 6. Create random networks
 	Usage
-		python create_random_networks.py --template-network <file.pickle> --networks-file <file.pickle> 
+		python create_random_networks.py --template-network <file.pickle> --networks-file <file.zip>
 	
 	Example command
-		python create_random_networks.py --template-network network.pickle --networks-file all_random_nws.pickle 
+		python create_random_networks.py --template-network network.pickle --networks-file all_random_nws.zip
 	
 	Inputs
 		--template-network: The pickled network file output by assess_network.py
-		--networks-file: File to output pickled network list to
+		--networks-file: File to output zipped networks to
 	
 	Outputs
-		- A single pickle file containing all created networks
+		- A zip file containing all created networks
 
 7. Analyze random networks 
 	Usage
-		python compute_network_stats.py --networks-file <file.pickle> --bibc-groups <choice> --bibc-calc-type <choice> --stats-file <file.pickle> --node-map <file.csv> --node-groups <group1> <group2>
+		python compute_network_stats.py --networks-file <file.zip> --bibc-groups <choice> --bibc-calc-type <choice> --stats-file <file.pickle> --node-map <file.csv> --node-groups <group1> <group2>
 	
 	Example command
-		python compute_network_stats.py --networks-file all_random_nws.pickle --bibc-groups node_types --bibc-calc-type rbc --stats-file all_rand_network_results.pickle --node-map map.csv --node-groups gene pheno
+		python compute_network_stats.py --networks-file all_random_nws.zip --bibc-groups node_types --bibc-calc-type rbc --stats-file all_rand_network_results.zip --node-map map.csv --node-groups gene pheno
 	
 	Inputs
-		--networks-file: pickled file created with create_random_networks.py that contains all random networks previously created
+		--networks-file: zip file created with create_random_networks.py that contains all random networks previously created
 		--bibc-groups: Group nodes for BiBC based on type or modularity
 		--bibc-calc-type: Compute raw BiBC or normalize (rbc)
-		--stats-file: Pickle file to output the network stats to
+		--stats-file: zip file to output the network stats to
 		--node-map: CSV file mapping nodes to their types. Required if node_types is specified for --bibc-groups.
 		--node-groups: Two types of nodes to use for BiBC grouping. Required if node_types is specified for --bibc-groups.
 		
 	Outputs
-		- A single .pickle file with degree/BiBC results of all random networks
+		- A single zip file with degree/BiBC results of all random networks
 
 8. Condense random network outputs into one file
 	Usage
-		python synthesize_network_stats.py --network-stats-file <file.pickle> --synthesized-stats-file <file.csv> 
+		python synthesize_network_stats.py --network-stats-file <file.zip> --synthesized-stats-file <file.csv> 
 	
 	Example command
-		python synthesize_network_stats.py --network-stats-file all_rand_network_results.pickle --synthesized-stats-file top_node_each_random_nw.csv
+		python synthesize_network_stats.py --network-stats-file all_rand_network_results.zip --synthesized-stats-file top_node_each_random_nw.csv
 	
 	Inputs
-		--network-stats-file: pickled file created with compute_network_stats.py
+		--network-stats-file: zip file created with compute_network_stats.py
 		--synthesized-stats-file: Name of the .csv file that will be created 
 	
 	Outputs
