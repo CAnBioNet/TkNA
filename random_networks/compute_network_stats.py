@@ -65,16 +65,20 @@ def largestClusters(network):
 # Returns two lists of nodes, one for each type.
 def nodesByType(args, network):
 	nodeMap = defaultdict(list)
+	allTypes = []
 	with open(args.nodeMap) as nodeMapFile:
 		nodeMapReader = csv.reader(nodeMapFile)
 		for row in nodeMapReader:
 			node, nodeType = row[0], row[1]
+			allTypes.append(nodeType)
 			if node in network.nodes:
 				nodeMap[nodeType].append(node)
 
 	for nodeGroup in args.nodeGroups:
-		if nodeGroup not in nodeMap:
+		if nodeGroup not in allTypes:
 			raise Exception(f"Specified node group \"{nodeGroup}\" not in node map")
+		if nodeGroup not in nodeMap:
+			raise Exception(f"Specified node group \"{nodeGroup}\" not present in the largest component of a network. This is likely due to high sparcity in the generated networks.")
 
 	return nodeMap[args.nodeGroups[0]], nodeMap[args.nodeGroups[1]]
 
