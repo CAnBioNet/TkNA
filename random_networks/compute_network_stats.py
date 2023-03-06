@@ -32,9 +32,9 @@ def getArgs():
 
 	if args.bibcGroups == "node_types":
 		if args.nodeMap is None:
-			raise Exception("If using node_types, must supply a node map with --nodeMap")
+			raise Exception("If using node_types, must supply a node map with --node-map")
 		if args.nodeGroups is None:
-			raise Exception("If using node_types, must supply node groups with --nodeGroups")
+			raise Exception("If using node_types, must supply node groups with --node-groups")
 
 	if args.nodeMap is not None:
 		args.nodeMap = Path(args.nodeMap)
