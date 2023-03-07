@@ -1,17 +1,20 @@
 #!/usr/bin/env python
 import argparse
 from functools import partial
+import json
 from math import factorial
 from multiprocessing import Pool
 import networkx as nx
 import numpy as np
 from pathlib import Path
 import pickle
+import shutil
+import tempfile
 
 def maxEdges(numNodes):
 	return int(factorial(numNodes) / (2 * factorial(numNodes - 2)))
 
-def generateNetwork(nodes, numEdges, seed):
+def generateNetwork(nodes, numEdges, tempDirPath, index, seed):
 	network = nx.Graph()
 	network.add_nodes_from(nodes)
 
@@ -24,7 +27,9 @@ def generateNetwork(nodes, numEdges, seed):
 				network.add_edge(node1, node2)
 				break
 
-	return network
+	networkData = nx.readwrite.json_graph.adjacency_data(network)
+	with open(tempDirPath / str(index), "w") as networkFile:
+		json.dump(networkData, networkFile)
 
 def getArgs():
 	parser = argparse.ArgumentParser(description="Generate random networks", add_help=False)
@@ -87,10 +92,13 @@ if __name__ == "__main__":
 	# Generate seeds ahead of time so that processes don't end up sharing seeds (and hence networks)
 	seeds = np.random.randint(np.iinfo(np.int32).max, dtype=np.int32, size=args.numNetworks)
 
+	tempDir = tempfile.TemporaryDirectory()
+	tempDirPath = Path(tempDir.name)
 	with Pool() as pool:
-		networks = pool.map(partial(generateNetwork, nodes, numEdges), seeds)
+		pool.starmap(partial(generateNetwork, nodes, numEdges, tempDirPath), enumerate(seeds))
 
 	args.networksFile.parent.mkdir(parents=True, exist_ok=True)
-	with open(args.networksFile, "wb") as networksFile:
-		pickle.dump(networks, networksFile)
+	shutil.make_archive(args.networksFile.parent / args.networksFile.stem, "zip", tempDirPath)
+
+	tempDir.cleanup()
 
