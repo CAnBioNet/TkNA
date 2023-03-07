@@ -78,7 +78,7 @@ def nodesByType(args, network):
 		if nodeGroup not in allTypes:
 			raise Exception(f"Specified node group \"{nodeGroup}\" not in node map")
 		if nodeGroup not in nodeMap:
-			raise Exception(f"Specified node group \"{nodeGroup}\" not present in the largest component of a network. This is likely due to high sparcity in the generated networks.")
+			raise Exception(f"Specified node group \"{nodeGroup}\" not present in the largest component of a network. This is likely due to low density in the generated networks.")
 
 	return nodeMap[args.nodeGroups[0]], nodeMap[args.nodeGroups[1]]
 
