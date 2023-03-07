@@ -4,6 +4,7 @@ from collections import defaultdict
 from community import community_louvain
 import csv
 from functools import partial
+import json
 from multiprocessing import Pool
 import networkx as nx
 import os
@@ -102,7 +103,9 @@ def restrictedBetweennessCentrality(network, nodes1, nodes2, normalize):
 	return rbcs
 
 def calculateNetworkStats(args, networksTempDirPath, statsTempDirPath, networkName):
-	network = nx.read_adjlist(networksTempDirPath / networkName)
+	with open(networksTempDirPath / networkName) as networkFile:
+		networkData = json.load(networkFile)
+	network = nx.readwrite.json_graph.adjacency_graph(networkData)
 
 	sortedSubgraphs = sorted([network.subgraph(component) for component in nx.connected_components(network)], key=len, reverse=True)
 

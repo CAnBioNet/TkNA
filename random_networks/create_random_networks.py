@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import argparse
 from functools import partial
+import json
 from math import factorial
 from multiprocessing import Pool
 import networkx as nx
@@ -26,7 +27,9 @@ def generateNetwork(nodes, numEdges, tempDirPath, index, seed):
 				network.add_edge(node1, node2)
 				break
 
-	nx.write_adjlist(network, tempDirPath / str(index))
+	networkData = nx.readwrite.json_graph.adjacency_data(network)
+	with open(tempDirPath / str(index), "w") as networkFile:
+		json.dump(networkData, networkFile)
 
 def getArgs():
 	parser = argparse.ArgumentParser(description="Generate random networks", add_help=False)
