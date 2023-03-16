@@ -192,7 +192,7 @@ def combineAndFilterFoldChanges(config, foldChanges, foldChangeSigns):
 def stackDifferenceCellTypeAndMeasurable(data):
 	return data.stack({"measurableAndCellType": ("measurable", "differentialCellType")})
 
-def calculateCorrelations(config, filteredData):
+def calculateCorrelations(config, filteredData, cores=None):
 	metatreatments = config["metatreatments"]
 	if metatreatments is None:
 		metatreatments = {}
@@ -277,7 +277,7 @@ def calculateCorrelations(config, filteredData):
 			endArgs = []
 
 		worker = methodWorker(**methodKwargs, dataParams=treatmentDataParams, correlationsAndPValuesParams=correlationsAndPValuesParams)
-		with Pool() as p:
+		with Pool(cores) as p:
 			p.map(worker, itertools.combinations(range(treatmentData.sizes["measurableAndCellType"]), 2))
 
 		treatmentDataSharedMemory.close()
@@ -479,7 +479,7 @@ def filterOnExpectedEdges(config, foldChangeSigns, correlationSigns, measurableF
 	return pucCompliant, foldChangeSignProducts
 
 class NetworkReconstructorSingleCell(NetworkReconstructor):
-	def reconstructNetwork(self, config, data, **kwargs):
+	def reconstructNetwork(self, config, data, cores=None, **kwargs):
 		def stageCombineCellsByType(allData):
 			allData["cellsCombined"] = combineCellsByType(config, allData["cellData"])
 			allData["stacked"] = stackCellTypeAndMeasurable(config, allData["cellsCombined"])
@@ -499,7 +499,7 @@ class NetworkReconstructorSingleCell(NetworkReconstructor):
 			allData["filteredData"] = allData["stacked"].sel(measurableAndCellType=allData["stacked"].coords["measurableAndCellType"][allData["measurableFilterStacked"]])
 
 		def stageComputeCorrelations(allData):
-			allData["correlationCoefficients"], allData["correlationPValues"] = calculateCorrelations(config, allData["filteredData"])
+			allData["correlationCoefficients"], allData["correlationPValues"] = calculateCorrelations(config, allData["filteredData"], cores)
 			allData["combinedCorrelationPValues"] = combineCorrelationPValues(config, allData["correlationPValues"])
 			allData["correlationSigns"] = numpy.sign(allData["correlationCoefficients"])
 

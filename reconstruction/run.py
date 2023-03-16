@@ -18,6 +18,7 @@ def getArgs():
 	requiredArgGroup.add_argument("--out-file", type=str, dest="outFile", required=True, help="Writes all generated data to a ZIP file with the specified path")
 	optionalArgGroup.add_argument("--start", nargs=2, type=str, metavar=("startStage", "startData"), help="Start network generation from a particular stage")
 	optionalArgGroup.add_argument("--stop", nargs=1, type=str, metavar="stopStage", help="Stop network generation at a particular stage")
+	optionalArgGroup.add_argument("--cores", type=int, help="Number of cores to use for computation. If not provided, all available cores will be used.")
 	optionalArgGroup.add_argument("--singlecell", "-s", action="store_true", default=False, help="Work with single-cell rather than aggregate data")
 	optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 	args = parser.parse_args()
@@ -64,5 +65,5 @@ if __name__ == "__main__":
 		network_reconstructor = NetworkReconstructorSingleCell()
 	else:
 		network_reconstructor = NetworkReconstructorAggregate()
-	network_reconstructor.reconstructNetwork(config, data, start=args.start, stopStage=args.stop, dataOutFilePath=args.outFile)
+	network_reconstructor.reconstructNetwork(config, data, start=args.start, stopStage=args.stop, dataOutFilePath=args.outFile, cores=args.cores)
 

@@ -44,6 +44,7 @@ def getArgs():
 	requiredArgGroup.add_argument("--networks-file", type=str, dest="networksFile", required=True, help="ZIP file to output networks to")
 
 	optionalArgGroup.add_argument("--num-networks", "-n", type=int, dest="numNetworks", default=10000, help="Number of networks to generate")
+	optionalArgGroup.add_argument("--cores", type=int, help="Number of cores to use for computation. If not provided, all available cores will be used.")
 	optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 
 	args = parser.parse_args()
@@ -94,7 +95,7 @@ if __name__ == "__main__":
 
 	tempDir = tempfile.TemporaryDirectory()
 	tempDirPath = Path(tempDir.name)
-	with Pool() as pool:
+	with Pool(args.cores) as pool:
 		pool.starmap(partial(generateNetwork, nodes, numEdges, tempDirPath), enumerate(seeds))
 
 	args.networksFile.parent.mkdir(parents=True, exist_ok=True)

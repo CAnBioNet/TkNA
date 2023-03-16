@@ -25,6 +25,7 @@ def getArgs():
 	requiredArgGroup.add_argument("--stats-file", type=str, dest="statsFile", required=True, help="ZIP to output the network stats to")
 	optionalArgGroup.add_argument("--node-map", "-m", dest="nodeMap", help="CSV file mapping nodes to their types. Required if node_types is specified for --bibc-groups.")
 	optionalArgGroup.add_argument("--node-groups", "-g", metavar="GROUP", nargs=2, dest="nodeGroups", help="Two types of nodes to use for BiBC grouping. Required if node_types is specified for --bibc-groups.")
+	optionalArgGroup.add_argument("--cores", type=int, help="Number of cores to use for computation. If not provided, all available cores will be used.")
 	optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 	args = parser.parse_args()
 
@@ -141,7 +142,7 @@ if __name__ == "__main__":
 	statsTempDir = tempfile.TemporaryDirectory()
 	statsTempDirPath = Path(statsTempDir.name)
 
-	with Pool() as pool:
+	with Pool(args.cores) as pool:
 		pool.map(partial(calculateNetworkStats, args, networksTempDirPath, statsTempDirPath), os.listdir(networksTempDirPath))
 
 	networksTempDir.cleanup()

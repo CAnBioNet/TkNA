@@ -312,7 +312,7 @@ def combineAndFilterFoldChanges(config, foldChanges, foldChangeSigns):
 
 	return combinedSigns, filterTable
 
-def calculateCorrelations(config, filteredData):
+def calculateCorrelations(config, filteredData, cores=None):
 	metatreatments = config["metatreatments"]
 	if metatreatments is None:
 		metatreatments = {}
@@ -406,7 +406,7 @@ def calculateCorrelations(config, filteredData):
 			endArgs = []
 
 		worker = methodWorker(**methodKwargs, treatmentDataParams=treatmentDataParams, correlationsAndPValuesParams=correlationsAndPValuesParams)
-		with Pool() as p:
+		with Pool(cores) as p:
 			p.map(worker, itertools.combinations(range(treatmentData.sizes["measurable"]), 2))
 
 		treatmentDataSharedMemory.close()
@@ -607,7 +607,7 @@ def filterOnExpectedEdges(config, foldChangeSigns, correlationSigns):
 	return pucCompliant, foldChangeSignProducts
 
 class NetworkReconstructorAggregate(NetworkReconstructor):
-	def reconstructNetwork(self, config, data, **kwargs):
+	def reconstructNetwork(self, config, data, cores=None, **kwargs):
 		skip = False
 
 		def computeDifferences(allData):
@@ -633,7 +633,7 @@ class NetworkReconstructorAggregate(NetworkReconstructor):
 				skip = True
 				return
 
-			allData["correlationCoefficients"], allData["correlationPValues"] = calculateCorrelations(config, allData["filteredData"])
+			allData["correlationCoefficients"], allData["correlationPValues"] = calculateCorrelations(config, allData["filteredData"], cores)
 
 			allData["correlationSigns"] = numpy.sign(allData["correlationCoefficients"])
 			allData["combinedCorrelationSigns"], allData["correlationFilter"], allData["metatreatmentsPassingCorrelationFilter"] = combineAndFilterCorrelations(config, allData["correlationCoefficients"], allData["correlationSigns"])
