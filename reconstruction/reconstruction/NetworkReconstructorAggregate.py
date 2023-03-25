@@ -1,4 +1,5 @@
 import bottleneck
+from functools import partial
 import itertools
 from multiprocessing import Pool, shared_memory
 import numpy
@@ -235,15 +236,43 @@ def computeFoldChanges(config, data):
 	if not foldChangeType in ["median", "mean"]:
 		raise Exception("Invalid fold change type")
 
-	def computeFoldChanges_(experimentData):
+	dataEps = numpy.finfo(data.dtype).eps
+
+	def computeFoldChanges_(method, experimentData):
 		grouped = experimentData.groupby("treatment")
 		treatmentData = [grouped[treatment] for treatment in treatments]
-		combinedOrganismData = [getattr(treatmentDataset, foldChangeType)("organism") for treatmentDataset in treatmentData]
-		return numpy.log2(combinedOrganismData[0] / combinedOrganismData[1])
+		combinedOrganismData = [getattr(treatmentDataset, method)("organism") for treatmentDataset in treatmentData]
 
-	foldChanges = data.groupby("experiment").map(computeFoldChanges_)
+		zeros = [abs(organismData) <= dataEps for organismData in combinedOrganismData]
+		bothZeros = zeros[0] & zeros[1]
+		firstZero = zeros[0] & ~zeros[1]
+		secondZero = ~zeros[0] & zeros[1]
+		neitherZero = ~(zeros[0] & zeros[1])
+
+		if method == "median" and bothZeros.any():
+			if foldChangeType == "median":
+				raise Exception("Found measurable with median of 0 in both treatments specified for \"comparisonTreatments\". Try using a \"foldChangeType\" of \"mean\" instead.")
+			return xarray.full_like(combinedOrganismData[0], numpy.nan)
+
+		treatmentDataMerged = xarray.concat(treatmentData, "organism")
+
+		def correctForZeros(treatmentDataArray, isOnlyZero):
+			zeroData = treatmentDataArray.where(isOnlyZero, drop=True)
+			zeroCoords = zeroData.coords["measurable"].data
+			zeroMins = treatmentDataMerged.sel(measurable=zeroCoords).where(abs(treatmentDataMerged) > dataEps).min(dim="organism")
+			raisedZeroData = zeroMins / 10
+			otherNonZeroData = treatmentDataArray.where(~isOnlyZero, drop=True).where(neitherZero)
+			return xarray.concat([raisedZeroData, otherNonZeroData], dim="measurable")
+
+		firstCorrected = correctForZeros(combinedOrganismData[0], firstZero)
+		secondCorrected = correctForZeros(combinedOrganismData[1], secondZero)
+
+		return numpy.log2(firstCorrected / secondCorrected)
+
+	medianFoldChanges, meanFoldChanges = map(lambda method: data.groupby("experiment").map(partial(computeFoldChanges_, method)), ("median", "mean"))
+	foldChanges = medianFoldChanges if foldChangeType == "median" else meanFoldChanges
 	foldChangeSigns = numpy.sign(foldChanges)
-	return foldChanges, foldChangeSigns
+	return foldChanges, foldChangeSigns, medianFoldChanges, meanFoldChanges
 
 def combineAndFilterFoldChanges(config, foldChanges, foldChangeSigns):
 	filterMethod = config["foldChangeFilterMethod"]
@@ -576,7 +605,7 @@ class NetworkReconstructorAggregate(NetworkReconstructor):
 			allData["combinedDifferencePValues"] = combineDifferencePValues(config, allData["differencePValues"])
 			allData["correctedDifferencePValues"] = correctDifferencePValues(config, allData["combinedDifferencePValues"])
 
-			allData["foldChanges"], allData["foldChangeSigns"] = computeFoldChanges(config, allData["originalData"])
+			allData["foldChanges"], allData["foldChangeSigns"], allData["medianFoldChanges"], allData["meanFoldChanges"] = computeFoldChanges(config, allData["originalData"])
 
 		def filterOnDifferences(allData):
 			allData["individualDifferencePValueFilter"] = filterOnIndividualDifferencePValues(config, allData["differencePValues"])
@@ -620,7 +649,10 @@ class NetworkReconstructorAggregate(NetworkReconstructor):
 				return
 
 			allData["expectedEdgeFilter"], allData["foldChangeSignProducts"] = filterOnExpectedEdges(config, allData["combinedFoldChangeSigns"], allData["combinedCorrelationSigns"])
-			allData["edgeFilter"] &= allData["expectedEdgeFilter"]
+
+			# Cannot be in-place, as xarray doesn't support coordinate alignment for such operations
+			# See https://github.com/pydata/xarray/issues/3910
+			allData["edgeFilter"] = allData["edgeFilter"] & allData["expectedEdgeFilter"]
 
 		def createEdgeList(allData):
 			nonlocal skip
