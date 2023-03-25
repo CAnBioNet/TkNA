@@ -6,6 +6,7 @@ import numpy
 from scipy import stats, special
 from statsmodels.stats import multitest
 import xarray
+import warnings
 
 from .NetworkReconstructor import NetworkReconstructor
 from .util import matchingCoords, withoutDim, SharedArrayParams
@@ -363,10 +364,15 @@ def calculateCorrelations(config, filteredData):
 		rankedSharedMemory.close()
 		rankedSharedMemory.unlink()
 
+	def preparePearson(treatmentData):
+		# If values are constant, the scipy will give a correlation of NaN, which is what we want (filter out edge), so this warning can be safely ignored
+		warnings.filterwarnings("ignore", category=stats.PearsonRConstantInputWarning)
+		return None, None
+
 	correlationMethod = config["correlationMethod"]
 	methodMap = {
 		"spearman": (CorrelationWorkerSpearman, prepareSpearman, endSpearman),
-		"pearson": (CorrelationWorkerPearson, None, None)
+		"pearson": (CorrelationWorkerPearson, preparePearson, None)
 	}
 	if correlationMethod not in methodMap:
 		raise Exception("Unknown correlation method specified")
@@ -389,10 +395,13 @@ def calculateCorrelations(config, filteredData):
 		dataCopy[:] = treatmentData.values[:]
 
 		(methodWorker, methodPrepare, methodEnd) = methodMap[correlationMethod]
+		methodKwargs = None
+		endArgs = None
 		if methodPrepare:
 			methodKwargs, endArgs = methodPrepare(treatmentData)
-		else:
+		if methodKwargs is None:
 			methodKwargs = {}
+		if endArgs is None:
 			endArgs = []
 
 		worker = methodWorker(**methodKwargs, treatmentDataParams=treatmentDataParams, correlationsAndPValuesParams=correlationsAndPValuesParams)
