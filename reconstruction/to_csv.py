@@ -36,12 +36,6 @@ def getArgs():
 
 	return args
 
-def computeFoldChanges_(experimentData, foldChangeType, treatments, *args):
-	grouped = experimentData.groupby("treatment")
-	treatmentData = [grouped[treatment] for treatment in treatments]
-	combinedOrganismData = [getattr(treatmentDataset, foldChangeType)("organism") for treatmentDataset in treatmentData]
-	return numpy.log2(combinedOrganismData[0] / combinedOrganismData[1])
-
 def setupMeasurableCsv(data, config):
 	foldChangeType = config["foldChangeType"]
 
@@ -61,8 +55,6 @@ def setupMeasurableCsv(data, config):
 
 	data["meanValue"] = None
 	data["medianValue"] = None
-	data["meanFoldChanges"] = None
-	data["medianFoldChanges"] = None
 	data["consistentFoldChange"] = None
 
 	dataKeys = csvConfig.getDataKeys()
@@ -73,10 +65,6 @@ def setupMeasurableCsv(data, config):
 	data["meanValue"] = data["originalData"].groupby("experiment").map(lambda a: a.mean(dim="organism"))
 	data["medianValue"] = data["originalData"].groupby("experiment").map(lambda a: a.median(dim="organism"))
 	data["consistentFoldChange"] = xarray.apply_ufunc(lambda signs: numpy.all(signs == signs[0]), data["foldChangeSigns"], input_core_dims=[["experiment"]], vectorize=True)
-
-	treatments = config["comparisonTreatments"]
-	data["meanFoldChanges"] = data["originalData"].groupby("experiment").map(computeFoldChanges_, args=("mean",treatments))
-	data["medianFoldChanges"] = data["originalData"].groupby("experiment").map(computeFoldChanges_, args=("median",treatments))
 
 	return csvConfig, data
 
@@ -136,8 +124,6 @@ def setupEdgeCsv(data, config):
 
 	data["meanValue"] = None
 	data["medianValue"] = None
-	data["meanFoldChanges"] = None
-	data["medianFoldChanges"] = None
 
 	dataKeys = csvConfig.getDataKeys()
 	dataKeys.append("originalData")
@@ -151,10 +137,6 @@ def setupEdgeCsv(data, config):
 
 	data["meanValue"] = data["originalData"].groupby("experiment").map(lambda a: a.mean(dim="organism"))
 	data["medianValue"] = data["originalData"].groupby("experiment").map(lambda a: a.median(dim="organism"))
-
-	treatments = config["comparisonTreatments"]
-	data["meanFoldChanges"] = data["originalData"].groupby("experiment").map(computeFoldChanges_, args=("mean",treatments))
-	data["medianFoldChanges"] = data["originalData"].groupby("experiment").map(computeFoldChanges_, args=("median",treatments))
 
 	return csvConfig, data
 
