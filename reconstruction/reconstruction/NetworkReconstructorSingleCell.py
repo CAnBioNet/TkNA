@@ -191,7 +191,27 @@ def stackDifferenceCellTypeAndMeasurable(data):
 	return data.stack({"measurableAndCellType": ("measurable", "differentialCellType")})
 
 def calculateCorrelations(config, filteredData):
-	networkTreatments = config["networkTreatments"]
+	metatreatments = config["metatreatments"]
+	if metatreatments is None:
+		metatreatments = {}
+		networkTreatment = config["networkTreatment"]
+		for experiment in filteredData.coords["experiment"].data:
+			metatreatments[experiment] = [(experiment, networkTreatment)]
+
+	metatreatmentReverseMap = {}
+	for metatreatmentName, experimentAndTreatments in metatreatments.items():
+		for experimentAndTreatment in experimentAndTreatments:
+			metatreatmentReverseMap[experimentAndTreatment] = metatreatmentName
+
+	metatreatmentCoords = []
+	for organismCoord in filteredData.coords["organism"]:
+		experimentAndTreatment = (organismCoord.experiment.item(), organismCoord.treatment.item())
+		if experimentAndTreatment in metatreatmentReverseMap:
+			metatreatmentCoords.append(metatreatmentReverseMap[experimentAndTreatment])
+		else:
+			metatreatmentCoords.append(None)
+
+	filteredData = filteredData.assign_coords(coords={"metatreatment": ("organism", metatreatmentCoords)})
 
 	def prepareSpearman(treatmentData):
 		spearmanKwargs = {}
@@ -229,10 +249,9 @@ def calculateCorrelations(config, filteredData):
 	if correlationMethod not in methodMap:
 		raise Exception("Unknown correlation method specified")
 
-	treatmentDatasets = [filteredData.sel(organism=filteredData.treatment==treatment) for treatment in networkTreatments]
-	treatmentData = xarray.concat(treatmentDatasets, "organism")
+	treatmentData = filteredData
 
-	def calculateForTreatment(treatmentData):
+	def calculateForMetatreatment(treatmentData):
 		# TODO: Create correlation/pvalue dtype?
 
 		correlationsAndPValuesParams = SharedArrayParams((treatmentData.sizes["measurableAndCellType"], treatmentData.sizes["measurableAndCellType"]), numpy.float64)
@@ -287,21 +306,31 @@ def calculateCorrelations(config, filteredData):
 
 		return results
 
-	correlationResults = treatmentData.groupby("experiment").map(lambda experimentData: experimentData.groupby("treatment").map(calculateForTreatment))
+	correlationResults = treatmentData.groupby("metatreatment").map(calculateForMetatreatment)
 
 	return correlationResults["correlations"], correlationResults["pValues"]
 
 def combineCorrelationPValues(config, pValues):
 	combineMethod = config["correlationCombinePValuesMethod"]
 
+	metatreatmentsToCombine = config["metatreatmentsToCombine"]
+	if metatreatmentsToCombine is None:
+		metatreatmentsToCombine = [metatreatment for metatreatment in set(pValues.coords["metatreatment"].data) if metatreatment is not None]
+
+	# Skip combining if there is only one metatreatment selected
+	if len(metatreatmentsToCombine) == 1:
+		return pValues.sel(metatreatment=metatreatmentsToCombine[0])
+
+	selectedPValues = pValues.sel(metatreatment=metatreatmentsToCombine)
+
 	def fisher():
 		# Ignore errors that occur for p = 0
 		with numpy.errstate(divide="ignore"):
-			chi2 = -2 * (numpy.log(pValues)).sum(dim="experiment")
-		dof = 2 * pValues.sizes["experiment"]
+			chi2 = -2 * (numpy.log(pValues)).sum(dim="metatreatment")
+		dof = 2 * pValues.sizes["metatreatment"]
 		combinedPValues = stats.chi2.sf(chi2, df=dof)
 
-		newDims, newCoords = withoutDim(pValues, "experiment")
+		newDims, newCoords = withoutDim(pValues, "metatreatment")
 		combinedPValues = xarray.DataArray(combinedPValues, dims=newDims, coords=newCoords)
 		return combinedPValues
 
@@ -359,24 +388,19 @@ def correctCorrelationPValues(config, combinedPValues):
 	def correctTypeProduct(pValues):
 		return pValues.groupby("cellType1").map(lambda type1Data: type1Data.groupby("cellType2").map(correctPValues))
 
-	def correctTreatment(treatmentData):
-		# Perform corrections
-		correctedTreatmentData = treatmentData.groupby("measurableType1").map(lambda type1Data: type1Data.groupby("measurableType2").map(correctTypeProduct))
+	# Perform corrections
+	correctedPValues = combinedPValues.groupby("measurableType1").map(lambda measurableType1Data: measurableType1Data.groupby("measurableType2").map(correctTypeProduct))
 
-		# Copy data across the diagonal
-		# (this works because the correction method makes all duplicate/diagonal entries 0)
-		correctedTreatmentData = correctedTreatmentData.to_numpy()
-		correctedTreatmentData += correctedTreatmentData.T
+	# Copy data across the diagonal
+	# (this works because the correction method makes all duplicate/diagonal entries 0)
+	correctedPValues += correctedPValues.to_numpy().T
 
-		return correctedTreatmentData
-
-	correctedPValues = combinedPValues.groupby("treatment").map(lambda treatmentData: correctTreatment(treatmentData))
 	return correctedPValues
 
 def filterDiagonals(pValues):
 	diagonalFilter = numpy.ones([pValues.sizes["measurableAndCellType1"], pValues.sizes["measurableAndCellType2"]], dtype=bool)
 	numpy.fill_diagonal(diagonalFilter, 0)
-	diagonalFilter = xarray.DataArray([diagonalFilter], dims=pValues.dims, coords=pValues.coords)
+	diagonalFilter = xarray.DataArray(diagonalFilter, dims=pValues.dims, coords=pValues.coords)
 	return diagonalFilter
 
 def filterOnCorrelationPValues(config, pValues, pValueType):
@@ -402,7 +426,7 @@ def filterOnCorrelationPValues(config, pValues, pValueType):
 	return filterTable
 
 def filterOnIndividualCorrelationPValues(config, pValues):
-	maxPValues = pValues.max(dim="experiment")
+	maxPValues = pValues.max(dim="metatreatment")
 	return filterOnCorrelationPValues(config, maxPValues, "individual")
 
 def filterOnCombinedCorrelationPValues(config, combinedPValues):
@@ -415,19 +439,19 @@ def combineAndFilterCorrelations(config, correlations, correlationSigns):
 	filterMethod = config["correlationFilterMethod"]
 
 	def allSameSign():
-		filterTable = (correlationSigns.isel(experiment=0) == correlationSigns).all(dim="experiment")
-		combinedSigns = correlationSigns.isel(experiment=0).where(filterTable, 0)
+		filterTable = (correlationSigns.isel(metatreatment=0) == correlationSigns).all(dim="metatreatment")
+		combinedSigns = correlationSigns.isel(metatreatment=0).where(filterTable, 0)
 		return combinedSigns, filterTable
 
 	# Should be greater than 0.5, as otherwise there can be ties between signs
 	percentThreshold = config["correlationFilterPercentAgreementThreshold"]
 	def percentAgreement():
-		numExperiments = correlationSigns.sizes["experiment"]
-		experimentAxis = correlationSigns.get_axis_num("experiment")
-		positiveFilterTable = (numpy.count_nonzero(correlationSigns == 1, axis=experimentAxis) / numExperiments) > percentThreshold
-		negativeFilterTable = (numpy.count_nonzero(correlationSigns == -1, axis=experimentAxis) / numExperiments) > percentThreshold
+		numMetatreatments = correlationSigns.sizes["metatreatment"]
+		metatreatmentAxis = correlationSigns.get_axis_num("metatreatment")
+		positiveFilterTable = (numpy.count_nonzero(correlationSigns == 1, axis=metatreatmentAxis) / numMetatreatments) > percentThreshold
+		negativeFilterTable = (numpy.count_nonzero(correlationSigns == -1, axis=metatreatmentAxis) / numMetatreatments) > percentThreshold
 		filterTable = positiveFilterTable | negativeFilterTable
-		ones = xarray.ones_like(correlationSigns.isel(experiment=0))
+		ones = xarray.ones_like(correlationSigns.isel(metatreatment=0))
 		combinedSigns = ones.where(positiveFilterTable, 0) - ones.where(negativeFilterTable, 0)
 		return combinedSigns, filterTable
 
