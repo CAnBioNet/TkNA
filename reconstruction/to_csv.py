@@ -199,12 +199,12 @@ def writeMeasurableCsvSingleCell(data, config, filePath, nodesOnly):
 		CsvWriter.CoordinateFunction("Measurable", lambda m: "{}".format(coordArr.coords["measurable"][m].item())),
 		CsvWriter.CoordinateFunction("Cell Type", lambda m: "{}".format(coordArr.coords[cellTypeDim][m].item())),
 		CsvWriter.CoordinateFunction("Measurable Type", lambda m: "{}".format(coordArr.coords["measurableType"][m].item())),
-		CsvWriter.Per("Average Value ({})", "stacked", "organism", indexList),
-		CsvWriter.Per("Average Log2 Fold Change ({})", "foldChangesStacked", "differentialExperiment", indexList),
-		CsvWriter.Per("Average Log2 Fold Change Direction ({})", "foldChangeSignsStacked", "differentialExperiment", indexList),
-		CsvWriter.Column("Average Log2 Fold Changes Consistent", "foldChangeFilterStacked", indexList),
-		CsvWriter.Per("Corrected Comparison p-value ({})", "correctedDifferencePValuesStacked", "differentialExperiment", indexList),
-		CsvWriter.Column("Combined Comparison p-value", "combinedDifferencePValuesStacked", indexList)
+		CsvWriter.Per("Average Value ({})", "stacked", "organism", coordMap=indexList),
+		CsvWriter.Per("Average Log2 Fold Change ({})", "foldChangesStacked", "differentialExperiment", coordMap=indexList),
+		CsvWriter.Per("Average Log2 Fold Change Direction ({})", "foldChangeSignsStacked", "differentialExperiment", coordMap=indexList),
+		CsvWriter.Column("Average Log2 Fold Changes Consistent", "foldChangeFilterStacked", coordMap=indexList),
+		CsvWriter.Per("Corrected Comparison p-value ({})", "correctedDifferencePValuesStacked", "differentialExperiment", coordMap=indexList),
+		CsvWriter.Column("Combined Comparison p-value", "combinedDifferencePValuesStacked", coordMap=indexList)
 	)
 
 	dataKeys = csvConfig.getDataKeys()
@@ -245,12 +245,12 @@ def writeEdgeCsvSingleCell(data, config, filePath, finalOnly=False):
 		CsvWriter.Property("Cell Type 1", "correlationCoefficients", "cellType1"),
 		CsvWriter.Property("Cell Type 2", "correlationCoefficients", "cellType2"),
 		CsvWriter.PropertiesFormatted("Cell Types", "correlationCoefficients", "{}<==>{}", ["cellType1", "cellType2"]),
-		CsvWriter.CoordComponentPer("Partner 1 Average Value ({})", "stacked", 0, "measurableAndCellType", "organism", indexList),
-		CsvWriter.CoordComponentColumn("Partner 1 Average Log2 Fold Change", "foldChangesStacked", 0, "measurableAndCellType", indexList),
-		CsvWriter.CoordComponentColumn("Partner 1 Fold Change Direction", "combinedFoldChangeSignsStacked", 0, "measurableAndCellType", indexList),
-		CsvWriter.CoordComponentPer("Partner 2 Average Value ({})", "stacked", 1, "measurableAndCellType", "organism", indexList),
-		CsvWriter.CoordComponentColumn("Partner 2 Average Log2 Fold Change", "foldChangesStacked", 1, "measurableAndCellType", indexList),
-		CsvWriter.CoordComponentColumn("Partner 2 Fold Change Direction", "combinedFoldChangeSignsStacked", 1, "measurableAndCellType", indexList),
+		CsvWriter.CoordComponentPer("Partner 1 Average Value ({})", "stacked", 0, "measurableAndCellType", "organism", coordMap=indexList),
+		CsvWriter.CoordComponentColumn("Partner 1 Average Log2 Fold Change", "foldChangesStacked", 0, "measurableAndCellType", coordMap=indexList),
+		CsvWriter.CoordComponentColumn("Partner 1 Fold Change Direction", "combinedFoldChangeSignsStacked", 0, "measurableAndCellType", coordMap=indexList),
+		CsvWriter.CoordComponentPer("Partner 2 Average Value ({})", "stacked", 1, "measurableAndCellType", "organism", coordMap=indexList),
+		CsvWriter.CoordComponentColumn("Partner 2 Average Log2 Fold Change", "foldChangesStacked", 1, "measurableAndCellType", coordMap=indexList),
+		CsvWriter.CoordComponentColumn("Partner 2 Fold Change Direction", "combinedFoldChangeSignsStacked", 1, "measurableAndCellType", coordMap=indexList),
 		CsvWriter.Column("Fold Change Signs Match", "foldChangeSignProducts"),
 		CsvWriter.Per("Correlation p-value ({})", "correlationPValues", "metatreatment"),
 		CsvWriter.Per("Correlation Coefficient ({})", "correlationCoefficients", "metatreatment"),
