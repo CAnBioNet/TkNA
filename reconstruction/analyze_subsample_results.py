@@ -75,9 +75,6 @@ if __name__ == "__main__":
 	rVals = xarray.concat(dataArrays["correlationCoefficients"], dim="subsample")
 	combinedPVals = xarray.concat(dataArrays["combinedCorrelationPValues"], dim="subsample")
 	correctedPVals = xarray.concat(dataArrays["correctedCorrelationPValues"], dim="subsample")
-	if args.singlecell:
-		combinedPVals = combinedPVals.isel(treatment=0)
-		correctedPVals = correctedPVals.isel(treatment=0)
 
 	if args.singlecell:
 		nodeDims = ["measurableAndCellType1", "measurableAndCellType2"]
@@ -87,11 +84,7 @@ if __name__ == "__main__":
 	combinedPValMedians = combinedPVals.median(dim="subsample")
 	correctedPValMedians = correctedPVals.median(dim="subsample")
 
-	if args.singlecell:
-		combinedData = rVals.mean(dim="experiment").isel(treatment=0)
-	else:
-		combinedData = rVals.mean(dim="metatreatment")
-
+	combinedData = rVals.mean(dim="metatreatment")
 	percentInclusions = combinedData.count(dim="subsample") / combinedData.sizes["subsample"]
 
 	medians = combinedData.median(dim="subsample")
@@ -125,7 +118,7 @@ if __name__ == "__main__":
 
 	coords = list(itertools.combinations(medians.coords[nodeDims[0]].data, 2))
 	if args.singlecell:
-		csvConfig = CsvWriter.Config(CsvWriter.DimTuple(*nodeDims),
+		csvConfig = CsvWriter.Config(nodeDims,
 			CsvWriter.Property("Measurable 1", "medians", "measurable1"),
 			CsvWriter.Property("Measurable 2", "medians", "measurable2"),
 			CsvWriter.Property("Cell Type 1", "medians", "cellType1"),
@@ -134,7 +127,7 @@ if __name__ == "__main__":
 			*dataColumns
 		)
 	else:
-		csvConfig = CsvWriter.Config(CsvWriter.DimTuple(*nodeDims),
+		csvConfig = CsvWriter.Config(nodeDims,
 			CsvWriter.CoordinateFunction("Measurable 1", lambda m1, m2: m1),
 			CsvWriter.CoordinateFunction("Measurable 2", lambda m1, m2: m2),
 			CsvWriter.CoordinateFormatted("Edge Name", "{}<==>{}"),
