@@ -313,15 +313,16 @@ def calculateCorrelations(config, filteredData):
 		rankedNBytes = numpy.prod(rankedParams.shape) * rankedParams.dtype().itemsize
 		rankedSharedMemory = shared_memory.SharedMemory(create=True, size=rankedNBytes, name="spearmanRanked")
 		ranked = numpy.ndarray(rankedParams.shape, rankedParams.dtype, buffer=rankedSharedMemory.buf)
+		organismAxis = treatmentData.get_axis_num("organism")
 		# Ranks begin at 1
-		ranked[:] = bottleneck.nanrankdata(treatmentData, axis=1)
+		ranked[:] = bottleneck.nanrankdata(treatmentData, axis=organismAxis)
 
 		spearmanKwargs["rankedParams"] = rankedParams
 
 		n = treatmentData.sizes["organism"]
 
 		# Check that all ranks are distinct before using formula
-		modes = stats.mode(ranked, axis=1)
+		modes = stats.mode(ranked, axis=organismAxis)
 		spearmanKwargs["useCoefficient"] = numpy.all(modes.count == 1)
 		if spearmanKwargs["useCoefficient"]:
 			# From https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient#Definition_and_calculation
