@@ -223,8 +223,8 @@ class CoordComponentPropertyFormatted(ColumnSpec):
 
 	def _getValues(self, data, dim, coords, dataArr):
 		components = numpy.array(coords).T
-		componentProperties = numpy.array([dataArr.sel({self.componentDim: componentList}).coords[self.propertyDim].data for componentList in components])
-		return [[self.formatStr.format(p1, p2) for p1, p2 in zip(componentProperties[0], componentProperties[1])]]
+		componentProperties = numpy.array([dataArr.sel({self.componentDim: componentList}).coords[self.propertyDim].data for componentList in components]).T
+		return [[self.formatStr.format(*propertyList) for propertyList in componentProperties]]
 
 	def getDataKeys(self):
 		return [self.dataKey]
