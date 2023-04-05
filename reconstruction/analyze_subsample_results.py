@@ -119,14 +119,14 @@ if __name__ == "__main__":
 	coords = list(itertools.combinations(medians.coords[nodeDims[0]].data, 2))
 	if args.singlecell:
 		csvConfig = CsvWriter.Config(nodeDims,
+			CsvWriter.PropertiesFormatted("Variable 1", "medians", "{}_{}", ["measurable1", "cellType1"]),
+			CsvWriter.PropertiesFormatted("Variable 2", "medians", "{}_{}", ["measurable2", "cellType2"]),
+			CsvWriter.PropertiesFormatted("Edge Name", "medians", "{}_{}<==>{}_{}", ["measurable1", "cellType1", "measurable2", "cellType2"]),
 			CsvWriter.Property("Measurable 1", "medians", "measurable1"),
 			CsvWriter.Property("Measurable 2", "medians", "measurable2"),
 			CsvWriter.Property("Cell Type 1", "medians", "cellType1"),
 			CsvWriter.Property("Cell Type 2", "medians", "cellType2"),
 			CsvWriter.PropertiesFormatted("Edge Type", "medians", "{}<==>{}", ["cellType1", "cellType2"]),
-			CsvWriter.PropertiesFormatted("Variable 1", "medians", "{}_{}", ["measurable1", "cellType1"]),
-			CsvWriter.PropertiesFormatted("Variable 2", "medians", "{}_{}", ["measurable2", "cellType2"]),
-			CsvWriter.PropertiesFormatted("Edge Name", "medians", "{}_{}<==>{}_{}", ["measurable1", "cellType1", "measurable2", "cellType2"]),
 			*dataColumns
 		)
 	else:
