@@ -87,11 +87,12 @@ def intakeSingleCellData(dataDir):
 				cellTypeData = xarray.DataArray(cellTypeDataFrame)
 				cellTypeData = cellTypeData.rename({"dim_0": "measurable", "dim_1": "cell"})
 
+				cellCoords = ["{}_{}".format(cell, organism) for cell in cellTypeData.coords["cell"]] # Ensure all cells have unique coords
 				organismCoords = ["{}_{}".format(experimentName, organism)] * cellTypeData.sizes["cell"]
 				cellTypeCoords = [cellType] * cellTypeData.sizes["cell"]
 				treatmentCoords = [inverseTreatmentMap[organism]] * cellTypeData.sizes["cell"]
 
-				cellTypeData = cellTypeData.assign_coords({"organism": ("cell", organismCoords), "cellType": ("cell", cellTypeCoords), "treatment": ("cell", treatmentCoords)})
+				cellTypeData = cellTypeData.assign_coords({"cell": cellCoords, "organism": ("cell", organismCoords), "cellType": ("cell", cellTypeCoords), "treatment": ("cell", treatmentCoords)})
 				experimentData.append(cellTypeData)
 
 			diffFilePath = cellTypeDir / "diff.csv"
