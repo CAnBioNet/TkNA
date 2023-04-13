@@ -85,7 +85,7 @@ def intakeSingleCellData(dataDir):
 				cellTypeDataFrame = pandas.read_csv(StringIO(cellTypeDataString), index_col=0)
 				cellTypeDataFrame = cellTypeDataFrame.replace(["na", "NA", "n/a", "N/A"], numpy.nan).apply(partial(pandas.to_numeric, errors="ignore"))
 				cellTypeData = xarray.DataArray(cellTypeDataFrame)
-				cellTypeData = cellTypeData.rename({"dim_0": "measurable", "dim_1": "cell"})
+				cellTypeData = cellTypeData.rename({cellTypeData.dims[0]: "measurable", cellTypeData.dims[1]: "cell"})
 
 				organismCoords = ["{}_{}".format(experimentName, organism)] * cellTypeData.sizes["cell"]
 				cellTypeCoords = [cellType] * cellTypeData.sizes["cell"]
