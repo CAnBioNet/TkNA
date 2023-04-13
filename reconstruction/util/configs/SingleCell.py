@@ -59,5 +59,5 @@ singleCellConfigSpec = Config([
 	TypedConfigItem("metatreatments", dict, default=None),
 	TypedConfigItem("metatreatmentsToCombine", list, default=None),
 	TypedConfigItem("metatreatmentsForDirectionFiltering", list, default=None)
-])
+], validateConfig)
 
