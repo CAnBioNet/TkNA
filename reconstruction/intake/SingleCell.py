@@ -87,7 +87,7 @@ def intakeSingleCellData(dataDir):
 				cellTypeData = xarray.DataArray(cellTypeDataFrame)
 				cellTypeData = cellTypeData.rename({cellTypeData.dims[0]: "measurable", cellTypeData.dims[1]: "cell"})
 
-				cellCoords = ["{}_{}".format(cell, organism) for cell in cellTypeData.coords["cell"]] # Ensure all cells have unique coords
+				cellCoords = ["{}_{}".format(cell, organism) for cell in cellTypeData.coords["cell"].data] # Ensure all cells have unique coords
 				organismCoords = ["{}_{}".format(experimentName, organism)] * cellTypeData.sizes["cell"]
 				cellTypeCoords = [cellType] * cellTypeData.sizes["cell"]
 				treatmentCoords = [inverseTreatmentMap[organism]] * cellTypeData.sizes["cell"]
