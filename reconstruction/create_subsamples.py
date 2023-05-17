@@ -106,7 +106,7 @@ if __name__ == "__main__":
 					treatmentSubsample = random.sample(treatmentOrganisms, treatmentSubsampleSize)
 					organismSubsample.extend(treatmentSubsample)
 				if args.organism:
-					subsample = list(itertools.chain(organismCellMap[organism] for organism in organismSubsample))
+					subsample = list(itertools.chain(*[organismCellMap[organism] for organism in organismSubsample]))
 					subsamples.append(subsample)
 				elif args.bothOrganismsAndCells:
 					# Now that we have a sample of the organisms, take a sample of each selected organism's cells within each cell type
