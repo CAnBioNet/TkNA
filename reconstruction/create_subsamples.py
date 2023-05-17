@@ -117,11 +117,20 @@ if __name__ == "__main__":
 			subsamples.extend(subsampleCells(organismCellMap.keys()))
 	else:
 		data = dataset.get_table("originalData")
-		nAllSamples = data.sizes["organism"]
-		nSamples = round(args.proportion * nAllSamples)
+
+		treatmentMap = {} # treatment -> list of indices of organisms in treatment group
+		for index, organism in enumerate(data.organism):
+			treatment = organism.treatment.item()
+			if treatment not in treatmentMap:
+				treatmentMap[treatment] = []
+			treatmentMap[treatment].append(index)
+
 		for i in range(args.nsubsamples):
-			subsample = random.sample(range(nAllSamples), nSamples)
-			subsample.sort()
+			subsample = []
+			for treatmentOrganismIndices in treatmentMap.values():
+				treatmentSubsampleSize = round(args.proportion * len(treatmentOrganismIndices))
+				treatmentSubsample = random.sample(treatmentOrganismIndices, treatmentSubsampleSize)
+				subsample.extend(treatmentSubsample)
 			subsamples.append(subsample)
 
 	subsampleFile = open(args.subsampleFile, "w")
