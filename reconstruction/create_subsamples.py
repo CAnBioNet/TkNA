@@ -92,6 +92,7 @@ if __name__ == "__main__":
 						subsetSubsampleSize = round(args.proportion * len(matchingCellIndices))
 						subsetSubsample = random.sample(matchingCellIndices, subsetSubsampleSize)
 						subsample.extend(subsetSubsample)
+				subsample.sort()
 				subsamples.append(subsample)
 			return subsamples
 
@@ -107,6 +108,7 @@ if __name__ == "__main__":
 					organismSubsample.extend(treatmentSubsample)
 				if args.organism:
 					subsample = list(itertools.chain(*[organismCellMap[organism] for organism in organismSubsample]))
+					subsample.sort()
 					subsamples.append(subsample)
 				elif args.bothOrganismsAndCells:
 					# Now that we have a sample of the organisms, take a sample of each selected organism's cells within each cell type
@@ -131,6 +133,7 @@ if __name__ == "__main__":
 				treatmentSubsampleSize = round(args.proportion * len(treatmentOrganismIndices))
 				treatmentSubsample = random.sample(treatmentOrganismIndices, treatmentSubsampleSize)
 				subsample.extend(treatmentSubsample)
+			subsample.sort()
 			subsamples.append(subsample)
 
 	subsampleFile = open(args.subsampleFile, "w")
