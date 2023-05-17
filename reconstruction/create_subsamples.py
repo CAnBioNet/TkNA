@@ -64,16 +64,24 @@ if __name__ == "__main__":
 
 		# Construct maps from dataset coordinates
 		organismCellMap = {} # organism -> list of indices of cells belonging to the organism
+		experimentMap = {} # experiment -> list of organisms in experiment
 		treatmentMap = {} # treatment -> list of organisms in treatment group
 		cellTypeMap = {} # cell type -> list of indices of cells of that type
 		for index, cellData in enumerate(data.cell):
 			organism = cellData.organism.item()
 			if organism not in organismCellMap:
 				organismCellMap[organism] = []
+
+				experiment = cellData.experiment.item()
+				if experiment not in experimentMap:
+					experimentMap[experiment] = []
+				experimentMap[experiment].append(organism)
+
 				treatment = cellData.treatment.item()
 				if treatment not in treatmentMap:
 					treatmentMap[treatment] = []
 				treatmentMap[treatment].append(organism)
+
 			cellType = cellData.cellType.item()
 			if cellType not in cellTypeMap:
 				cellTypeMap[cellType] = []
@@ -102,10 +110,12 @@ if __name__ == "__main__":
 			organismProportion = args.proportion if args.organism else args.organismProportion
 			for i in range(organismNSubsamples):
 				organismSubsample = []
-				for treatmentOrganisms in treatmentMap.values():
-					treatmentSubsampleSize = round(organismProportion * len(treatmentOrganisms))
-					treatmentSubsample = random.sample(treatmentOrganisms, treatmentSubsampleSize)
-					organismSubsample.extend(treatmentSubsample)
+				for experimentOrganisms in experimentMap.values():
+					for treatmentOrganisms in treatmentMap.values():
+						matchingOrganisms = set(experimentOrganisms).intersection(set(treatmentOrganisms))
+						subsetSubsampleSize = round(organismProportion * len(matchingOrganisms))
+						subsetSubsample = random.sample(matchingOrganisms, subsetSubsampleSize)
+						organismSubsample.extend(subsetSubsample)
 				if args.organism:
 					subsample = list(itertools.chain(*[organismCellMap[organism] for organism in organismSubsample]))
 					subsample.sort()
@@ -120,8 +130,15 @@ if __name__ == "__main__":
 	else:
 		data = dataset.get_table("originalData")
 
+		# Construct maps from dataset coordinates
+		experimentMap = {} # experiment -> list of indices of organisms in experiment
 		treatmentMap = {} # treatment -> list of indices of organisms in treatment group
 		for index, organism in enumerate(data.organism):
+			experiment = organism.experiment.item()
+			if experiment not in experimentMap:
+				experimentMap[experiment] = []
+			experimentMap[experiment].append(organism)
+
 			treatment = organism.treatment.item()
 			if treatment not in treatmentMap:
 				treatmentMap[treatment] = []
@@ -129,10 +146,12 @@ if __name__ == "__main__":
 
 		for i in range(args.nsubsamples):
 			subsample = []
-			for treatmentOrganismIndices in treatmentMap.values():
-				treatmentSubsampleSize = round(args.proportion * len(treatmentOrganismIndices))
-				treatmentSubsample = random.sample(treatmentOrganismIndices, treatmentSubsampleSize)
-				subsample.extend(treatmentSubsample)
+			for experimentOrganismIndices in experimentMap.values():
+				for treatmentOrganismIndices in treatmentMap.values():
+					matchingOrganismIndices = set(experimentOrganismIndices).intersection(set(treatmentOrganismIndices))
+					subsetSubsampleSize = round(args.proportion * len(subsetOrganismIndices))
+					subsetSubsample = random.sample(matchingOrganismIndices, subsetSubsampleSize)
+					subsample.extend(subsetSubsample)
 			subsample.sort()
 			subsamples.append(subsample)
 
