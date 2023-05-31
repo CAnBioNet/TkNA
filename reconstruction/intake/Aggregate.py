@@ -15,7 +15,6 @@ def intakeAggregateData(dataDir):
 	elif metadata["measurableTypeMapFile"].endswith(".csv"):
 		measurableTypeMap = readClassificationCsv(measurableTypeMapString)
 
-	nextOrganismId = 0
 
 	allExperimentData = []
 	for experimentMetadata in metadata["experiments"]:
@@ -44,8 +43,7 @@ def intakeAggregateData(dataDir):
 				inverseTreatmentMap[organism] = treatment
 		treatmentCoords = [inverseTreatmentMap[organism.item()] for organism in organismCoords]
 
-		organismCoords = [str(i) for i in range(nextOrganismId, nextOrganismId + len(organismCoords))]
-		nextOrganismId += len(organismCoords)
+		organismCoords = ["{}_{}".format(experimentName, organism.item()) for organism in organismCoords]
 
 		experimentData = experimentData.assign_coords({"organism": organismCoords, "treatment": ("organism", treatmentCoords), "experiment": ("organism", experimentCoords)})
 		allExperimentData.append(experimentData)
