@@ -6,7 +6,7 @@ import xarray
 
 from intake import intakeAggregateData, intakeSingleCellData
 from reconstruction import NetworkReconstructorAggregate, NetworkReconstructorSingleCell
-from util import parseConfigFile
+from util import parseConfigFile, Dataset
 from util.configs import aggregateConfigSpec, singleCellConfigSpec
 
 def getArgs():
@@ -52,18 +52,16 @@ if __name__ == "__main__":
 
 	if args.dataSource.is_dir():
 		if args.singlecell:
-			data = intakeSingleCellData(args.dataSource)
+			dataset = intakeSingleCellData(args.dataSource)
 		else:
-			data = intakeAggregateData(args.dataSource)
+			dataset = intakeAggregateData(args.dataSource)
 	else:
-		if args.singlecell:
-			data = xarray.open_dataset(args.dataSource)
-		else:
-			data = xarray.open_dataarray(args.dataSource)
+		dataset = Dataset()
+		dataset.load_from_file(args.dataSource)
 
 	if args.singlecell:
 		network_reconstructor = NetworkReconstructorSingleCell()
 	else:
 		network_reconstructor = NetworkReconstructorAggregate()
-	network_reconstructor.reconstructNetwork(config, data, start=args.start, stopStage=args.stop, dataOutFilePath=args.outFile, cores=args.cores)
+	network_reconstructor.reconstructNetwork(config, dataset, start=args.start, stopStage=args.stop, dataOutFilePath=args.outFile, cores=args.cores)
 

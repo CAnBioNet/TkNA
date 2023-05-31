@@ -27,10 +27,8 @@ def getArgs():
 if __name__ == "__main__":
 	args = getArgs()
 	if args.singlecell:
-		data = intakeSingleCellData(args.dataDir)
+		dataset = intakeSingleCellData(args.dataDir)
 	else:
-		data = intakeAggregateData(args.dataDir)
-
-	args.outFile.parent.mkdir(parents=True, exist_ok=True)
-	data.to_netcdf(args.outFile)
+		dataset = intakeAggregateData(args.dataDir)
+	dataset.write_to_file(args.outFile, make_parent=True)
 
