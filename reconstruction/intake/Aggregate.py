@@ -1,3 +1,4 @@
+import csv
 from functools import partial
 from io import StringIO
 import json
@@ -19,6 +20,7 @@ def intakeAggregateData(dataDir):
 	dataset = Dataset()
 
 	allExperimentData = []
+	pairings = {}
 	for experimentMetadata in metadata["experiments"]:
 		experimentName = experimentMetadata["name"]
 
@@ -49,6 +51,35 @@ def intakeAggregateData(dataDir):
 
 		experimentData = experimentData.assign_coords({"organism": organismCoords, "treatment": ("organism", treatmentCoords), "experiment": ("organism", experimentCoords)})
 		allExperimentData.append(experimentData)
+
+		if "pairingsFile" in experimentMetadata:
+			pairingsFileString = readAndDecodeFile(dataDir / experimentMetadata["pairingsFile"])
+			# TODO: Move to util function to share with single-cell intake
+			reader = csv.reader(pairingsFileString.splitlines())
+			pairingTreatments = next(reader)[1:]
+			numPairingTreatments = len(pairingTreatments)
+			experimentPairings = {treatment: [] for treatment in pairingTreatments}
+			for row in reader:
+				for index, treatment in enumerate(pairingTreatments):
+					sample = None
+					sampleIndex = index + 1
+					if sampleIndex < len(row):
+						sampleText = row[sampleIndex].strip()
+						if len(sampleText) > 0:
+							sample = "{}_{}".format(experimentName, sampleText) # Format to match coordinate name
+					experimentPairings[treatment].append(sample)
+
+			# Verify samples & treatments are all in data
+			for treatment, samples in experimentPairings.items():
+				if treatment not in treatmentCoords:
+					raise Exception(f"Treatment \"{treatment}\" specified in pairings for experiment \"{experimentName}\" does not exist in experiment data.")
+				for sample in samples:
+					if sample is not None and sample not in organismCoords:
+						raise Exception(f"Sample \"{sample}\" specified in pairings for experiment \"{experimentName}\" does not exist in experiment data.")
+
+			pairings[experimentName] = experimentPairings
+
+	dataset.add_object("pairings", pairings)
 
 	data = xarray.concat(allExperimentData, dim="organism")
 
