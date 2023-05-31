@@ -118,7 +118,7 @@ class CorrelationWorkerPearson(CorrelationWorker):
 		r, p = stats.pearsonr(x, y)
 		return r, p
 
-def computeDifferencePValues(config, data):
+def computeDifferencePValues(config, data, pairings):
 	treatments = config["comparisonTreatments"]
 	if not len(treatments) == 2:
 		raise Exception("More than 2 treatments given to compare")
@@ -158,9 +158,22 @@ def computeDifferencePValues(config, data):
 		pValues = xarray.DataArray(pValues, dims=["measurable"], coords=matchingCoords(data, "measurable"))
 		return pValues
 
+	def pairedTTest(experimentData):
+		experimentName = experimentData.experiment[0].item()
+		if pairings is None or experimentName not in pairings:
+			raise Exception(f"Pairings not specified for experiment {experimentName}")
+		experimentPairings = pairings[experimentName]
+		pairedSamples = list(zip(experimentPairings[treatments[0]], experimentPairings[treatments[1]]))
+		pairedSamples = [samples for samples in pairedSamples if all(sample is not None for sample in samples)]
+		sampleData = numpy.array([[experimentData.sel(organism=sample1).data, experimentData.sel(organism=sample2).data] for (sample1, sample2) in pairedSamples])
+		statistics, pValues = stats.ttest_rel(sampleData[:, 0, :], sampleData[:, 1, :], axis=0)
+		pValues = xarray.DataArray(pValues, dims=["measurable"], coords=matchingCoords(data, "measurable"))
+		return pValues
+
 	methodMap = {
 		"mannwhitney": mannWhitneyU,
-		"independentttest": independentTTest
+		"independentttest": independentTTest,
+		"pairedttest": pairedTTest
 	}
 	if differenceMethod in methodMap:
 		pValues = data.groupby("experiment").map(methodMap[differenceMethod])
@@ -611,7 +624,7 @@ class NetworkReconstructorAggregate(NetworkReconstructor):
 		skip = False
 
 		def computeDifferences(allData):
-			allData["differencePValues"] = computeDifferencePValues(config, allData["originalData"])
+			allData["differencePValues"] = computeDifferencePValues(config, allData["originalData"], data.get_object("pairings", absent_ok=True))
 			allData["combinedDifferencePValues"] = combineDifferencePValues(config, allData["differencePValues"])
 			allData["correctedDifferencePValues"] = correctDifferencePValues(config, allData["combinedDifferencePValues"])
 
