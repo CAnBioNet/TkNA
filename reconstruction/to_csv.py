@@ -154,11 +154,11 @@ def writeSummary(data, config, csvConfig, outDir):
 	CsvWriter.writeCsv(outDir / fileName, csvConfig, data, includedEdges)
 
 def writeMeasurableCsvSingleCell(data, config, filePath, nodesOnly):
-	combinedDifferencePValuesStacked = data["combinedDifferencePValues"].stack({"measurableAndCellType": ("measurable", "differentialCellType")})
+	combinedDifferencePValuesStacked = data["combinedDifferencePValues"].stack({"measurableAndCellType": ("measurable", "cellType")})
 	# Reset index to match the format of the rest of the data
 	combinedDifferencePValuesNoNans = combinedDifferencePValuesStacked.dropna("measurableAndCellType").reset_index("measurableAndCellType")
 	data["combinedDifferencePValuesStacked"] = combinedDifferencePValuesStacked.reset_index("measurableAndCellType")
-	data["correctedDifferencePValuesStacked"] = data["correctedDifferencePValues"].stack({"measurableAndCellType": ("measurable", "differentialCellType")}).reset_index("measurableAndCellType")
+	data["correctedDifferencePValuesStacked"] = data["correctedDifferencePValues"].stack({"measurableAndCellType": ("measurable", "cellType")}).reset_index("measurableAndCellType")
 
 	if nodesOnly:
 		combinedDifferencePValues = combinedDifferencePValuesStacked.reset_index("measurableAndCellType")
@@ -166,26 +166,24 @@ def writeMeasurableCsvSingleCell(data, config, filePath, nodesOnly):
 		measurableCoords = [data["filteredData"].sel(measurableAndCellType=m).measurable.item() for m in data["filteredData"].coords["measurableAndCellType"].data]
 
 		coordArr = data["filteredData"]
-		indexList = [numpy.argwhere(((combinedDifferencePValues.differentialCellType==cellType) & (combinedDifferencePValues.measurable==measurable)).data).item() for cellType, measurable in zip(cellTypeCoords, measurableCoords)]
-		cellTypeDim = "cellType"
+		indexList = [numpy.argwhere(((combinedDifferencePValues.cellType==cellType) & (combinedDifferencePValues.measurable==measurable)).data).item() for cellType, measurable in zip(cellTypeCoords, measurableCoords)]
 	else:
 		coordArr = combinedDifferencePValuesNoNans
 		indexList = numpy.argwhere(~numpy.isnan(combinedDifferencePValuesStacked.data)).flatten()
-		cellTypeDim = "differentialCellType"
 
-	data["foldChangesStacked"] = data["foldChanges"].stack({"measurableAndCellType": ("measurable", "differentialCellType")}).reset_index("measurableAndCellType")
-	data["foldChangeSignsStacked"] = data["foldChangeSigns"].stack({"measurableAndCellType": ("measurable", "differentialCellType")}).reset_index("measurableAndCellType")
-	data["foldChangeFilterStacked"] = data["foldChangeFilter"].stack({"measurableAndCellType": ("measurable", "differentialCellType")}).reset_index("measurableAndCellType")
+	data["foldChangesStacked"] = data["foldChanges"].stack({"measurableAndCellType": ("measurable", "cellType")}).reset_index("measurableAndCellType")
+	data["foldChangeSignsStacked"] = data["foldChangeSigns"].stack({"measurableAndCellType": ("measurable", "cellType")}).reset_index("measurableAndCellType")
+	data["foldChangeFilterStacked"] = data["foldChangeFilter"].stack({"measurableAndCellType": ("measurable", "cellType")}).reset_index("measurableAndCellType")
 
 	csvConfig = CsvWriter.Config("measurableAndCellType",
 		CsvWriter.CoordinateFunction("Measurable", lambda m: "{}".format(coordArr.coords["measurable"][m].item())),
-		CsvWriter.CoordinateFunction("Cell Type", lambda m: "{}".format(coordArr.coords[cellTypeDim][m].item())),
+		CsvWriter.CoordinateFunction("Cell Type", lambda m: "{}".format(coordArr.coords["cellType"][m].item())),
 		CsvWriter.CoordinateFunction("Measurable Type", lambda m: "{}".format(coordArr.coords["measurableType"][m].item())),
 		CsvWriter.Per("Average Value ({})", "stacked", "organism", coordMap=indexList),
-		CsvWriter.Per("Average Log2 Fold Change ({})", "foldChangesStacked", "differentialExperiment", coordMap=indexList),
-		CsvWriter.Per("Average Log2 Fold Change Direction ({})", "foldChangeSignsStacked", "differentialExperiment", coordMap=indexList),
+		CsvWriter.Per("Average Log2 Fold Change ({})", "foldChangesStacked", "experiment", coordMap=indexList),
+		CsvWriter.Per("Average Log2 Fold Change Direction ({})", "foldChangeSignsStacked", "experiment", coordMap=indexList),
 		CsvWriter.Column("Average Log2 Fold Changes Consistent", "foldChangeFilterStacked", coordMap=indexList),
-		CsvWriter.Per("Corrected Comparison p-value ({})", "correctedDifferencePValuesStacked", "differentialExperiment", coordMap=indexList),
+		CsvWriter.Per("Corrected Comparison p-value ({})", "correctedDifferencePValuesStacked", "experiment", coordMap=indexList),
 		CsvWriter.Column("Combined Comparison p-value", "combinedDifferencePValuesStacked", coordMap=indexList)
 	)
 
@@ -217,8 +215,8 @@ def writeEdgeCsvSingleCell(data, config, filePath, finalOnly=False):
 	measurableCoords = [data["filteredData"].sel(measurableAndCellType=m).measurable.item() for m in data["filteredData"].coords["measurableAndCellType"].data]
 	indexList = [numpy.argwhere(((data["stacked"].cellType==cellType) & (data["stacked"].measurable==measurable)).data).item() for cellType, measurable in zip(cellTypeCoords, measurableCoords)]
 
-	data["foldChangesStacked"] = data["foldChanges"].stack({"measurableAndCellType": ("measurable", "differentialCellType")}).reset_index("measurableAndCellType")
-	data["combinedFoldChangeSignsStacked"] = data["combinedFoldChangeSigns"].stack({"measurableAndCellType": ("measurable", "differentialCellType")}).reset_index("measurableAndCellType")
+	data["foldChangesStacked"] = data["foldChanges"].stack({"measurableAndCellType": ("measurable", "cellType")}).reset_index("measurableAndCellType")
+	data["combinedFoldChangeSignsStacked"] = data["combinedFoldChangeSigns"].stack({"measurableAndCellType": ("measurable", "cellType")}).reset_index("measurableAndCellType")
 
 	csvConfig = CsvWriter.Config(["measurableAndCellType1", "measurableAndCellType2"],
 		CsvWriter.Property("Measurable 1", "correlationCoefficients", "measurable1"),
@@ -228,10 +226,10 @@ def writeEdgeCsvSingleCell(data, config, filePath, finalOnly=False):
 		CsvWriter.Property("Cell Type 2", "correlationCoefficients", "cellType2"),
 		CsvWriter.PropertiesFormatted("Cell Types", "correlationCoefficients", "{}<==>{}", ["cellType1", "cellType2"]),
 		CsvWriter.CoordComponentPer("Partner 1 Average Value ({})", "stacked", 0, "measurableAndCellType", "organism", coordMap=indexList),
-		CsvWriter.CoordComponentPer("Partner 1 Log2 Fold Change {}", "foldChangesStacked", 0, "measurableAndCellType", "differentialExperiment", coordMap=indexList),
+		CsvWriter.CoordComponentPer("Partner 1 Log2 Fold Change {}", "foldChangesStacked", 0, "measurableAndCellType", "experiment", coordMap=indexList),
 		CsvWriter.CoordComponentColumn("Partner 1 Fold Change Direction", "combinedFoldChangeSignsStacked", 0, "measurableAndCellType", coordMap=indexList),
 		CsvWriter.CoordComponentPer("Partner 2 Average Value ({})", "stacked", 1, "measurableAndCellType", "organism", coordMap=indexList),
-		CsvWriter.CoordComponentPer("Partner 2 Log2 Fold Change ({})", "foldChangesStacked", 1, "measurableAndCellType", "differentialExperiment", coordMap=indexList),
+		CsvWriter.CoordComponentPer("Partner 2 Log2 Fold Change ({})", "foldChangesStacked", 1, "measurableAndCellType", "experiment", coordMap=indexList),
 		CsvWriter.CoordComponentColumn("Partner 2 Fold Change Direction", "combinedFoldChangeSignsStacked", 1, "measurableAndCellType", coordMap=indexList),
 		CsvWriter.Column("Fold Change Signs Match", "foldChangeSignProducts"),
 		CsvWriter.Per("Correlation p-value ({})", "correlationPValues", "metatreatment"),

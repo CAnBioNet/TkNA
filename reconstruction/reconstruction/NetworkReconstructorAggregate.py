@@ -671,8 +671,9 @@ class NetworkReconstructorAggregate(NetworkReconstructor):
 
 			allData["edges"] = allData["combinedCorrelationSigns"].where(allData["edgeFilter"], other=0)
 
+		# TODO: Use a Dataset for this too
 		allData = {}
-		allData["originalData"] = data
+		allData["originalData"] = data.get_table("originalData")
 		stages = [computeDifferences, filterOnDifferences, computeCorrelations, filterOnCorrelations, filterToExpectedEdges, createEdgeList]
 		return self.runPipeline(stages, allData, **kwargs)
 

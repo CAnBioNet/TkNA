@@ -128,7 +128,7 @@ def combineDifferencePValues(config, correctedPValues):
 		"fisher": fisher
 	}
 	if combineMethod in methodMap:
-		combinedPValues = xarray.apply_ufunc(methodMap[combineMethod], correctedPValues, input_core_dims=[["differentialExperiment"]], vectorize=True)
+		combinedPValues = xarray.apply_ufunc(methodMap[combineMethod], correctedPValues, input_core_dims=[["experiment"]], vectorize=True)
 	else:
 		raise Exception("Unknown p-value combine method specified")
 
@@ -140,18 +140,18 @@ def filterOnDifferencePValues(config, pValues, pValueType):
 
 	if isinstance(threshold, dict):
 		def filterType(typePValues):
-			cellType = str(typePValues.coords["differentialCellType"].item())
+			cellType = str(typePValues.coords["cellType"].item())
 			if cellType not in threshold:
 				raise Exception("No threshold for {} specified in difference p-value thresholds".format(cellType))
 			return typePValues <= threshold[cellType]
-		filterTable = pValues.groupby("differentialCellType").map(filterType)
+		filterTable = pValues.groupby("cellType").map(filterType)
 	else:
 		filterTable = pValues <= threshold
 
 	return filterTable
 
 def filterOnCorrectedDifferencePValues(config, correctedPValues):
-	maxPValues = correctedPValues.max(dim="differentialExperiment")
+	maxPValues = correctedPValues.max(dim="experiment")
 	return filterOnDifferencePValues(config, maxPValues, "corrected")
 
 def filterOnCombinedDifferencePValues(config, combinedPValues):
@@ -182,7 +182,7 @@ def combineAndFilterFoldChanges(config, foldChanges, foldChangeSigns):
 		"percentagreement": percentAgreement
 	}
 	if filterMethod in methodMap:
-		combinedSigns = xarray.apply_ufunc(methodMap[filterMethod], foldChanges, foldChangeSigns, input_core_dims=[["differentialExperiment"], ["differentialExperiment"]], vectorize=True)
+		combinedSigns = xarray.apply_ufunc(methodMap[filterMethod], foldChanges, foldChangeSigns, input_core_dims=[["experiment"], ["experiment"]], vectorize=True)
 	else:
 		raise Exception("Unknown fold change filter method specified")
 	filterTable = combinedSigns != 0
@@ -190,7 +190,7 @@ def combineAndFilterFoldChanges(config, foldChanges, foldChangeSigns):
 	return combinedSigns, filterTable
 
 def stackDifferenceCellTypeAndMeasurable(data):
-	return data.stack({"measurableAndCellType": ("measurable", "differentialCellType")})
+	return data.stack({"measurableAndCellType": ("measurable", "cellType")})
 
 def calculateCorrelations(config, filteredData, cores=None):
 	metatreatments = config["metatreatments"]
@@ -470,9 +470,9 @@ def combineAndFilterCorrelations(config, correlations, correlationSigns):
 	return combinedSigns, filterTable
 
 def filterOnExpectedEdges(config, foldChangeSigns, correlationSigns, measurableFilter):
-	stacked1 = foldChangeSigns.stack({"measurableAndCellType1": ("measurable", "differentialCellType")})
+	stacked1 = foldChangeSigns.stack({"measurableAndCellType1": ("measurable", "cellType")})
 	stacked1 = stacked1.sel(measurableAndCellType1=stacked1.coords["measurableAndCellType1"][measurableFilter.rename(measurableAndCellType="measurableAndCellType1")])
-	stacked2 = foldChangeSigns.stack({"measurableAndCellType2": ("measurable", "differentialCellType")})
+	stacked2 = foldChangeSigns.stack({"measurableAndCellType2": ("measurable", "cellType")})
 	stacked2 = stacked2.sel(measurableAndCellType2=stacked2.coords["measurableAndCellType2"][measurableFilter.rename(measurableAndCellType="measurableAndCellType2")])
 	foldChangeSignProducts = stacked1 * stacked2
 	pucCompliant = foldChangeSignProducts == correlationSigns
@@ -525,10 +525,11 @@ class NetworkReconstructorSingleCell(NetworkReconstructor):
 		def stageCreateEdgeList(allData):
 			allData["edges"] =  allData["combinedCorrelationSigns"].where(allData["edgeFilter"], other=0)
 
+		# TODO: Use a Dataset for this too
 		allData = {}
-		allData["cellData"] = data["cellData"]
-		allData["correctedDifferencePValues"] = data["pValue"]
-		allData["foldChanges"] = data["foldChange"]
+		allData["cellData"] = data.get_table("cellData")
+		allData["correctedDifferencePValues"] = data.get_table("correctedDifferencePValues")
+		allData["foldChanges"] = data.get_table("foldChanges")
 		stages = [stageCombineCellsByType, stageCombineDifferencePValues, stageFilterOnDifferences, stageComputeCorrelations, stageFilterOnCorrelations, stageFilterToExpectedEdges, stageCreateEdgeList]
 		return self.runPipeline(stages, allData, **kwargs)
 

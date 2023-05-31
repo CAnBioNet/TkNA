@@ -6,6 +6,7 @@ import pandas
 import xarray
 
 from .util import *
+from util import Dataset
 
 def intakeAggregateData(dataDir):
 	metadata = json.loads(readAndDecodeFile(dataDir / "metadata.json"))
@@ -15,6 +16,7 @@ def intakeAggregateData(dataDir):
 	elif metadata["measurableTypeMapFile"].endswith(".csv"):
 		measurableTypeMap = readClassificationCsv(measurableTypeMapString)
 
+	dataset = Dataset()
 
 	allExperimentData = []
 	for experimentMetadata in metadata["experiments"]:
@@ -58,5 +60,7 @@ def intakeAggregateData(dataDir):
 	measurableCoords = data.coords["measurable"]
 	measurableTypeCoords = [inverseMeasurableTypeMap[measurable.item()] for measurable in measurableCoords]
 	data = data.assign_coords({"measurableType": ("measurable", measurableTypeCoords)})
+	dataset.add_table("originalData", data)
 
-	return data
+	return dataset
+
