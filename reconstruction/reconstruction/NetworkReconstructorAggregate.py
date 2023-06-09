@@ -290,11 +290,11 @@ def combineAndFilterFoldChanges(config, foldChanges, foldChangeSigns):
 
 		numExperiments = len(experimentFoldChangeSigns)
 
-		positiveOverThreshold = numpy.around(numpy.count_nonzero(correlationSigns == 1) / numExperiments, decimals=percentAgreementDecimals) >= percentThreshold
+		positiveOverThreshold = numpy.around(numpy.count_nonzero(experimentFoldChangeSigns == 1) / numExperiments, decimals=percentAgreementDecimals) >= percentThreshold
 		if positiveOverThreshold:
 			return 1
 
-		negativeOverThreshold = numpy.around(numpy.count_nonzero(correlationSigns == -1) / numExperiments, decimals=percentAgreementDecimals) >= percentThreshold
+		negativeOverThreshold = numpy.around(numpy.count_nonzero(experimentFoldChangeSigns == -1) / numExperiments, decimals=percentAgreementDecimals) >= percentThreshold
 		if negativeOverThreshold:
 			return -1
 
