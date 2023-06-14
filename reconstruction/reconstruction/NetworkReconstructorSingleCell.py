@@ -122,7 +122,7 @@ def combineDifferencePValues(config, correctedPValues):
 		# Ignore error divison by zero warnings that occur when one of the p-values is 0,
 		# as a correct combined p-value of 0 is produced regardless
 		with numpy.errstate(divide="ignore"):
-			statistic, pValue = stats.combine_pvalues(pValues[~numpy.isnan(measurablePValues)])
+			statistic, pValue = stats.combine_pvalues(pValues[~numpy.isnan(pValues)])
 		return pValue
 
 	methodMap = {
