@@ -29,11 +29,9 @@ import os
 fc_parameters = {}
 # nodes_in_final_nw = []
 
-parser = argparse.ArgumentParser(description="Example command: python assess_network.py --file <correlation file> --source partner1 --target partner2", add_help=False)
+parser = argparse.ArgumentParser(description="Example command: python assess_network.py --file <correlation file>", add_help=False)
 requiredArgGroup = parser.add_argument_group('Required arguments')
 requiredArgGroup.add_argument("--file", type=str, help="correlations_bw_signif_measurables.csv file output by to_csv.py", required=True)
-requiredArgGroup.add_argument("--source", type=str, default = 'partner1', help = 'Column name in --file of source node for each edge', required=True)
-requiredArgGroup.add_argument("--target", type=str, default = 'partner2', help = 'Column name in --file of target node for each edge', required=True)
 
 optionalArgGroup = parser.add_argument_group('Optional arguments')
 optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
@@ -69,11 +67,10 @@ with open(net_file) as csvfile:
 
     for row in file:
 
-
         # Take the index of the source and target node in the header of the file
         if row_count == 0:
-            p1 = int(row.index(args.source))
-            p2 = int(row.index(args.target)) + 1
+            p1 = int(row.index("partner1"))
+            p2 = int(row.index("partner2")) + 1
 
         parameters = row[p1:p2]
         list_to_tuple = tuple(parameters)
@@ -84,6 +81,8 @@ with open(net_file) as csvfile:
 
         # Find FC direction of each parameter
         if row_count != 0:
+            print("parameters")
+            print(parameters)
             fc_parameters[parameters[0]] = str(int(float(row[fc_node1_column].strip())))
             fc_parameters[parameters[1]] = str(int(float(row[fc_node2_column].strip())))
 
