@@ -9,7 +9,7 @@ Written in Python v3.5.3
 Input: the correlations_bw_signif_measurables.csv file output by to_csv.py. This is the a CSV file consisting of correlations
        between significant nodes (as dictated by the config file)
 
-Output: a pickled file of a networkx graph, as well as a .txt file containing basic properties of the network
+Output: A .txt file containing basic properties of the network
 
 """
 
@@ -255,7 +255,7 @@ with open(filedir + "/network_quality_assessment.txt", "w") as file:
 
 file.close()
 
-pickle.dump(G, open(filedir + "/network.pickle", "wb"))
+# pickle.dump(G, open(filedir + "/network.pickle", "wb"))
 
 # pickle_list = [G, dev_dict] # output both tht network and deviation dictionary
 # pickle.dump(pickle_list, pickle_out)
