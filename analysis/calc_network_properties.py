@@ -41,12 +41,11 @@ import matplotlib.pyplot as plt
 
 ####### Get user input ########
 
-parser = argparse.ArgumentParser(description="Example command: python calc_network_properties.py --pickle <pickled network file> --bibc --bibc-groups node_types --bibc-calc-type bibc --node-map <node map csv> --node_groups micro pheno", add_help=False)
+parser = argparse.ArgumentParser(description="Example command: python calc_network_properties.py --network <csv network file> --bibc --bibc-groups node_types --bibc-calc-type bibc --node-map <node map csv> --node-groups micro pheno", add_help=False)
 
 optionalArgGroup = parser.add_argument_group('Optional arguments') 
 optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
-optionalArgGroup.add_argument("--pickle", type=str, help="The pickle file created with import_network_data.py", required=False)
-optionalArgGroup.add_argument("--outside-nw", dest="outside_nw", help= "The file containing the reconstructed network if using software other than TkNA for network reconstruction. Must have columns called 'partner1' and 'partner2'.")
+optionalArgGroup.add_argument("--network", help= "The network file in csv format containing the reconstructed network. Must have columns called 'partner1' and 'partner2'.")
 optionalArgGroup.add_argument("--frag", help = 'Flag; Do you want to compute node fragmentation centrality? (Significantly increases run-time)', action = 'store_true')
 optionalArgGroup.add_argument("--bibc", help= 'Flag; Do you want to compute BiBC? (Significantly increases run-time)', action = 'store_true')
 optionalArgGroup.add_argument("--bibc-groups", dest = "bibc_groups", choices = ['node_types', 'modularity', "node_groups_list"], help= "What to compute BiBC on, either two distinct groups (node_types), the two most modular regions (modularity) of the network (found using the Louvain method), or multiple groups (node_groups_list, calculates BiBC for each pair of groups specified with --node-groups-list). --bibc-groups is required if --bibc is set")
@@ -92,7 +91,7 @@ if args.bibc:
     bibc_calc_type = args.bibc_calc_type
 
 
-def import_outside_nw(fname):
+def import_nw(fname):
     
     row_count = 0 
     G = nx.Graph()
@@ -106,10 +105,13 @@ def import_outside_nw(fname):
             
             # Take the index of the source and target node in the header of the file
             if row_count == 0: 
-                p1 = int(row.index("partner1"))
-                print(p1)
-                p2 = int(row.index("partner2"))
-                print(p2)
+                try:
+                    p1 = int(row.index("partner1"))
+                    print(p1)
+                    p2 = int(row.index("partner2"))
+                    print(p2)
+                except ValueError:
+                    print("\n\nERROR: Please make sure 'partner1' and 'partner2' are names of two columns in the input file.\n\n")
 
             parameter1 = row[p1]
             parameter2 = row[p2]
@@ -130,24 +132,13 @@ def connected_component_subgraphs(network):
 
 if __name__ == '__main__':
 
-    # Load in the network. If the network was reconstructed with software other than TkNA, 
-    # the user must specify the --outside-nw flag. Otherwise, they must use the --pickle flag   
-    if args.outside_nw:
-        
-        try:
-            outsidenw = args.outside_nw
-        except ValueError:
-            print("Please use the --outside-nw argument with a file name.")
+    network = args.network
     
-        G = import_outside_nw(outsidenw)
+    G = import_nw(network)
     
-    # Unpack the pickle
-    else:
-        p = open(args.pickle, "rb")
-        p = pickle.load(p)
-        G = p
-    
+    print("Number of nodes in network: ")
     print(G.number_of_nodes())
+    print("Number of edges in network: ")
     print(G.number_of_edges())
     
     class dictionary(dict):
@@ -422,12 +413,13 @@ if __name__ == '__main__':
     ######################## Calculate network properties ##########################
     ################################################################################
 
-    if args.pickle:
-        network_name = args.pickle[:-7]
-        filedir = os.path.dirname(os.path.abspath(args.pickle))
+    if network[-4:] != ".csv":
+        print("Network name: " + network + "\n")
+        raise Exception("Please make sure that the network file name you are using ends in '.csv'")
     else:
-        network_name = args.outside_nw[:-4]
-        filedir = os.path.dirname(os.path.abspath(args.outside_nw))
+        network_name = network[:-4]
+    
+    filedir = os.path.dirname(os.path.abspath(network))
 
     with open(filedir + "/network_properties.txt", "w") as file:
 
@@ -852,6 +844,9 @@ if __name__ == '__main__':
         file.truncate()
                 
     file.close()
+
+    pickle.dump(G, open(filedir + "/network.pickle", "wb"))
+
 
 print("\nNetwork and node properties have been calculated. Check the *properties.txt files in " + filedir + "/.\n")
 
