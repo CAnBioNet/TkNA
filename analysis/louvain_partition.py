@@ -95,11 +95,11 @@ if __name__ == '__main__':
         pq = [p,Q]
         return(pq)            
 
-    parser = argparse.ArgumentParser(description="Example command: python louvain_partition.py <file.pickle>", add_help=False)
+    parser = argparse.ArgumentParser(description="Example command: python louvain_partition.py --network <file.csv> --network-format csv --map <map.csv>", add_help=False)
 
     requiredArgGroup = parser.add_argument_group('Required arguments')   
     requiredArgGroup.add_argument("--network", type=str, help="The path to the network file, either in .pickle or .csv format; see --network-format", required=True)
-    requiredArgGroup.add_argument("--network-format", type=str, dest="network_format", choices=['pickle', 'csv'], help="Network file; Either use 'pickle' with the network.pickle file output made by assess_network.py (if network was reconstructed using the TkNA pipeline) or 'csv' if the network was reconstructed using an alternative pipeline (must be in .csv format and have 'partner1' and 'partner2' as the headers for the two node columns)", required=True)
+    requiredArgGroup.add_argument("--network-format", type=str, dest="network_format", choices=['pickle', 'csv'], help="Network file; Either use 'pickle' if you have already created the network.pickle file from calc_network_properties.py, or 'csv' if the network was reconstructed using an alternative pipeline (must be in .csv format and have 'partner1' and 'partner2' as the headers for the two node columns)", required=True)
     requiredArgGroup.add_argument("--map", help = 'CSV file with the name of the node in the first column and its data type in the second column (i.e. ENSMUSG00000030708, gene).', required=True)
     
     optionalArgGroup = parser.add_argument_group('Optional arguments')   
@@ -131,9 +131,8 @@ if __name__ == '__main__':
         file.write("Node,Subnetwork_partition\n")
 
         for subnet in node_type_dict.keys():
-            print("Performing infomap in the " + subnet + " subnetwork...")
+            print("Analyzing the " + subnet + " subnetwork...")
             lou_outputs[subnet] = louvain_assignment(G, node_type_dict, subnet)
-            print(lou_outputs)
             [file.write(str(k) + "," + subnet + "_" + str(v) + "\n") for k,v in lou_outputs[subnet][0].items()]
             
             print("\nModularity (Q) for subnetwork '" + subnet + "':")
@@ -144,4 +143,4 @@ if __name__ == '__main__':
     #     qfile.write(str(lou[1]) + "\n")
     # qfile.close()
 
-    print("\nFile saved: " + network_name + "_louvain_partition.csv\n")
+    print("File saved: " + network_name + "_louvain_partition.csv\n")
