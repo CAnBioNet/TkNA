@@ -4,7 +4,8 @@ import json
 import numpy
 from pathlib import Path
 import random
-import xarray
+
+from util import Dataset
 
 def getArgs():
 	parser = argparse.ArgumentParser(description="Create subsamples of a dataset.", add_help=False)
@@ -33,9 +34,12 @@ def getArgs():
 if __name__ == "__main__":
 	args = getArgs()
 
+	dataset = Dataset()
+	dataset.load_from_file(args.dataFile)
+
 	subsamples = []
 	if args.singlecell:
-		data = xarray.open_dataset(args.dataFile)
+		data = dataset.get_table("cellData")
 		if args.organism:
 			organisms = numpy.array(list(set(data["organism"].data)))
 			nAllSamples = len(organisms)
@@ -45,7 +49,7 @@ if __name__ == "__main__":
 				cellSubsample = []
 				for organismIndex in organismSubsample:
 					organism = organisms[organismIndex]
-					organismCellIndices = numpy.argwhere((data["cellData"].organism == organism).data).flatten().tolist()
+					organismCellIndices = numpy.argwhere((data.organism == organism).data).flatten().tolist()
 					cellSubsample.extend(organismCellIndices)
 				cellSubsample.sort()
 				subsamples.append(cellSubsample)
@@ -58,11 +62,11 @@ if __name__ == "__main__":
 					populationCoordSubsample = random.sample(list(data.coords["cell"].data), nSamples)
 					coordSubsample.extend(populationCoordSubsample)
 					return data
-				data["cellData"].groupby("organism").map(lambda individualData: individualData.groupby("cellType").map(subsamplePopulation))
+				data.groupby("organism").map(lambda individualData: individualData.groupby("cellType").map(subsamplePopulation))
 				indexSubsample = list(numpy.transpose(numpy.argwhere(numpy.isin(data.cell, coordSubsample))).astype(object)[0])
 				subsamples.append(indexSubsample)
 	else:
-		data = xarray.open_dataarray(args.dataFile)
+		data = dataset.get_table("originalData")
 		nAllSamples = data.sizes["organism"]
 		nSamples = round(args.proportion * nAllSamples)
 		for i in range(args.nsubsamples):
