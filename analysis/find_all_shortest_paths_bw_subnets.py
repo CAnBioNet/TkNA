@@ -11,32 +11,6 @@ import csv
 import os
 # from networkx import all_shortest_paths
 
-parser = argparse.ArgumentParser(description="Example command: python find_all_shortest_paths_bw_subnets.py <network.pickle> --node-map <map.csv> --node-groups gene pheno", add_help=False)
-
-requiredArgGroup  = parser.add_argument_group('Required arguments')        
-requiredArgGroup.add_argument("--pickle", type=str, help="network.pickle file output by assess_network.py", required=True)
-requiredArgGroup.add_argument("--node-map", type=str, dest="node_map", help="Mapping file (csv) of nodes and their subnetworks", required=True)
-requiredArgGroup.add_argument("--node-groups", nargs = 2, dest="node_groups", help = "The two groups in the mapping file you want to find the shortest paths between", required=True)
-
-optionalArgGroup  = parser.add_argument_group('Optional arguments')        
-optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
-
-# parser = argparse.ArgumentParser(description='Example: python find_all_shortest_paths_bw_subnets.py <network.pickle> --node_map <map.csv> --node_groups gene pheno')
-# parser.add_argument("network", help = 'pickled network file from assess_network.py')
-# parser.add_argument("--node_map", help = 'Mapping file (csv) of nodes and their subnetworks')
-# parser.add_argument("--node_groups", nargs = 2, help = 'The two groups in the mapping file you want to find the shortest paths between')
-
-args = parser.parse_args()
-
-# set command arguments as variables
-net = args.pickle
-map = args.node_map
-node_type1 = args.node_groups[0]
-node_type2 = args.node_groups[1]
-
-filedir = os.path.dirname(os.path.abspath(net))
-
-
 if __name__ == '__main__':
     
     class dictionary(dict):
@@ -45,15 +19,45 @@ if __name__ == '__main__':
 
         def add(self, key, value):
             self[key] = value
-
-    # Read in the pickle file, which should already have the network saved into it
-    p = open(net, "rb")
-    p = pickle.load(p)
-    
-    G = p
-
+            
     def connected_component_subgraphs(network):
     	return [network.subgraph(component) for component in nx.connected_components(network)]
+    
+    def import_outside_nw(fname):
+        '''
+        Function to import the network into script if network was reconstructed via alternative methods other than TkNA
+        
+        Arguments:
+            - fname: the name of the file
+        '''
+        row_count = 0 
+        G = nx.Graph()
+        
+        with open(fname) as csvfile:     
+            file = csv.reader(csvfile, delimiter = ',')
+                    
+            for row in file:
+            
+                #print(row)
+                
+                # Take the index of the source and target node in the header of the file
+                if row_count == 0: 
+                    p1 = int(row.index("partner1"))
+                    
+                    p2 = int(row.index("partner2"))
+    
+                parameter1 = row[p1]
+                parameter2 = row[p2]  
+                
+                # Find each node that made it into the final network and the direction of the edge   
+                if row_count != 0:
+                    G.add_edge(parameter1, parameter2)
+        
+                row_count += 1
+    
+        csvfile.close()                
+        return(G)    
+
 
     # Function that takes as input the node_type list from the user and creates a 
     # dictionary of the type for each node. Then, for the nodes that are in the 
@@ -69,7 +73,6 @@ if __name__ == '__main__':
         type1_list = []
         type2_list = []
         
-        node_list = list(gc_nodes)
         node_type_dict = dictionary()
         
         # Add all node-type pairs from the input file into the node_type_dict
@@ -134,6 +137,51 @@ if __name__ == '__main__':
         all_sp = nx.all_shortest_paths(G, nsp_subnet1_node, nsp_subnet2_node)
         return all_sp
         
+    # Main driver of the code
+    parser = argparse.ArgumentParser(description="Example command: python find_all_shortest_paths_bw_subnets.py <network.pickle> --node-map <map.csv> --node-groups gene pheno", add_help=False)
+
+    requiredArgGroup  = parser.add_argument_group('Required arguments')        
+    requiredArgGroup.add_argument("--network", type=str, help="The path to the network file, either in .pickle or .csv format; see --network-format", required=True)
+    requiredArgGroup.add_argument("--network-format", type=str, dest="network_format", choices=['pickle', 'csv'], help="Network file; Either use 'pickle' if you have already created the network.pickle file from calc_network_properties.py, or 'csv' if the network was reconstructed using an alternative pipeline (must be in .csv format and have 'partner1' and 'partner2' as the headers for the two node columns)", required=True)   
+    requiredArgGroup.add_argument("--node-map", type=str, dest="node_map", help="Mapping file (csv) of nodes and their subnetworks", required=True)
+    requiredArgGroup.add_argument("--node-groups", nargs = 2, dest="node_groups", help = "The two groups in the mapping file you want to find the shortest paths between", required=True)
+
+    optionalArgGroup  = parser.add_argument_group('Optional arguments')        
+    optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
+
+    # parser = argparse.ArgumentParser(description='Example: python find_all_shortest_paths_bw_subnets.py <network.pickle> --node_map <map.csv> --node_groups gene pheno')
+    # parser.add_argument("network", help = 'pickled network file from assess_network.py')
+    # parser.add_argument("--node_map", help = 'Mapping file (csv) of nodes and their subnetworks')
+    # parser.add_argument("--node_groups", nargs = 2, help = 'The two groups in the mapping file you want to find the shortest paths between')
+
+    args = parser.parse_args()
+
+    # set command arguments as variables
+    map = args.node_map
+    node_type1 = args.node_groups[0]
+    node_type2 = args.node_groups[1]
+
+    filedir = os.path.dirname(os.path.abspath(args.network))
+
+        
+    # Load in the network
+    if args.network_format == 'pickle':
+        # Unpack the pickle
+        p = open(args.network, "rb")
+        p = pickle.load(p)
+        G = p
+        
+        network_name = args.network[:-7] # remove the pickle extension from file name    
+        network_name = network_name.split('/')[-1]
+        
+    elif args.network_format == 'csv':
+        G = import_outside_nw(args.network)
+        
+        network_name = args.network[:-4] # remove the csv extension from file name      
+        network_name = network_name.split('/')[-1]
+
+    filepath_nw_name = filedir + "/" + network_name
+    print(filepath_nw_name)
 
     # Find only the giant component
     gc = max(connected_component_subgraphs(G), key=len)
@@ -150,7 +198,7 @@ if __name__ == '__main__':
     print("Number of nodes in " + node_type2 + " group in the giant component: " + str(len(two_subnets['Type2'])))
     print("Total number of pairs in the giant component: " + str(gc_pairs))
 
-    with open(filedir + "/shortest_path_bw_" + node_type1 + "_and_" + node_type2 + "_results.csv", "w") as out_file:
+    with open(filepath_nw_name + "_shortest_path_bw_" + node_type1 + "_and_" + node_type2 + "_results.csv", "w") as out_file:
         
         # Find the shortest path length and number of shortest paths between each pair of nodes in the two subnetworks
         out_file.write(node_type1 + "_node," + node_type2 + "_node," + "Shortest_path_length,number_of_shortest_paths\n")
@@ -174,4 +222,4 @@ if __name__ == '__main__':
         # Overwrite any previous file with the same name instead of appending
         out_file.truncate()
 
-print("\nFinished calculating all shortest paths. See results in " + filedir + "/shortest_path_bw_" + node_type1 + "_and_" + node_type2 + "_results.csv\n")
+print("\nFinished calculating all shortest paths. See results in " + filepath_nw_name + "_shortest_path_bw_" + node_type1 + "_and_" + node_type2 + "_results.csv\n")
