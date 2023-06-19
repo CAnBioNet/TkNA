@@ -155,7 +155,7 @@ if __name__ == '__main__':
         parser = argparse.ArgumentParser(description="Example command: python dot_plots.py --pickle network.pickle --node_props node_properties_modified.txt --network_file network_output_comp.csv --propx BiBC --propy Node_degrees --top_num 5 --top_num_per_type 3", add_help=False)
 
         requiredArgGroup  = parser.add_argument_group('Required arguments')
-        requiredArgGroup.add_argument("--pickle", type=str, help="Pickled network file output by assess_network.py", required=True)
+        requiredArgGroup.add_argument("--pickle", type=str, help="Pickled network file output by calc_network_properties.py", required=True)
         requiredArgGroup.add_argument("--node-props", dest="node_props", type=str, help="node_properties.txt file output by calc_network_properties.py", required=True)
         requiredArgGroup.add_argument("--network-file", type=str, dest="network_file", help="network_output_comp.csv file output by to_csv.py", required=True)        
         requiredArgGroup.add_argument("--propx", default="Node_Degrees", type=str, help="Node property to plot on X-axis. Name must match property name in node_properties.txt", required=True)
