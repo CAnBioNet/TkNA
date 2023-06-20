@@ -322,7 +322,7 @@ def combineCorrelationPValues(config, pValues):
 	if len(metatreatmentsToCombine) == 1:
 		return pValues.sel(metatreatment=metatreatmentsToCombine[0])
 
-	selectedPValues = pValues.sel(metatreatment=metatreatmentsToCombine)
+	pValues = pValues.sel(metatreatment=metatreatmentsToCombine)
 
 	def fisher():
 		# Ignore errors that occur for p = 0

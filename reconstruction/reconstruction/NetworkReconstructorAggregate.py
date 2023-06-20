@@ -446,12 +446,12 @@ def combineCorrelationPValues(config, pValues):
 	if len(metatreatmentsToCombine) == 1:
 		return pValues.sel(metatreatment=metatreatmentsToCombine[0])
 
-	selectedPValues = pValues.sel(metatreatment=metatreatmentsToCombine)
+	pValues = pValues.sel(metatreatment=metatreatmentsToCombine)
 
 	def fisher():
 		# Ignore errors that occur for p = 0 / NaN
 		with numpy.errstate(divide="ignore", invalid="ignore"):
-			chi2 = -2 * (numpy.log(selectedPValues)).sum(dim="metatreatment", skipna=True)
+			chi2 = -2 * (numpy.log(pValues)).sum(dim="metatreatment", skipna=True)
 		dof = 2 * pValues.count(dim="metatreatment")
 		combinedPValues = stats.chi2.sf(chi2, df=dof)
 		combinedPValues = xarray.DataArray(combinedPValues, dims=["measurable1", "measurable2"], coords={"measurable1": pValues.coords["measurable1"].data, "measurable2": pValues.coords["measurable2"].data, "measurableType1": ("measurable1", pValues.coords["measurableType1"].data), "measurableType2": ("measurable2", pValues.coords["measurableType2"].data)})
@@ -563,31 +563,49 @@ def combineAndFilterCorrelations(config, correlations, correlationSigns):
 	if metatreatmentsToCombine is None:
 		metatreatmentsToCombine = [metatreatment for metatreatment in set(correlations.coords["metatreatment"].data) if metatreatment is not None]
 
+	allCorrelations = correlations
+	allCorrelationSigns = correlationSigns
+
+	correlations = allCorrelations.sel(metatreatment=metatreatmentsToCombine)
+	correlationSigns = allCorrelationSigns.sel(metatreatment=metatreatmentsToCombine)
+
+	# All unused metatreatments get False for whether they pass the filter (passingMetatreatments)
+	# (I think it would make more sense to use NaN, but xarray can't handle NaNs in a boolean array)
+	unusedMetatreatments = list(set(allCorrelations.coords["metatreatment"].data) - set(metatreatmentsToCombine))
+	unusedMetatreatmentData = xarray.full_like(allCorrelations.sel(metatreatment=unusedMetatreatments), False, dtype=bool)
+
 	# Skip combining if there is only one metatreatment selected
 	if len(metatreatmentsToCombine) == 1:
-		return pValues.sel(metatreatment=metatreatmentsToCombine[0])
-
-	selectedCorrelations = correlations.sel(metatreatment=metatreatmentsToCombine)
+		combinedSigns = correlationSigns.sel(metatreatment=metatreatmentsToCombine[0])
+		filterTable = xarray.full_like(correlations.sel(metatreatment=metatreatmentsToCombine[0]), True, dtype=bool)
+		passingMetatreatments = xarray.concat([xarray.full_like(correlations, True, dtype=bool), unusedMetatreatmentData], dim="metatreatment")
+		return combinedSigns, filterTable, passingMetatreatments
 
 	def allSameSign():
 		filterTable = ((correlationSigns == correlationSigns.isel(metatreatment=0)) & ~numpy.isnan(correlationSigns)).all(dim="metatreatment")
-		passingMetatreatments = filterTable.expand_dims(dim={"metatreatment": correlationSigns.coords["metatreatment"]})
 		combinedSigns = correlationSigns.isel(metatreatment=0).where(filterTable, 0)
+		passingMetatreatments = filterTable.expand_dims(dim={"metatreatment": correlationSigns.coords["metatreatment"]})
 		return combinedSigns, filterTable, passingMetatreatments
 
-	# Should be greater than 0.5, as otherwise there can be ties between signs
-	percentThreshold = config["correlationFilterPercentAgreementThreshold"]
 	def percentAgreement():
+		# Should be greater than 0.5, as otherwise there can be ties between signs
+		percentThreshold = config["correlationFilterPercentAgreementThreshold"]
+
+		percentAgreementDecimals = 6
+
 		numMetatreatments = correlationSigns.sizes["metatreatment"]
 		metatreatmentAxis = correlationSigns.get_axis_num("metatreatment")
 		filterTableDims, filterTableCoords = withoutDim(correlationSigns, "metatreatment")
-		percentAgreementDecimals = 6
+
 		positiveFilterTable = xarray.DataArray(numpy.around(numpy.count_nonzero(correlationSigns == 1, axis=metatreatmentAxis) / numMetatreatments, decimals=percentAgreementDecimals) >= percentThreshold, dims=filterTableDims, coords=filterTableCoords)
 		negativeFilterTable = xarray.DataArray(numpy.around(numpy.count_nonzero(correlationSigns == -1, axis=metatreatmentAxis) / numMetatreatments, decimals=percentAgreementDecimals) >= percentThreshold, dims=filterTableDims, coords=filterTableCoords)
 		filterTable = positiveFilterTable | negativeFilterTable
+
 		ones = xarray.ones_like(correlationSigns.isel(metatreatment=0))
 		combinedSigns = ones.where(positiveFilterTable, 0) - ones.where(negativeFilterTable, 0)
+
 		passingMetatreatments = xarray.apply_ufunc(lambda metatreatmentData: metatreatmentData == combinedSigns, correlationSigns, input_core_dims=[filterTableDims], output_core_dims=[filterTableDims], vectorize=True)
+
 		return combinedSigns, filterTable, passingMetatreatments
 
 	methodMap = {
@@ -598,6 +616,8 @@ def combineAndFilterCorrelations(config, correlations, correlationSigns):
 		combinedSigns, filterTable, passingMetatreatments = methodMap[filterMethod]()
 	else:
 		raise Exception("Unknown correlation filter method specified")
+
+	passingMetatreatments = xarray.concat([passingMetatreatments, unusedMetatreatmentData], dim="metatreatment")
 
 	return combinedSigns, filterTable, passingMetatreatments
 
