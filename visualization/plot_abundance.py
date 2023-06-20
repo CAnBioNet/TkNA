@@ -2,14 +2,7 @@
 """
 Created on Thu Jan 19 14:35:54 2023
 
-@author: Nolan
-"""
-
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Jan 17 09:23:46 2023
-
-@author: Nolan
+@author: Nolan K Newman <newmanno@oregonstate.edu>
 """
 
 import argparse
@@ -51,23 +44,26 @@ if __name__ == '__main__':
 
         return(all_nodes_dict)
 
-    def plot_abund(dat, x, y, group_by, pal):
+    def plot_abund(dat, grouping, nodename, group_by, colordict):
         '''
         Function that creates abundance barplots from u
 
         Arguments:
             - dat: a single data frame containinig all abundance values, treatment conditions, and experiment numbers for all nodes across all experiments
-            - x: Name of the property to plot on the x-axis, obtained from args.x_axis_abund
-            - y: Name of the parameter to plot on the y-axis
+            - grouping: Name of the property to plot on the x-axis, obtained from args.x_axis
+            - nodename: Name of the parameter to plot on the y-axis
             - group_by: Variable to group the data by (i.e. Treatment or Experiment)
+            - colordict: A dictionary with keys of treatment group names and values of the colors
         '''
         sns.set(rc={'figure.figsize':(11.7,8.27)})
         sns.set_style(style='white')
 
-        sns.stripplot(data=concat_df, x=x, y=y, hue=group_by, dodge=True, color='Black')
+        sns.stripplot(data=concat_df, x=grouping, y=nodename, hue=group_by, dodge=True, color='Black')
 
+        for k,v in colordict.items():
+            print(k,v)
 
-        ax = sns.boxplot(data=concat_df, x=x, y=y, hue=group_by, palette = pal)
+        ax = sns.boxplot(data=concat_df, x=grouping, y=nodename, hue=group_by, palette = colordict)
         handles, labels = ax.get_legend_handles_labels()
         # ax.legend(handles=handles,
         #     labels=treatments,
@@ -132,8 +128,11 @@ if __name__ == '__main__':
         # requiredArgGroup.add_argument("--network_file", type=str, help="network_output_comp.csv file output by to_csv.py", required=True)
         requiredArgGroup.add_argument("--abund-data", type=str, nargs = '+', dest="abund_data", help="List of data files containing expressions/abundances, these are the original data files used for intake_data.py", required=True)
         requiredArgGroup.add_argument("--metadata", type=str, nargs = '+', help="List of metadata files containing Experiment/Treatment columns, these are the original metadata files used for intake_data.py", required=True)
-        requiredArgGroup.add_argument("--color-group", type=str, default='Treatment', choices=['Treatment', 'Experiment'], dest="color_group", help="Variable to color the plot by", required=True)
-        requiredArgGroup.add_argument("--x-axis", type=str, default="Experiment", choices=['Treatment', 'Experiment'], dest="x_axis", help="Variable you wish to group the data by on the x-axis", required=True)
+        #requiredArgGroup.add_argument("--color-group", type=str, default='Treatment', choices=['Treatment', 'Experiment'], dest="color_group", help="Variable to color the plot by", required=True)
+        requiredArgGroup.add_argument("--x-axis", type=str, default="Experiment", choices=['Treatment', 'Experiment'], dest="x_axis", help="Variable you wish to group the data by on the x-axis.", required=True)
+        requiredArgGroup.add_argument("--group-names", type=str, nargs = '+', dest="group_names",  help="A list of the names of the treatment groups; must match the order of names in --group-colors. For example, if 'Experiment' is chosen for --x-axis then list the names of the experimental groups in --metadata here. And if 'Treatment' is chosen for --x-axis then list the names of the experiment files, without filename extensions, that were used in --abund-data.", required=True)
+        requiredArgGroup.add_argument("--group-colors", type=str, nargs = '+', dest="group_colors",  help="A list of the names of the colors to use for each specified group; must match the order of colors in --group-names. Accepted colors can be found at https://matplotlib.org/stable/gallery/color/named_colors.html", required=True)
+
 
         optionalArgGroup  = parser.add_argument_group('Optional arguments')
         optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
@@ -159,8 +158,15 @@ if __name__ == '__main__':
         abund_data = args.abund_data
         metadata = args.metadata
         # node_type = args.node_type
-        color_group = args.color_group
+        # color_group = args.color_group
         x_axis_abund = args.x_axis
+        color_group = ''
+        if x_axis_abund == 'Experiment':
+            color_group = 'Treatment'
+        elif x_axis_abund == 'Treatment':
+            color_group = 'Experiment'
+        else:
+            raise Exception("Error: Please select either 'Experiment' or 'Treatment' for how to group your data on the resulting abundance plot.")
         user_node_list = args.nodes_to_plot
 
     # nw_df = pd.read_csv(network_file)
@@ -256,14 +262,23 @@ if __name__ == '__main__':
     concat_df = pd.concat(subset_dfs)
     concat_df.to_csv(plotdir + 'table_for_manual_abundance_plotting.csv')
 
+    # Generate the color dictionary for each treatment group for plotting
+    coldict = {}
+    color_index = 0
+    while color_index < len(args.group_colors):
+        for treatment in args.group_names:
+            coldict[treatment] = args.group_colors[color_index]
+            color_index += 1
+    #print(coldict)
+
 
     # if the user has entered any specific nodes to plot, plot them
     if user_node_list:
         for i in user_node_list:
-            # print(i)
-            plot =  plot_abund(concat_df, x_axis_abund, i, color_group, 'Greys')
-            plot.figure.savefig(plotdir + "abundance_of_" + i + "_grouped_by_" + color_group + ".png", bbox_inches='tight')
-            print("Plot saved: " + plotdir + "abundance_of_" + i + "_grouped_by_" + color_group + ".png")
+
+            plot =  plot_abund(concat_df, x_axis_abund, i, color_group, coldict)
+            plot.figure.savefig(plotdir + "abundance_of_" + i + "_grouped_by_" + x_axis_abund + ".png", bbox_inches='tight')
+            print("Plot saved: " + plotdir + "abundance_of_" + i + "_grouped_by_" + x_axis_abund + ".png")
             plot.figure.clf()
 
     # Plot all the nodes that were in the zoomed in 'per-type' plots of dot_plots.py. Note that by default, 10 nodes per group will be plotted, but that changes if there are not 10 nodes in that group in the network, or if the user specified a smaller number via the --top_num_per_type argument in dot_plots.py
@@ -271,9 +286,14 @@ if __name__ == '__main__':
         # print(i)
         #sns.set_style(style='white')
         #sns.set_context("notebook")
+        #print(concat_df)
+        #print(x_axis_abund)
+        #print(i)
+        #print(color_group)
+        #print(coldict)
 
-        plot =  plot_abund(concat_df, x_axis_abund, i, color_group, 'Greys')
-        plot.figure.savefig(plotdir + "abundance_of_" + i + "_grouped_by_" + color_group + ".png", bbox_inches='tight')
-        print("Plot saved: " + plotdir + "abundance_of_" + i + "_grouped_by_" + color_group + ".png")
+        plot =  plot_abund(concat_df, x_axis_abund, i, color_group, coldict)
+        plot.figure.savefig(plotdir + "abundance_of_" + i + "_grouped_by_" + x_axis_abund + ".png", bbox_inches='tight')
+        print("Plot saved: " + plotdir + "abundance_of_" + i + "_grouped_by_" + x_axis_abund + ".png")
         plot.figure.clf()
 
