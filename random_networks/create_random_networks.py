@@ -41,7 +41,7 @@ def getArgs():
 	inputArgGroup.add_argument("--node-list-file", type=str, dest="nodeListFile", help="Path to a file containing the names of the nodes in the generated networks. Must be one node per line. If used, --num-edges must also be provided. Alternatively, use --template-network to base the random networks on an existing one.")
 	inputArgGroup.add_argument("--num-edges", type=int, dest="numEdges", help="Number of edges in each randomly-generated network. If used, --node-list-file must also be provided. Alternatively, use --template-network to base the random networks on an existing one.")
 
-	requiredArgGroup.add_argument("--networks-file", type=str, dest="networksFile", required=True, help="File to output pickled network list to")
+	requiredArgGroup.add_argument("--networks-file", type=str, dest="networksFile", required=True, help="ZIP file to output networks to")
 
 	optionalArgGroup.add_argument("--num-networks", "-n", type=int, dest="numNetworks", default=10000, help="Number of networks to generate")
 	optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
