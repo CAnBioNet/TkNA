@@ -6,7 +6,7 @@ Written in Python v3.5.3
 
 @author: Nolan K Newman <newmanno@oregonstate.edu>
 
-Input: the correlations_bw_signif_measurables.csv file output by to_csv.py. This is the a CSV file consisting of correlations 
+Input: the correlations_bw_signif_measurables.csv file output by to_csv.py. This is the a CSV file consisting of correlations
        between significant nodes (as dictated by the config file)
 
 Output: a pickled file of a networkx graph, as well as a .txt file containing basic properties of the network
@@ -19,7 +19,7 @@ Output: a pickled file of a networkx graph, as well as a .txt file containing ba
 
 import argparse
 import csv
-import numpy as np 
+import numpy as np
 import pickle
 import networkx as nx
 from collections import Counter
@@ -30,12 +30,12 @@ fc_parameters = {}
 # nodes_in_final_nw = []
 
 parser = argparse.ArgumentParser(description="Example command: python assess_network.py --file <correlation file> --source partner1 --target partner2", add_help=False)
-requiredArgGroup = parser.add_argument_group('Required arguments')        
+requiredArgGroup = parser.add_argument_group('Required arguments')
 requiredArgGroup.add_argument("--file", type=str, help="correlations_bw_signif_measurables.csv file output by to_csv.py", required=True)
 requiredArgGroup.add_argument("--source", type=str, default = 'partner1', help = 'Column name in --file of source node for each edge', required=True)
 requiredArgGroup.add_argument("--target", type=str, default = 'partner2', help = 'Column name in --file of target node for each edge', required=True)
 
-optionalArgGroup = parser.add_argument_group('Optional arguments')   
+optionalArgGroup = parser.add_argument_group('Optional arguments')
 optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 
 # parser = argparse.ArgumentParser(description='Example: python assess_network.py --file <correlation file> --source partner1 --target partner2\n\n')
@@ -46,10 +46,10 @@ optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this hel
 args = parser.parse_args()
 
 net_file = args.file
-net_file_trimmed = net_file[:-4] # trim the ".csv" or ".txt" from the input file string   
+net_file_trimmed = net_file[:-4] # trim the ".csv" or ".txt" from the input file string
 
 
-# Counters 
+# Counters
 # puc_compliant = 0 # number of puc-compliant correlations
 puc_noncompliant = 0 # number of puc-compliant correlations
 positive_corr_all = 0 # number of positive correlations, regardless of if they are in the final graph
@@ -57,79 +57,79 @@ positive_corr_nw = 0 # number of positive correlations, ONLY if they are in the 
 negative_corr_all = 0 # number of negative correlations, regardless of if they are in the final graph
 negative_corr_nw = 0 # number of negative correlations, ONLY if they are in the final graph
 pos_nw_edge = 0 # number of positive edges (in the final graph)
-neg_nw_edge = 0 # number of positive edges (in the final graph) 
-row_count = 0 
+neg_nw_edge = 0 # number of positive edges (in the final graph)
+row_count = 0
 signif_meta_edge = 0 # number of edges that are significant and pass the meta-analysis thresholds
 
-G = nx.Graph() 
-    
+G = nx.Graph()
+
 # import specified file into python
 with open(net_file) as csvfile:
     file = csv.reader(csvfile, delimiter = ',')
-            
+
     for row in file:
-    
-        
+
+
         # Take the index of the source and target node in the header of the file
-        if row_count == 0: 
+        if row_count == 0:
             p1 = int(row.index(args.source))
             p2 = int(row.index(args.target)) + 1
-        
+
         parameters = row[p1:p2]
         list_to_tuple = tuple(parameters)
 
         fc_node1_column = len(row) - 5 # column that holds FC direction of source node
         fc_node2_column = len(row) - 4 # column that holds FC direction of target node
         final_nw_edge_column = len(row) - 1 # column that identifies whether edge made it into the final network and its edge value
-        
+
         # Find FC direction of each parameter
-        if row_count != 0:   
+        if row_count != 0:
             fc_parameters[parameters[0]] = str(int(float(row[fc_node1_column].strip())))
             fc_parameters[parameters[1]] = str(int(float(row[fc_node2_column].strip())))
-            
+
         # Find the number of total positive and negative corrs, regardless if they made it into the network
         corr_dir_column = len(row) - 6
-        
+
         if row[corr_dir_column] == str(1):
             positive_corr_all += 1
         elif row[corr_dir_column] == str(-1):
             negative_corr_all += 1
-            
-        # Find each node that made it into the final network and the direction of the edge   
+
+        # Find each node that made it into the final network and the direction of the edge
         if row_count != 0:
-            
+
             #print(row[final_nw_edge_column])
-            
+
             if str(int(float(row[final_nw_edge_column]))) == str(1):
                 pos_nw_edge += 1
                 positive_corr_nw += 1
                 G.add_edge(parameters[0], parameters[1])
             elif str(int(float(row[final_nw_edge_column]))) == str(-1):
-                neg_nw_edge += 1 
+                neg_nw_edge += 1
                 negative_corr_nw += 1
                 G.add_edge(parameters[0], parameters[1])
-            
-      
-        # Is each correlation PUC-compliant? 
+
+
+        # Is each correlation PUC-compliant?
         puc_col = len(row) - 2
-        
+
         #This column contains whether the correlations passed the statistical and meta-analysis thresholds
         signif_edge_col = len(row) - 7
-        
+
         #print(row[puc_col].strip())
 
-        if row_count != 0: 
-            
+        if row_count != 0:
+
             # Count the number of significant edges that pass meta-analysis thresholds for the
             # denominator of the PUC calculation
             if str(row[signif_edge_col]) == "True":
                 signif_meta_edge += 1
- 
-                # For just those edges that are significant and pass those thresholds, also 
-                # check if they are an expected edge for the numerator of the PUC calculation               
+
+                # For just those edges that are significant and pass those thresholds, also
+                # check if they are an expected edge for the numerator of the PUC calculation
                 if str(int(float(row[puc_col].strip()))) == str(0):
-                    puc_noncompliant += 1             
-                
+                    puc_noncompliant += 1
+
         row_count += 1
 
     csvfile.close()
@@ -145,30 +145,30 @@ def unique(list1):
 #print(fc_parameters)
 
 # Subset dictionary holding FC of all params for just nodes in nw
-    
-fc_parameters_final_nw = dict((k, fc_parameters[k]) for k in G.nodes())   
+
+fc_parameters_final_nw = dict((k, fc_parameters[k]) for k in G.nodes())
 
 # for k in G.nodes():
 #     print(k)
 #     print(fc_parameters[k])
-    
+
 # Find the ratio of positive:negative edges (and vice versa) in the observed graph
 if int(negative_corr_nw) != 0:
     obs_posneg_ratio = int(positive_corr_nw)/int(negative_corr_nw)
 else:
     obs_posneg_ratio = 1.0
-    
+
 if int(positive_corr_nw) != 0:
     obs_negpos_ratio = int(negative_corr_nw)/int(positive_corr_nw)
 else:
     obs_negpos_ratio = 1.0
 
 
-# Count the number of positive and negative nodes in the network  
+# Count the number of positive and negative nodes in the network
 nodedir = Counter(fc_parameters_final_nw.values())
 pos_nodes = nodedir['1']
 neg_nodes = nodedir['-1']
-        
+
 #print(pos_nodes)
 #print(neg_nodes)
 total_nodes = int(pos_nodes) + int(neg_nodes)
@@ -180,10 +180,10 @@ obs_negpos_node_ratio = int(neg_nodes) / int(pos_nodes)
 
 
 
-# Find the number of edges in a full graph  
-expec_pos = int(factorial(pos_nodes)/(2 * factorial(pos_nodes - 2)) + factorial(neg_nodes)/(2 * factorial(neg_nodes - 2)))               
+# Find the number of edges in a full graph
+expec_pos = int(factorial(pos_nodes)/(2 * factorial(pos_nodes - 2)) + factorial(neg_nodes)/(2 * factorial(neg_nodes - 2)))
 expec_neg = pos_nodes * neg_nodes
-expec_total = expec_pos + expec_neg          
+expec_total = expec_pos + expec_neg
 expec_edge_node_ratio = expec_total / total_nodes
 
 # Find the ratio of positive:negative edges (and vice versa) in a full graph
@@ -236,16 +236,16 @@ filedir = os.path.dirname(os.path.abspath(net_file))
 with open(filedir + "/network_quality_assessment.txt", "w") as file:
     file.write("PUC: " + "{}%".format(str(puc)) + "\n")
     file.write("Mean degree: " + str(mdeg) + "\n")
-    file.write("Edges in network over the edges in a full graph: " + str(nw_edge_full_graph_ratio) + "\n") 
+    file.write("Edges in network over the edges in a full graph: " + str(nw_edge_full_graph_ratio) + "\n")
     file.write("Positive:negative edge ratio: " + str(obs_posneg_ratio) + "\n\n")
-    
+
     file.write("Expected positive:negative edge ratio in full graph: " + str(ideal_ratio_posneg) + "\n")
     file.write("Deviation from expected positive:negative edge ratio in full graph: " + str(dev_norm_posneg) + "\n\n")
-    
+
     file.write("Number of positive nodes: " + str(pos_nodes) + "\n")
     file.write("Number of negative nodes: " + str(neg_nodes) + "\n")
     file.write("Number of total nodes: " + str(G.number_of_nodes()) + "\n\n")
-    
+
     file.write("Number of positive edges: " + str(pos_nw_edge) + "\n")
     file.write("Number of negative edges: " + str(neg_nw_edge) + "\n")
     file.write("Number of total edges: " + str(G.number_of_edges()) + "\n")
@@ -262,14 +262,4 @@ pickle.dump(G, open(filedir + "/network.pickle", "wb"))
 # pickle_out.close()
 
 print("Assessment calculations have been completed. Results have been saved in network_quality_assessment.txt.\n")
-
-
-
-
-
-
-
-
-
-
 
