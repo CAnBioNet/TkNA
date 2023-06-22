@@ -194,10 +194,10 @@ if __name__ == '__main__':
         node_props = pload[0]
         top_nodes = pload[1]
         top_nodes_per_type = pload[2]
-        plotdir = "./" # location of previously created plots directory
+        # plotdir = "./" # location of previously created plots directory
 
         # !!!!!!!!!!Must uncomment the following before publishing
-        # plotdir = pload[3] # location of previously created plots directory
+        plotdir = pload[3] # location of previously created plots directory
 
         print(node_props)
 
