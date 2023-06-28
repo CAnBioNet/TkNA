@@ -11,6 +11,12 @@ from util.configs import aggregateConfigSpec, singleCellConfigSpec
 
 numpy.seterr(all="raise")
 
+class MissingDataError(Exception):
+	def __init__(self, keys):
+		self.keys = keys
+		self.message = f"Could not find tables matching keys: {keys}"
+		super().__init__(self.message)
+
 def getArgs():
 	parser = argparse.ArgumentParser(description="Write CSVs in the specified formats from data.", add_help=False)
 	requiredArgGroup = parser.add_argument_group("required arguments")
@@ -53,15 +59,21 @@ def setupMeasurableCsv(data, config):
 		CsvWriter.Column("Corrected Comparison p-value", "correctedDifferencePValues")
 	)
 
+	# Initialize computed columns so that they are counted as present in the dataset
 	data["meanValue"] = None
 	data["medianValue"] = None
 	data["consistentFoldChange"] = None
 
 	dataKeys = csvConfig.getDataKeys()
+	# Add keys for the data the computed columns depend on to ensure its existence
 	dataKeys.append("foldChangeSigns")
-	if not all(key in data for key in dataKeys):
-		return
 
+	# Check that all of the required data is present in the dataset
+	missingKeys = [key for key in dataKeys if key not in data]
+	if len(missingKeys) > 0:
+		raise MissingDataError(missingKeys)
+
+	# Determine computed columns
 	data["meanValue"] = data["originalData"].groupby("experiment").map(lambda a: a.mean(dim="organism"))
 	data["medianValue"] = data["originalData"].groupby("experiment").map(lambda a: a.median(dim="organism"))
 	data["consistentFoldChange"] = xarray.apply_ufunc(lambda signs: numpy.all(signs == signs[0]), data["foldChangeSigns"], input_core_dims=[["experiment"]], vectorize=True)
@@ -118,6 +130,7 @@ def setupEdgeCsv(data, config):
 		CsvWriter.Column("Final Network Value (0: No edge, 1: Positive edge, -1: Negative edge)", "edges")
 	)
 
+	# Initialize computed columns so that they are counted as present in the dataset
 	data["combinedCoefficients"] = None
 	data["expectedEdgeFilterInt"] = None
 	data["nonPucPassed"] = None
@@ -126,15 +139,19 @@ def setupEdgeCsv(data, config):
 	data["medianValue"] = None
 
 	dataKeys = csvConfig.getDataKeys()
+	# Add keys for the data the computed columns depend on to ensure its existence
 	dataKeys.append("originalData")
 	dataKeys.append("expectedEdgeFilter")
-	if not all(key in data for key in dataKeys):
-		return
 
+	# Check that all of the required data is present in the dataset
+	missingKeys = [key for key in dataKeys if key not in data]
+	if len(missingKeys) > 0:
+		raise MissingDataError(missingKeys)
+
+	# Determine computed columns
 	data["combinedCoefficients"] = data["correlationCoefficients"].mean(dim="metatreatment")
 	data["expectedEdgeFilterInt"] = data["expectedEdgeFilter"].astype(int)
 	data["nonPucPassed"] = data["diagonalFilter"] & data["individualCorrelationPValueFilter"] & data["combinedCorrelationPValueFilter"] & data["correctedCorrelationPValueFilter"] & data["correlationFilter"]
-
 	data["meanValue"] = data["originalData"].groupby("experiment").map(lambda a: a.mean(dim="organism"))
 	data["medianValue"] = data["originalData"].groupby("experiment").map(lambda a: a.median(dim="organism"))
 
@@ -192,17 +209,25 @@ def writeMeasurableCsvSingleCell(data, config, filePath, nodesOnly):
 	dataKeys.append("foldChanges")
 	dataKeys.append("foldChangeSigns")
 	dataKeys.append("foldChangeFilter")
-	if not all(key in data for key in dataKeys):
-		return
+	missingKeys = [key for key in dataKeys if key not in data]
+	if len(missingKeys) > 0:
+		raise MissingDataError(missingKeys)
 
 	CsvWriter.writeCsv(filePath, csvConfig, data, coordArr.coords["measurableAndCellType"].data)
 
 def writeComparisonsSingleCell(data, config, outDir):
-	writeMeasurableCsvSingleCell(data, config, outDir / "all_comparisons.csv", False)
+	fileName = "all_comparisons.csv"
+	try:
+		writeMeasurableCsvSingleCell(data, config, outDir / fileName, False)
+	except MissingDataError as e:
+		print(f"WARNING: {e.message}, so {fileName} could not be created")
 
 def writeNodesSingleCell(data, config, outDir):
 	fileName = "node_comparisons.csv"
-	writeMeasurableCsvSingleCell(data, config, outDir / fileName, True)
+	try:
+		writeMeasurableCsvSingleCell(data, config, outDir / fileName, True)
+	except MissingDataError as e:
+		print(f"WARNING: {e.message}, so {fileName} could not be created")
 
 def writeEdgeCsvSingleCell(data, config, filePath, finalOnly=False):
 	if finalOnly:
@@ -244,18 +269,26 @@ def writeEdgeCsvSingleCell(data, config, filePath, finalOnly=False):
 	dataKeys = csvConfig.getDataKeys()
 	dataKeys.append("foldChanges")
 	dataKeys.append("combinedFoldChangeSigns")
-	if not all(key in data for key in dataKeys):
-		return
+
+	missingKeys = [key for key in dataKeys if key not in data]
+	if len(missingKeys) > 0:
+		raise MissingDataError(missingKeys)
 
 	CsvWriter.writeCsv(filePath, csvConfig, data, edgeList)
 
 def writeCorrelationsSingleCell(data, config, outDir):
 	fileName = "correlations_bw_signif_measurables.csv"
-	writeEdgeCsvSingleCell(data, config, outDir / fileName, False)
+	try:
+		writeEdgeCsvSingleCell(data, config, outDir / fileName, False)
+	except MissingDataError as e:
+		print(f"WARNING: {e.message}, so {fileName} could not be created")
 
 def writeSummarySingleCell(data, config, outDir):
 	fileName = "network_output_comp.csv"
-	writeEdgeCsvSingleCell(data, config, outDir / fileName, True)
+	try:
+		writeEdgeCsvSingleCell(data, config, outDir / fileName, True)
+	except MissingDataError as e:
+		print(f"WARNING: {e.message}, so {fileName} could not be created")
 
 def writeConfigValues(config, outDir):
 	configValuesFilePath = outDir / "config_values.txt"
@@ -312,13 +345,21 @@ if __name__ == "__main__":
 		writeCorrelationsSingleCell(data, config, args.outDir)
 		writeSummarySingleCell(data, config, args.outDir)
 	else:
-		nodeCsvConfig, data = setupMeasurableCsv(data, config)
-		writeComparisons(data, config, nodeCsvConfig, args.outDir)
-		writeNodes(data, config, nodeCsvConfig, args.outDir)
+		try:
+			nodeCsvConfig, data = setupMeasurableCsv(data, config)
+		except MissingDataError as e:
+			print(f"WARNING: {e.message}, so node CSV files could not be created")
+		else:
+			writeComparisons(data, config, nodeCsvConfig, args.outDir)
+			writeNodes(data, config, nodeCsvConfig, args.outDir)
 
-		edgeCsvConfig, data = setupEdgeCsv(data, config)
-		writeCorrelations(data, config, edgeCsvConfig, args.outDir)
-		writeSummary(data, config, edgeCsvConfig, args.outDir)
+		try:
+			edgeCsvConfig, data = setupEdgeCsv(data, config)
+		except MissingDataError as e:
+			print(f"WARNING: {e.message}, so edge CSV files could not be created")
+		else:
+			writeCorrelations(data, config, edgeCsvConfig, args.outDir)
+			writeSummary(data, config, edgeCsvConfig, args.outDir)
 
 	writeConfigValues(config, args.outDir)
 
