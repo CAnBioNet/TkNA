@@ -42,6 +42,16 @@ def getArgs():
 
 	return args
 
+# Used to conditionally include an item in a list, e.g. for columns conditionally included in a CSV table
+# Works by returning a collection that is unpacked, allowing for the possibility of
+# adding nothing to the containing list if the conditional is false
+# Usage: list = [..., *listItemIf(<expression>, <conditional expression>), ...]
+def listItemIf(item, conditional):
+	if conditional:
+		return (item,)
+	else:
+		return ()
+
 def setupMeasurableCsv(data, config):
 	foldChangeType = config["foldChangeType"]
 
@@ -121,27 +131,28 @@ def setupEdgeCsv(data, config):
 		CsvWriter.CoordComponentPer("partner2_MedianLog2FoldChange ({})", "medianFoldChanges", 1, "measurable", "experiment"),
 		CsvWriter.CoordComponentPer("partner2_MeanLog2FoldChange ({})", "meanFoldChanges", 1, "measurable", "experiment"),
 		CsvWriter.Column("Correlations Passed Consistency Filter ({})".format(consistencyDescriptor), "correlationFilter"),
-		CsvWriter.Column("All Non-PUC Filters Passed", "nonPucPassed"),
+		*listItemIf(CsvWriter.Column("All Non-PUC Filters Passed", "nonPucPassed"), not config["noPUC"]),
 		CsvWriter.Column("combined Coefficient correlation Direction", "combinedCorrelationSigns"),
 		CsvWriter.CoordComponentColumn("partner1_FC_direction", "combinedFoldChangeSigns", 0, "measurable"),
 		CsvWriter.CoordComponentColumn("partner2_FC_direction", "combinedFoldChangeSigns", 1, "measurable"),
-		CsvWriter.Column("IfFoldChangeDirectionMatch", "foldChangeSignProducts"),
-		CsvWriter.Column("PUC", "expectedEdgeFilterInt"),
+		*listItemIf(CsvWriter.Column("IfFoldChangeDirectionMatch", "foldChangeSignProducts"), not config["noPUC"]),
+		*listItemIf(CsvWriter.Column("PUC", "expectedEdgeFilterInt"), not config["noPUC"]),
 		CsvWriter.Column("Final Network Value (0: No edge, 1: Positive edge, -1: Negative edge)", "edges")
 	)
 
 	# Initialize computed columns so that they are counted as present in the dataset
 	data["combinedCoefficients"] = None
-	data["expectedEdgeFilterInt"] = None
-	data["nonPucPassed"] = None
-
+	if not config["noPUC"]:
+		data["expectedEdgeFilterInt"] = None
+		data["nonPucPassed"] = None
 	data["meanValue"] = None
 	data["medianValue"] = None
 
 	dataKeys = csvConfig.getDataKeys()
 	# Add keys for the data the computed columns depend on to ensure its existence
 	dataKeys.append("originalData")
-	dataKeys.append("expectedEdgeFilter")
+	if not config["noPUC"]:
+		dataKeys.append("expectedEdgeFilter")
 
 	# Check that all of the required data is present in the dataset
 	missingKeys = [key for key in dataKeys if key not in data]
@@ -150,8 +161,9 @@ def setupEdgeCsv(data, config):
 
 	# Determine computed columns
 	data["combinedCoefficients"] = data["correlationCoefficients"].mean(dim="metatreatment")
-	data["expectedEdgeFilterInt"] = data["expectedEdgeFilter"].astype(int)
-	data["nonPucPassed"] = data["diagonalFilter"] & data["individualCorrelationPValueFilter"] & data["combinedCorrelationPValueFilter"] & data["correctedCorrelationPValueFilter"] & data["correlationFilter"]
+	if not config["noPUC"]:
+		data["expectedEdgeFilterInt"] = data["expectedEdgeFilter"].astype(int)
+		data["nonPucPassed"] = data["diagonalFilter"] & data["individualCorrelationPValueFilter"] & data["combinedCorrelationPValueFilter"] & data["correctedCorrelationPValueFilter"] & data["correlationFilter"]
 	data["meanValue"] = data["originalData"].groupby("experiment").map(lambda a: a.mean(dim="organism"))
 	data["medianValue"] = data["originalData"].groupby("experiment").map(lambda a: a.median(dim="organism"))
 
@@ -256,13 +268,13 @@ def writeEdgeCsvSingleCell(data, config, filePath, finalOnly=False):
 		CsvWriter.CoordComponentPer("Partner 2 Average Value ({})", "stacked", 1, "measurableAndCellType", "organism", coordMap=indexList),
 		CsvWriter.CoordComponentPer("Partner 2 Log2 Fold Change ({})", "foldChangesStacked", 1, "measurableAndCellType", "experiment", coordMap=indexList),
 		CsvWriter.CoordComponentColumn("Partner 2 Fold Change Direction", "combinedFoldChangeSignsStacked", 1, "measurableAndCellType", coordMap=indexList),
-		CsvWriter.Column("Fold Change Signs Match", "foldChangeSignProducts"),
+		*listItemIf(CsvWriter.Column("Fold Change Signs Match", "foldChangeSignProducts"), not config["noPUC"]),
 		CsvWriter.Per("Correlation p-value ({})", "correlationPValues", "metatreatment"),
 		CsvWriter.Per("Correlation Coefficient ({})", "correlationCoefficients", "metatreatment"),
 		CsvWriter.Column("Correlation Coefficients Consistent", "correlationFilter"),
 		CsvWriter.Column("Combined Correlation p-value", "combinedCorrelationPValues"),
 		CsvWriter.Column("Corrected Correlation p-value", "correctedCorrelationPValues"),
-		CsvWriter.Column("PUC", "expectedEdgeFilter"),
+		*listItemIf(CsvWriter.Column("PUC", "expectedEdgeFilter"), not config["noPUC"]),
 		CsvWriter.Column("Final Network Value (0: No edge, 1: Positive edge, -1: Negative edge)", "edges")
 	)
 
