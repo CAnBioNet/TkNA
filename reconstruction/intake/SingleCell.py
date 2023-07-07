@@ -95,6 +95,14 @@ def intakeSingleCellData(dataDir):
 				treatmentCoords = [inverseTreatmentMap[organism]] * cellTypeData.sizes["cell"]
 
 				cellTypeData = cellTypeData.assign_coords({"cell": cellCoords, "organism": ("cell", organismCoords), "cellType": ("cell", cellTypeCoords), "treatment": ("cell", treatmentCoords)})
+
+				negatives = cellTypeData < 0
+				if negatives.any():
+					whereNegative = numpy.argwhere(negatives.data)
+					measurableAxis = negatives.get_axis_num("measurable")
+					negativeMeasurables = {negatives.measurable.data[coords[measurableAxis]] for coords in whereNegative}
+					raise Exception(f"Cannot have negative values in data, but negative values are present in experiment {experimentName}, cell type {cellType} for measurables: {negativeMeasurables}")
+
 				experimentData.append(cellTypeData)
 
 			diffFilePath = cellTypeDir / "diff.csv"
