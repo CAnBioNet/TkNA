@@ -4,6 +4,7 @@ from multiprocessing import Pool, shared_memory
 import numpy
 from scipy import stats, special
 from statsmodels.stats import multitest
+import time
 import xarray
 
 from .NetworkReconstructor import NetworkReconstructor
@@ -11,21 +12,26 @@ from .util import matchingCoords, withoutDim, SharedArrayParams
 
 numpy.seterr(all="raise")
 
+def sharedMemoryName(name, runnerId):
+	return f"{name}_{runnerId}"
+
 class CorrelationWorker:
-	def __init__(self, dataParams, correlationsAndPValuesParams):
+	def __init__(self, runnerId, dataParams, correlationsAndPValuesParams):
+		self.runnerId = runnerId
+
 		self.dataParams = dataParams
 		self.correlationsAndPValuesParams = correlationsAndPValuesParams
 
 		self.initialized = False
 
 	def initialize(self):
-		self.dataSharedMemory = shared_memory.SharedMemory(name="expressionData")
+		self.dataSharedMemory = shared_memory.SharedMemory(name=sharedMemoryName("expressionData", self.runnerId))
 		self.data = numpy.ndarray(shape=self.dataParams.shape, dtype=self.dataParams.dtype, buffer=self.dataSharedMemory.buf)
 
-		self.correlationsSharedMemory = shared_memory.SharedMemory(name="correlations")
+		self.correlationsSharedMemory = shared_memory.SharedMemory(name=sharedMemoryName("correlations", self.runnerId))
 		self.correlations = numpy.ndarray(shape=self.correlationsAndPValuesParams.shape, dtype=self.correlationsAndPValuesParams.dtype, buffer=self.correlationsSharedMemory.buf)
 
-		self.pValuesSharedMemory = shared_memory.SharedMemory(name="pValues")
+		self.pValuesSharedMemory = shared_memory.SharedMemory(name=sharedMemoryName("pValues", self.runnerId))
 		self.pValues = numpy.ndarray(shape=self.correlationsAndPValuesParams.shape, dtype=self.correlationsAndPValuesParams.dtype, buffer=self.pValuesSharedMemory.buf)
 
 	def correlationMethod(self):
@@ -58,7 +64,7 @@ class CorrelationWorkerSpearman(CorrelationWorker):
 
 	def initialize(self):
 		super().initialize()
-		self.rankedSharedMemory = shared_memory.SharedMemory(name="spearmanRanked")
+		self.rankedSharedMemory = shared_memory.SharedMemory(name=sharedMemoryName("spearmanRanked", self.runnerId))
 		self.ranked = numpy.ndarray(shape=self.rankedParams.shape, dtype=self.rankedParams.dtype, buffer=self.rankedSharedMemory.buf)
 
 	def correlationMethod(self, indices):
@@ -215,13 +221,16 @@ def calculateCorrelations(config, filteredData, cores=None):
 
 	filteredData = filteredData.assign_coords(coords={"metatreatment": ("organism", metatreatmentCoords)})
 
+	# Used to identify the current run's shared memory
+	runnerId = str(time.time())
+
 	def prepareSpearman(treatmentData):
 		spearmanKwargs = {}
 
 		# See https://bottleneck.readthedocs.io/en/v1.3.4/reference.html#bottleneck.rankdata
 		rankedParams = SharedArrayParams(treatmentData.shape, numpy.float64)
 		rankedNBytes = numpy.prod(rankedParams.shape) * rankedParams.dtype().itemsize
-		rankedSharedMemory = shared_memory.SharedMemory(create=True, size=rankedNBytes, name="spearmanRanked")
+		rankedSharedMemory = shared_memory.SharedMemory(create=True, size=rankedNBytes, name=sharedMemoryName("spearmanRanked", runnerId))
 		ranked = numpy.ndarray(rankedParams.shape, rankedParams.dtype, buffer=rankedSharedMemory.buf)
 		organismAxis = treatmentData.get_axis_num("organism")
 		# Ranks begin at 1
@@ -259,13 +268,13 @@ def calculateCorrelations(config, filteredData, cores=None):
 
 		correlationsAndPValuesParams = SharedArrayParams((treatmentData.sizes["measurableAndCellType"], treatmentData.sizes["measurableAndCellType"]), numpy.float64)
 		correlationsAndPValuesNBytes = numpy.prod(correlationsAndPValuesParams.shape) * correlationsAndPValuesParams.dtype().itemsize
-		correlationsSharedMemory = shared_memory.SharedMemory(create=True, size=correlationsAndPValuesNBytes, name="correlations")
+		correlationsSharedMemory = shared_memory.SharedMemory(create=True, size=correlationsAndPValuesNBytes, name=sharedMemoryName("correlations", runnerId))
 		correlations = numpy.ndarray(correlationsAndPValuesParams.shape, correlationsAndPValuesParams.dtype, buffer=correlationsSharedMemory.buf)
-		pValuesSharedMemory = shared_memory.SharedMemory(create=True, size=correlationsAndPValuesNBytes, name="pValues")
+		pValuesSharedMemory = shared_memory.SharedMemory(create=True, size=correlationsAndPValuesNBytes, name=sharedMemoryName("pValues", runnerId))
 		pValues = numpy.ndarray(correlationsAndPValuesParams.shape, correlationsAndPValuesParams.dtype, buffer=pValuesSharedMemory.buf)
 
 		treatmentDataParams = SharedArrayParams(treatmentData.shape, treatmentData.dtype)
-		treatmentDataSharedMemory = shared_memory.SharedMemory(create=True, size=treatmentData.nbytes, name="expressionData")
+		treatmentDataSharedMemory = shared_memory.SharedMemory(create=True, size=treatmentData.nbytes, name=sharedMemoryName("expressionData", runnerId))
 		dataCopy = numpy.ndarray(treatmentDataParams.shape, dtype=treatmentDataParams.dtype, buffer=treatmentDataSharedMemory.buf)
 		dataCopy[:] = treatmentData.values[:]
 
@@ -276,7 +285,7 @@ def calculateCorrelations(config, filteredData, cores=None):
 			methodKwargs = {}
 			endArgs = []
 
-		worker = methodWorker(**methodKwargs, dataParams=treatmentDataParams, correlationsAndPValuesParams=correlationsAndPValuesParams)
+		worker = methodWorker(**methodKwargs, runnerId=runnerId, dataParams=treatmentDataParams, correlationsAndPValuesParams=correlationsAndPValuesParams)
 		with Pool(cores) as p:
 			p.map(worker, itertools.combinations(range(treatmentData.sizes["measurableAndCellType"]), 2))
 
