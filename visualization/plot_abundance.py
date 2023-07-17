@@ -73,7 +73,7 @@ if __name__ == '__main__':
         # Find the number of unique groups
         num_groups = len(dat[group_by].unique())
 
-        plt.legend(handles[0:num_groups], labels[0:num_groups], bbox_to_anchor=(0.02, 0.98), loc='upper left', borderaxespad=0.)
+        plt.legend(handles[num_groups:], labels[num_groups:], bbox_to_anchor=(0.02, 0.98), loc='upper left', borderaxespad=0.)
 
         #ax.legend_.remove()
         # handles, labels = ax.get_legend_handles_labels()
