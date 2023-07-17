@@ -10,7 +10,7 @@ Python version: 3.8.10
 	python ./reconstruction/to_csv.py --data-file ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output.zip --config-file ./example_datasets_and_commands/microbiome_and_phenotype/input/config.json --out-dir ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output
 	
 # 2. Assess network quality
-	python analysis/assess_network.py --file ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output/correlations_bw_signif_measurables.csv --source partner1 --target partner2
+	python analysis/assess_network.py --file ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output/correlations_bw_signif_measurables.csv
 		
 # 3. Analyze the network
 	(OPTIONAL) - Generate partitions for use in BiBC calculation using either the Louvain algorithm or Infomap
@@ -19,7 +19,7 @@ Python version: 3.8.10
 		python ./analysis/infomap_assignment.py --pickle ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output/network.pickle
 		
 	(REQUIRED) - Calculate network, subnetwork, and node properties, using the microbes and phenotypes in the network as the two BiBC groups
-		python ./analysis/calc_network_properties.py --pickle ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output/network.pickle --bibc --bibc-groups node_types --bibc-calc-type rbc --node-map ./example_datasets_and_commands/microbiome_and_phenotype/input/type_map.csv --node-groups microbe pheno
+		python ./analysis/calc_network_properties.py --network ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output/network_output_comp.csv --bibc --bibc-groups node_types --bibc-calc-type rbc --node-map ./example_datasets_and_commands/microbiome_and_phenotype/input/type_map.csv --node-groups microbe pheno
 
 # 4. Create random networks and analyze
 	python ./random_networks/create_random_networks.py --template-network ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output/network.pickle --networks-file ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output/all_random_networks.zip
@@ -29,11 +29,11 @@ Python version: 3.8.10
 	python ./random_networks/synthesize_network_stats.py --network-stats-file ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output/random_network_analysis.zip --synthesized-stats-file ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output/random_networks_synthesized.csv
 	
 # 5. Visualization
-	python ./visualization/dot_plots.py --pickle ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output/network.pickle --node-props ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output/node_properties.txt --network-file ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output/network_output_comp.csv --propx BiBC --propy Node_degrees --top-num 10 --top-num-per-type 5
+	python ./visualization/dot_plots.py --pickle ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output/network.pickle --node-props ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output/node_properties.txt --network-file ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output/network_output_comp.csv --propx BiBC_microbe_pheno --propy Node_degrees --top-num 10 --top-num-per-type 5
 	
-	python ./visualization/plot_abundance.py --pickle ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output/inputs_for_downstream_plots.pickle --abund-data ./example_datasets_and_commands/microbiome_and_phenotype/input/Experiment1.csv ./example_datasets_and_commands/microbiome_and_phenotype/input/Experiment2.csv --metadata ./example_datasets_and_commands/microbiome_and_phenotype/input/Experiment1_group_map.csv ./example_datasets_and_commands/microbiome_and_phenotype/input/Experiment2_group_map.csv --color-group Treatment --x-axis Experiment
+	python ./visualization/plot_abundance.py --pickle ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output/inputs_for_downstream_plots.pickle --abund-data ./example_datasets_and_commands/microbiome_and_phenotype/input/Experiment1.csv ./example_datasets_and_commands/microbiome_and_phenotype/input/Experiment2.csv --metadata ./example_datasets_and_commands/microbiome_and_phenotype/input/Experiment1_group_map.csv ./example_datasets_and_commands/microbiome_and_phenotype/input/Experiment2_group_map.csv --x-axis Experiment --group-names ileum8wkHFHS ileum8wkNCD stool4wkHFHS stool8wkHFHS --group-colors red blue green orange
 
-	python ./visualization/plot_density.py --rand-net ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output/random_networks_synthesized.csv --pickle ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output/inputs_for_downstream_plots.pickle
+	python ./visualization/plot_density.py --rand-net ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output/random_networks_synthesized.csv --pickle ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output/inputs_for_downstream_plots.pickle --bibc-name BiBC_microbe_pheno
 
 
 
