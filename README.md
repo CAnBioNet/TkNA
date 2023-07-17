@@ -15,30 +15,30 @@ python ./reconstruction/intake_data.py --data-dir <data directory> --out-file <o
 
 #### Example command
 ```
-python reconstruction/intake_data.py --data-dir ./project_folder/input/ --out-file ./project_folder/output/all_data_and_metadata.cdf
+python reconstruction/intake_data.py --data-dir ./project_folder/input/ --out-file ./project_folder/output/all_data_and_metadata.zip
 ```
 
 #### Inputs
  - `--data-dir`: Path to the directory containing all experimental file(s), metadata file(s), and config file(s)
- - `--out-file`: path to file (with `.cdf` extension) that will be created
+ - `--out-file`: path to file (with `.zip` extension) that will be created
 
 #### Outputs
-A single `.cdf` file containing most information required for the next step
+A single `.zip` file containing most information required for the next step
 
 ### 2. Run the correlations and comparisons, supplying the config file, which tells code which thresholds to apply. For larger datasets, use more cores.
 
 #### Usage
 ```
-python ./reconstruction/run.py --data-source <file_name> --config-file <config file> --out-file <zip directory>
+python ./reconstruction/run.py --data-source <file_name> --config-file <config file> --out-file <zip file>
 ```
 
 #### Example command
 ```
-python ./reconstruction/run.py --data-source ./project_folder/output/all_data_and_metadata.cdf --config-file ./project_folder/input/config.json --out-file ./project_folder/output/network_output.zip
+python ./reconstruction/run.py --data-source ./project_folder/output/all_data_and_metadata.zip --config-file ./project_folder/input/config.json --out-file ./project_folder/output/network_output.zip
 ```
 
 #### Inputs
- - `--data-source`: Path to the `.cdf` file created using `intake_data.py`
+ - `--data-source`: Path to the `.zip` file created using `intake_data.py`
  - `--config-file`: Path to the config file used for `intake_data.py`
  - `--out-file`: Path to zipped directory that will be created
 

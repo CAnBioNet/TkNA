@@ -3,9 +3,9 @@ NOTE: This was ran from the root directory of the repo cloned from github
 Python version: 3.8.10
 
 # 1. reconstruct network 
-	python ./reconstruction/intake_data.py --data-dir ./example_datasets_and_commands/microbiome_and_phenotype/input --out-file ./example_datasets_and_commands/microbiome_and_phenotype/output/all_data_and_metadata.cdf
+	python ./reconstruction/intake_data.py --data-dir ./example_datasets_and_commands/microbiome_and_phenotype/input --out-file ./example_datasets_and_commands/microbiome_and_phenotype/output/all_data_and_metadata.zip
 	
-	python ./reconstruction/run.py --data-source ./example_datasets_and_commands/microbiome_and_phenotype/output/all_data_and_metadata.cdf --config-file ./example_datasets_and_commands/microbiome_and_phenotype/input/config.json --out-file ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output.zip
+	python ./reconstruction/run.py --data-source ./example_datasets_and_commands/microbiome_and_phenotype/output/all_data_and_metadata.zip --config-file ./example_datasets_and_commands/microbiome_and_phenotype/input/config.json --out-file ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output.zip
 	
 	python ./reconstruction/to_csv.py --data-file ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output.zip --config-file ./example_datasets_and_commands/microbiome_and_phenotype/input/config.json --out-dir ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output
 	
