@@ -10,13 +10,21 @@ import pandas as pd
 import pickle
 import seaborn as sns
 import matplotlib.pyplot as plt
-from matplotlib.ticker import Formatter
+from matplotlib.ticker import Locator, Formatter
 import matplotlib as mpl
 from functools import partial
 import numpy as np
 from adjustText import adjust_text
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import sys
+
+class LowHighLocator(Locator):
+    def __call__(self):
+        vmin, vmax = self.axis.get_view_interval()
+        return self.tick_values(vmin, vmax)
+
+    def tick_values(self, vmin, vmax):
+        return [vmin, vmax]
 
 class LowHighFormatter(Formatter):
     def format_data(self, value):
@@ -43,8 +51,7 @@ if __name__ == '__main__':
         #cbaxes = inset_axes(ax, width="100%", height="10%", loc=8)
         cax, kw = mpl.colorbar.make_axes(ax, location="top", orientation="horizontal", pad=0.075)
 
-        # The following works but cbar labels are on top
-        fig1 = sns.kdeplot(xprop, yprop, shade=True, ax=ax, cmap=col, cbar=True, cbar_ax=cax, cbar_kws=dict(ticks=[0,9], format=LowHighFormatter(), label='Likelihood of random finding', use_gridspec=False, **kw))
+        fig1 = sns.kdeplot(xprop, yprop, shade=True, ax=ax, cmap=col, cbar=True, cbar_ax=cax, cbar_kws=dict(ticks=LowHighLocator(), format=LowHighFormatter(), label='Likelihood of random finding', use_gridspec=False, **kw))
 
         cax.xaxis.set_ticks_position('bottom')
 
