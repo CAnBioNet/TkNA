@@ -254,6 +254,7 @@ if __name__ == '__main__':
     # Merge the data types dict with the node properties df
     node_props = node_props.reset_index()
     node_props['Data_type'] = node_props['index'].map(nw_w_types)
+    node_props.dropna(inplace=True)
     unique_data_types = list(node_props.Data_type.unique())
 
 
