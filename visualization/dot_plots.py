@@ -292,8 +292,8 @@ if __name__ == '__main__':
         #print(node_props_one_type)
 
         data_type_figure = plot_scatter(jitter_choice, propx, propy, node_props_one_type, None, sns.color_palette()[color_counter])
-        data_type_figure.figure.savefig(plotdir + propx + "_v_" + propy + "_distribution_" + i + "_nodes_only.png", bbox_inches='tight')
-        print("Plot saved: " + plotdir + propx + "_v_" + propy + "_distribution_" + i + "_nodes_only.png has been saved")
+        data_type_figure.figure.savefig(plotdir + propx + "_v_" + propy + "_distribution_" + str(i) + "_nodes_only.png", bbox_inches='tight')
+        print("Plot saved: " + plotdir + propx + "_v_" + propy + "_distribution_" + str(i) + "_nodes_only.png has been saved")
 
         dt_fig = data_type_figure.get_figure()
         dt_fig.clf()
@@ -379,15 +379,15 @@ if __name__ == '__main__':
         nnodes_to_plot = len(top_x_sorted_node_props_sub)
 
         if nnodes_to_plot < 3:
-            print("\nToo few nodes of type " + i + " to plot in " + propx + " v " + propy + " plot. Plot will not be made. Please enter a number 3 or greater.\n")
+            print("\nToo few nodes of type " + str(i) + " to plot in " + propx + " v " + propy + " plot. Plot will not be made. Please enter a number 3 or greater.\n")
         else:
             scplot = plot_scatter(jitter_choice, propx, propy, top_x_sorted_node_props_sub, None, sns.color_palette()[color_counter])
             scplot = add_text(top_x_sorted_node_props_sub, propx, propy, scplot)
 
-            scplot.figure.savefig(plotdir + propx + "_v_" + propy + "_distribution_top_" + str(nnodes_to_plot) + "_nodes_" + i + "_only.png", bbox_inches='tight')
+            scplot.figure.savefig(plotdir + propx + "_v_" + propy + "_distribution_top_" + str(nnodes_to_plot) + "_nodes_" + str(i) + "_only.png", bbox_inches='tight')
 
 
-            print("Plot saved: " + plotdir + propx + "_v_" + propy + "_distribution_top_" + str(nnodes_to_plot) + "_nodes_" + i + "_only.png")
+            print("Plot saved: " + plotdir + propx + "_v_" + propy + "_distribution_top_" + str(nnodes_to_plot) + "_nodes_" + str(i) + "_only.png")
             dt_fig_top = scplot.get_figure()
             dt_fig_top.clf()
 
