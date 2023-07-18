@@ -50,6 +50,14 @@ def intakeAggregateData(dataDir):
 		organismCoords = ["{}_{}".format(experimentName, organism.item()) for organism in organismCoords]
 
 		experimentData = experimentData.assign_coords({"organism": organismCoords, "treatment": ("organism", treatmentCoords), "experiment": ("organism", experimentCoords)})
+
+		negatives = experimentData < 0
+		if negatives.any():
+			whereNegative = numpy.argwhere(negatives.data)
+			measurableAxis = negatives.get_axis_num("measurable")
+			negativeMeasurables = {negatives.measurable.data[coords[measurableAxis]] for coords in whereNegative}
+			raise Exception(f"Cannot have negative values in data, but negative values are present in experiment {experimentName} for measurables: {negativeMeasurables}")
+
 		allExperimentData.append(experimentData)
 
 		if "pairingsFile" in experimentMetadata:
