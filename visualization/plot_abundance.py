@@ -63,7 +63,7 @@ if __name__ == '__main__':
         for k,v in colordict.items():
             print(k,v)
 
-        ax = sns.boxplot(data=concat_df, x=grouping, y=nodename, hue=group_by, palette = colordict)
+        ax = sns.boxplot(data=concat_df, x=grouping, y=nodename, hue=group_by, palette = colordict, fliersize=0)
         handles, labels = ax.get_legend_handles_labels()
         # ax.legend(handles=handles,
         #     labels=treatments,
