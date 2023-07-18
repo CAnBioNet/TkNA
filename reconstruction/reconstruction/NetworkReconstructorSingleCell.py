@@ -235,7 +235,7 @@ def calculateCorrelations(config, filteredData, cores=None):
 		n = treatmentData.sizes["organism"]
 
 		# Check that all ranks are distinct before using formula
-		modes = stats.mode(ranked, axis=organismAxis)
+		modes = stats.mode(ranked, axis=organismAxis, keepdims=False)
 		spearmanKwargs["useCoefficient"] = numpy.all(modes.count == 1)
 		if spearmanKwargs["useCoefficient"]:
 			# From https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient#Definition_and_calculation
