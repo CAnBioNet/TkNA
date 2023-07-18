@@ -14,7 +14,7 @@ Python version: 3.8.10
 		
 # 3. Analyze the network
 	(OPTIONAL) - Generate partitions for use in BiBC calculation using either the Louvain algorithm or Infomap
-		python ./analysis/louvain_partition.py --pickle ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output/network.pickle
+		python ./analysis/louvain_partition.py --network ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output/network.pickle --network-format pickle --map example_datasets_and_commands/microbiome_and_phenotype/input/type_map.csv
 
 		python ./analysis/infomap_assignment.py --pickle ./example_datasets_and_commands/microbiome_and_phenotype/output/network_output/network.pickle
 		
