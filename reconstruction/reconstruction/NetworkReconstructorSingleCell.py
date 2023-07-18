@@ -533,6 +533,11 @@ class NetworkReconstructorSingleCell(NetworkReconstructor):
 		allData["cellData"] = data.get_table("cellData")
 		allData["correctedDifferencePValues"] = data.get_table("correctedDifferencePValues")
 		allData["foldChanges"] = data.get_table("foldChanges")
-		stages = [stageCombineCellsByType, stageCombineDifferencePValues, stageFilterOnDifferences, stageComputeCorrelations, stageFilterOnCorrelations, stageFilterToExpectedEdges, stageCreateEdgeList]
+
+		stages = [stageCombineCellsByType, stageCombineDifferencePValues, stageFilterOnDifferences, stageComputeCorrelations, stageFilterOnCorrelations]
+		if not config["noPUC"]:
+			stages.append(stageFilterToExpectedEdges)
+		stages.append(stageCreateEdgeList)
+
 		return self.runPipeline(stages, allData, **kwargs)
 

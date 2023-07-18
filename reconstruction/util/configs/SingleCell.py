@@ -58,6 +58,7 @@ singleCellConfigSpec = Config([
 	TypedConfigItem("correctCorrelationPValuesAfterConsistencyFiltering", bool, default=False),
 	TypedConfigItem("metatreatments", dict, default=None),
 	TypedConfigItem("metatreatmentsToCombine", list, default=None),
-	TypedConfigItem("metatreatmentsForDirectionFiltering", list, default=None)
+	TypedConfigItem("metatreatmentsForDirectionFiltering", list, default=None),
+	TypedConfigItem("noPUC", bool, default=False)
 ], validateConfig)
 

@@ -710,6 +710,11 @@ class NetworkReconstructorAggregate(NetworkReconstructor):
 		# TODO: Use a Dataset for this too
 		allData = {}
 		allData["originalData"] = data.get_table("originalData")
-		stages = [computeDifferences, filterOnDifferences, computeCorrelations, filterOnCorrelations, filterToExpectedEdges, createEdgeList]
+
+		stages = [computeDifferences, filterOnDifferences, computeCorrelations, filterOnCorrelations]
+		if not config["noPUC"]:
+			stages.append(filterToExpectedEdges)
+		stages.append(createEdgeList)
+
 		return self.runPipeline(stages, allData, **kwargs)
 
