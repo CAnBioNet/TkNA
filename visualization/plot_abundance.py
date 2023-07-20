@@ -40,8 +40,6 @@ if __name__ == '__main__':
         type_dict_p2 = nw.set_index('partner2').to_dict()['type2']
         all_nodes_dict = {**type_dict_p1,**type_dict_p2}
 
-        # print(all_nodes_dict)
-
         return(all_nodes_dict)
 
     def plot_abund(dat, grouping, nodename, group_by, colordict):
@@ -60,27 +58,13 @@ if __name__ == '__main__':
 
         sns.stripplot(data=concat_df, x=grouping, y=nodename, hue=group_by, dodge=True, color='Black')
 
-        for k,v in colordict.items():
-            print(k,v)
-
         ax = sns.boxplot(data=concat_df, x=grouping, y=nodename, hue=group_by, palette = colordict, fliersize=0)
         handles, labels = ax.get_legend_handles_labels()
-        # ax.legend(handles=handles,
-        #     labels=treatments,
-        #     loc='upper right', handlelength=4,
-        #     colorhandler_map={tuple: HandlerTuple(ndivide=None)})
 
         # Find the number of unique groups
         num_groups = len(dat[group_by].unique())
 
         plt.legend(handles[num_groups:], labels[num_groups:], bbox_to_anchor=(0.02, 0.98), loc='upper left', borderaxespad=0.)
-
-        #ax.legend_.remove()
-        # handles, labels = ax.get_legend_handles_labels()
-        # ax.legend(handles=handles,
-        #           labels=treatments,
-        #           loc='upper right', handlelength=4,
-        #           handler_map={tuple: HandlerTuple(ndivide=None)})
 
         return(ax)
 
@@ -109,9 +93,6 @@ if __name__ == '__main__':
     if testing:
         # node_props = "node_properties_modified.txt"
         pick = "inputs_for_downstream_plots.pickle"
-        # network_file = "network_output_comp.csv"
-        # top_abund_prop = "BiBC"
-        # node_type = "pheno"
         abund_data = ["./fold/expt1_new.csv", "./fold/expt2_new.csv", "./fold/expt3_new.csv", "./fold/expt4_new.csv"]
         metadata = ["./fold/group_map_1.csv", "./fold/group_map_2.csv", "./fold/group_map_3.csv", "./fold/group_map_4.csv"]
         color_group = "Treatment"
@@ -125,10 +106,8 @@ if __name__ == '__main__':
 
         requiredArgGroup  = parser.add_argument_group('Required arguments')
         requiredArgGroup.add_argument("--pickle", type=str, help="inputs_for_downstream_plots.pickle file output by dot_plots.py", required=True)
-        # requiredArgGroup.add_argument("--network_file", type=str, help="network_output_comp.csv file output by to_csv.py", required=True)
         requiredArgGroup.add_argument("--abund-data", type=str, nargs = '+', dest="abund_data", help="List of data files containing expressions/abundances, these are the original data files used for intake_data.py", required=True)
         requiredArgGroup.add_argument("--metadata", type=str, nargs = '+', help="List of metadata files containing Experiment/Treatment columns, these are the original metadata files used for intake_data.py", required=True)
-        #requiredArgGroup.add_argument("--color-group", type=str, default='Treatment', choices=['Treatment', 'Experiment'], dest="color_group", help="Variable to color the plot by", required=True)
         requiredArgGroup.add_argument("--x-axis", type=str, default="Experiment", choices=['Treatment', 'Experiment'], dest="x_axis", help="Variable you wish to group the data by on the x-axis.", required=True)
         requiredArgGroup.add_argument("--group-names", type=str, nargs = '+', dest="group_names",  help="A list of the names of the treatment groups; must match the order of names in --group-colors. For example, if 'Experiment' is chosen for --x-axis then list the names of the experimental groups in --metadata here. And if 'Treatment' is chosen for --x-axis then list the names of the experiment files, without filename extensions, that were used in --abund-data.", required=True)
         requiredArgGroup.add_argument("--group-colors", type=str, nargs = '+', dest="group_colors",  help="A list of the names of the colors to use for each specified group; must match the order of colors in --group-names. Accepted colors can be found at https://matplotlib.org/stable/gallery/color/named_colors.html", required=True)
@@ -139,26 +118,10 @@ if __name__ == '__main__':
         optionalArgGroup.add_argument("--nodes-to-plot", type=str, nargs='+', dest="nodes_to_plot", help="Specify any specific node (or a list of node) to plot the abundance of")
 
 
-        # parser = argparse.ArgumentParser(description="Example command: python plot_abundance.py inputs_for_downstream_plots.pickle --abund_data Expt1.csv Expt2.csv --metadata Expt1_meta.csv Expt2_meta.csv --color_group Treatment --x_axis_abund Experiment --nodes_to_plot geneABC geneDEF")
-        # # Args for abundance/expression plots
-        # parser.add_argument("pickle", type=str, help="inputs_for_downstream_plots.pickle file output by dot_plots.py")
-        # parser.add_argument("network_file", type=str, help="network_output_comp.csv file output by to_csv.py")
-        # parser.add_argument("--abund_data", type=str, nargs = '+', help="List of data files containing expresions/abundances, these are the original data files used for intake_data.py", required=True)
-        # parser.add_argument("--metadata", type=str, nargs = '+', help="List of metadata files containing Experiment/Treatment columns, these are the original metadata files used for intake_data.py", required=True)
-        # # parser.add_argument("--top_abund_prop", type=str, help="Property from node_properties.txt to select top nodes for abundance plots.  Name must match property name in node_properties.txt")
-        # # parser.add_argument("--node_type", type=str, help="The node type (from network_output_comp.csv) to subset for before finding top nodes")
-        # parser.add_argument("--color_group", type=str, default='Treatment', choices=['Treatment', 'Experiment'], help="Variable to color the plot by", required=True)
-        # parser.add_argument("--x_axis_abund", type=str, default="Experiment", choices=['Treatment', 'Experiment'], help="Variable you wish to group the data by", required=True)
-        # parser.add_argument("--nodes_to_plot", type=str, nargs='+', help="Optional; User can specify any specific node (or a list of node) they wish to plot the abundance of")
-
-
         args = parser.parse_args()
         pick = args.pickle
-        # network_file = args.network_file
         abund_data = args.abund_data
         metadata = args.metadata
-        # node_type = args.node_type
-        # color_group = args.color_group
         x_axis_abund = args.x_axis
         color_group = ''
         if x_axis_abund == 'Experiment':
@@ -168,9 +131,6 @@ if __name__ == '__main__':
         else:
             raise Exception("Error: Please select either 'Experiment' or 'Treatment' for how to group your data on the resulting abundance plot.")
         user_node_list = args.nodes_to_plot
-
-    # nw_df = pd.read_csv(network_file)
-    # nw_w_types = assign_type(nw_df)
 
     # Rename the input abundance data if it contains a path to a file
     abund_data_renamed = rename_data(abund_data)
@@ -188,20 +148,6 @@ if __name__ == '__main__':
     top_nodes_per_type = pload[2] # not used in this script
     plotdir = pload[3] # location of previously created plots directory
 
-
-    # # Loop through each unique node type and extract just the top nodes for each type
-    # # subset df for just the current data type
-    # sub = node_props[node_props['Data_type']  == node_type]
-
-    # # Find the top nodes
-    # try:
-    #     sub = sub.sort_values(by=top_abund_prop, ascending=False)
-    #     sub_top = sub.head(top_abund_num)
-    #     top_nodes = list(sub_top['index'])
-
-    # except:
-    #     raise Exception("Could not create plot for " + node_type + " data type based on top " + str(top_abund_num) + " " + top_abund_prop + " nodes. Please ensure ")
-
     count = 0
 
     # Final list of dfs that are subset by treatment and experiment
@@ -209,24 +155,12 @@ if __name__ == '__main__':
 
     # For each abundance data csv and metadata...
     while count < len(abund_data):
-        #print(abund_data[count])
 
         # Subset abundance data for just top nodes
         ab = pd.read_csv(abund_data[count])
 
 
         all_node_names = list(ab['ID'])
-
-        # print("BEFORE")
-        # print(ab_sub)
-        # count += 1
-
-        # ab['ID'] =  pd.Categorical(ab.ID, categories = list(ab['ID']), ordered = True)
-        # print('AFTER')
-        # ab = ab.sort_values(by='ID')
-        # print(ab_sub)
-        # count += 1
-
         met = pd.read_csv(metadata[count], header=None, names = ['sample_name', 'Treatment'])
         treatments = list(met['Treatment'].unique())
 
@@ -236,7 +170,6 @@ if __name__ == '__main__':
 
         # Create a data frame that contains the abundance/expression of each top parameter per treatment per experiment
         for k,v in grouped_dict.items():
-            # print(k,v)
             col_subset = ab[ab.columns & v]
 
             col_subset = col_subset.T
@@ -247,11 +180,8 @@ if __name__ == '__main__':
             head_col_subset.extend(all_node_names)
             head_col_subset.append('Treatment')
             head_col_subset.append('Experiment')
-            # print(head_col_subset)
 
-            # head_col_subset = top_nodes
             col_subset.set_axis(head_col_subset, axis=1,inplace=True)
-            # print(col_subset)
 
             # append this new df to a list. We will then combine all dfs in that list
             subset_dfs.append(col_subset)
@@ -269,7 +199,6 @@ if __name__ == '__main__':
         for treatment in args.group_names:
             coldict[treatment] = args.group_colors[color_index]
             color_index += 1
-    #print(coldict)
 
 
     # if the user has entered any specific nodes to plot, plot them
@@ -281,16 +210,11 @@ if __name__ == '__main__':
             print("Plot saved: " + plotdir + "abundance_of_" + i + "_grouped_by_" + x_axis_abund + ".png")
             plot.figure.clf()
 
-    # Plot all the nodes that were in the zoomed in 'per-type' plots of dot_plots.py. Note that by default, 10 nodes per group will be plotted, but that changes if there are not 10 nodes in that group in the network, or if the user specified a smaller number via the --top_num_per_type argument in dot_plots.py
+    # Plot all the nodes that were in the zoomed in 'per-type' plots of dot_plots.py. Note that by default, 10 nodes per group 
+    # will be plotted, but that changes if there are not 10 nodes in that group in the network, or if the user specified a smaller 
+    # number via the --top_num_per_type argument in dot_plots.py
     for i in top_nodes:
-        # print(i)
-        #sns.set_style(style='white')
-        #sns.set_context("notebook")
-        #print(concat_df)
-        #print(x_axis_abund)
-        #print(i)
-        #print(color_group)
-        #print(coldict)
+
 
         plot =  plot_abund(concat_df, x_axis_abund, i, color_group, coldict)
         plot.figure.savefig(plotdir + "abundance_of_" + i + "_grouped_by_" + x_axis_abund + ".png", bbox_inches='tight')
