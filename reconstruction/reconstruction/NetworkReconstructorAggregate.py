@@ -392,7 +392,7 @@ def calculateCorrelations(config, filteredData, cores=None):
 
 	def preparePearson(treatmentData):
 		# If values are constant, the scipy will give a correlation of NaN, which is what we want (filter out edge), so this warning can be safely ignored
-		warnings.filterwarnings("ignore", category=stats.PearsonRConstantInputWarning)
+		warnings.filterwarnings("ignore", category=stats.ConstantInputWarning)
 		return None, None
 
 	correlationMethod = config["correlationMethod"]
