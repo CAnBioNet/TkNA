@@ -134,7 +134,8 @@ if __name__ == '__main__':
         requiredArgGroup.add_argument("--propy", default="BiBC", type=str, help="Node property to plot on Y-axis. Name must match property name in node_properties.txt", required=True)
         requiredArgGroup.add_argument("--top-num", default=10, type=int, dest="top_num", help="Number of nodes you want to zoom in to on the property v property plot", required=True)
         requiredArgGroup.add_argument("--top-num-per-type", type=int, dest="top_num_per_type", help="The number of nodes to plot for each data type when zoomed in on the dot plot", required=True)
-        requiredArgGroup.add_argument("--out-dir", dest="outdir", help="The number of nodes to plot for each data type when zoomed in on the dot plot", required=True)
+        requiredArgGroup.add_argument("--plot-dir", dest="plotdir", help="The number of nodes to plot for each data type when zoomed in on the dot plot", required=True)
+        requiredArgGroup.add_argument("--file-dir", dest="filedir", help="The number of nodes to plot for each data type when zoomed in on the dot plot", required=True)
 
         optionalArgGroup  = parser.add_argument_group('Optional arguments')
         optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
@@ -155,14 +156,22 @@ if __name__ == '__main__':
         top_pct = args.top_pct
         top_num_per_type = args.top_num_per_type
 
-    outdir = args.outdir
+    plotdir = args.plotdir
+    filedir = args.filedir
     
     # Correct the path if needed to the output dir
-    if not outdir[-1] == "/":
-        outdir = outdir + "/"
+    if not plotdir[-1] == "/":
+        plotdir = plotdir + "/"
         
-    if not os.path.exists(outdir):
-        os.makedirs(outdir)  
+    if not os.path.exists(plotdir):
+        os.makedirs(plotdir)  
+    
+    # Correct the path if needed to the output dir
+    if not filedir[-1] == "/":
+        filedir = filedir + "/"
+        
+    if not os.path.exists(filedir):
+        os.makedirs(filedir)  
 
     # import the file calc_network_properties creates and create a dictionary to store info into
     with open(node_props, newline='') as txtfile:
@@ -193,8 +202,8 @@ if __name__ == '__main__':
     plt.loglog(degrees, degree_freq,'go-', linestyle='None', markersize=10, color='black')
     plt.xlabel('Degree', fontsize=20)
     plt.ylabel('Frequency', fontsize=20)
-    plt.savefig(outdir + "degree_distribution_dotplot.png", bbox_inches='tight')
-    print("Plot saved:" + outdir + "degree_distribution_dotplot.png")
+    plt.savefig(plotdir + "degree_distribution_dotplot.png", bbox_inches='tight')
+    print("Plot saved:" + plotdir + "degree_distribution_dotplot.png")
 
     plt.clf()
 
@@ -222,8 +231,8 @@ if __name__ == '__main__':
 
     # Create plot for all data on one figure
     db_figure = plot_scatter(propx, propy, node_props, node_props.Data_type, None)
-    db_figure.figure.savefig(outdir + propx + "_v_" + propy + "_distribution.png", bbox_inches='tight')
-    print("Plot saved: " + outdir + propx + "_v_" + propy + "_distribution.png")
+    db_figure.figure.savefig(plotdir + propx + "_v_" + propy + "_distribution.png", bbox_inches='tight')
+    print("Plot saved: " + plotdir + propx + "_v_" + propy + "_distribution.png")
 
     degbibc_fig = db_figure.get_figure()
     degbibc_fig.clf()
@@ -245,8 +254,8 @@ if __name__ == '__main__':
         node_props_one_type = node_props[node_props['Data_type'].isin([i])]
 
         data_type_figure = plot_scatter(propx, propy, node_props_one_type, None, sns.color_palette()[color_counter])
-        data_type_figure.figure.savefig(outdir + propx + "_v_" + propy + "_distribution_" + str(i) + "_nodes_only.png", bbox_inches='tight')
-        print("Plot saved: " + outdir + propx + "_v_" + propy + "_distribution_" + str(i) + "_nodes_only.png has been saved")
+        data_type_figure.figure.savefig(plotdir + propx + "_v_" + propy + "_distribution_" + str(i) + "_nodes_only.png", bbox_inches='tight')
+        print("Plot saved: " + plotdir + propx + "_v_" + propy + "_distribution_" + str(i) + "_nodes_only.png has been saved")
 
         dt_fig = data_type_figure.get_figure()
         dt_fig.clf()
@@ -289,11 +298,11 @@ if __name__ == '__main__':
     add_text(sorted_node_props_top, propx, propy, degbibc)
 
     if top_pct:
-        degbibc.figure.savefig(outdir + propx + "_v_" + propy + "_distribution_top_" + str(top_pct_num) + "_percent.png", bbox_inches='tight')
-        print("Plot saved: " + outdir + propx + "_v_" + propy + "_distribution_top_" + str(top_pct_num) + "_percent.png")
+        degbibc.figure.savefig(plotdir + propx + "_v_" + propy + "_distribution_top_" + str(top_pct_num) + "_percent.png", bbox_inches='tight')
+        print("Plot saved: " + plotdir + propx + "_v_" + propy + "_distribution_top_" + str(top_pct_num) + "_percent.png")
     else:
-        degbibc.figure.savefig(outdir + propx + "_v_" + propy + "_distribution_top_" + str(top_num) + "_nodes.png", bbox_inches='tight')
-        print("Plot saved: " + outdir + propx + "_v_" + propy + "_distribution_top_" + str(top_num) + "_nodes.png")
+        degbibc.figure.savefig(plotdir + propx + "_v_" + propy + "_distribution_top_" + str(top_num) + "_nodes.png", bbox_inches='tight')
+        print("Plot saved: " + plotdir + propx + "_v_" + propy + "_distribution_top_" + str(top_num) + "_nodes.png")
 
     degbibc_fig_small = degbibc.get_figure()
     degbibc_fig_small.clf()
@@ -328,10 +337,10 @@ if __name__ == '__main__':
             scplot = plot_scatter(propx, propy, top_x_sorted_node_props_sub, None, sns.color_palette()[color_counter])
             scplot = add_text(top_x_sorted_node_props_sub, propx, propy, scplot)
 
-            scplot.figure.savefig(outdir + propx + "_v_" + propy + "_distribution_top_" + str(nnodes_to_plot) + "_nodes_" + str(i) + "_only.png", bbox_inches='tight')
+            scplot.figure.savefig(plotdir + propx + "_v_" + propy + "_distribution_top_" + str(nnodes_to_plot) + "_nodes_" + str(i) + "_only.png", bbox_inches='tight')
 
 
-            print("Plot saved: " + outdir + propx + "_v_" + propy + "_distribution_top_" + str(nnodes_to_plot) + "_nodes_" + str(i) + "_only.png")
+            print("Plot saved: " + plotdir + propx + "_v_" + propy + "_distribution_top_" + str(nnodes_to_plot) + "_nodes_" + str(i) + "_only.png")
             dt_fig_top = scplot.get_figure()
             dt_fig_top.clf()
 
@@ -341,7 +350,7 @@ if __name__ == '__main__':
     all_top_nodes_flattened = [val for sublist in all_top_nodes for val in sublist]
     pick_list.append(all_top_nodes_flattened) # for plotting abundances
     pick_list.append(all_top_nodes_dict) # for plotting density plots per type
-    pick_list.append(outdir)
+    pick_list.append(plotdir)
 
-    pickle.dump(pick_list, open(outdir + "inputs_for_downstream_plots.pickle", "wb")) # dump node_props to pickle for use in abundance code
+    pickle.dump(pick_list, open(filedir + "inputs_for_downstream_plots.pickle", "wb")) # dump node_props to pickle for use in abundance code
 
