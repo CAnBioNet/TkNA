@@ -1,7 +1,15 @@
-# This script will take as input two subnetworks, then calculate all shortest paths between 
-# each pair of nodes in the two subnetworks. Output is a comma separated list of source 
-# and target nodes, along with their pathlength. For each pair of nodes, there can be 
-# multiple shortest paths. Each of these can be retained if specified by the user.
+"""
+Author: Nolan K Newman <newmanno@oregonstate.edu>
+Last updated: 7/19/23
+
+Written/tested in Python v3.8.10
+
+Description:
+Takes a network and calculates the number of shortest paths between two user-defined subnetworks. Output is a comma separated list of source 
+and target nodes, along with their pathlength. For each pair of nodes, there can be multiple shortest paths. Each of these can be retained if 
+specified by the user.
+
+"""
 import pickle 
 import argparse
 import networkx as nx
@@ -9,7 +17,6 @@ import numpy as np
 import re
 import csv
 import os
-# from networkx import all_shortest_paths
 
 if __name__ == '__main__':
     
@@ -58,13 +65,18 @@ if __name__ == '__main__':
         csvfile.close()                
         return(G)    
 
-
-    # Function that takes as input the node_type list from the user and creates a 
-    # dictionary of the type for each node. Then, for the nodes that are in the 
-    # network input file, it assigns types to them based on the typing from the 
-    # node_type file. It then outputs 2 dictionaries of nodes, one for each of the
-    # user-specifed node types 
     def assign_node_type(node_list_file, gc_nodes, type1, type2):
+        '''
+        Function that takes as input the node_type list from the user and creates a dictionary of the type for each node. Then, for the nodes
+        that are in the netowrk input file, it assigns types to them based on the typing from the node_type file. It then outputs 2 dictionaries
+        of nodes. 
+        
+         Arguments:
+             - node_list_file: input file from user
+             - gc_nodes: list of nodes in the giant component
+             - type1: the type of nodes in group 1
+             - type2: the type of nodes in group 2
+        '''    
         
         subnet_dict = dictionary()
         
@@ -87,11 +99,9 @@ if __name__ == '__main__':
             if nodeGroup not in list(node_type_dict.values()):
                 raise Exception(f"Specified node group \"{nodeGroup}\" not in node map")
                 
-        # Generate a list of each specified node type in the giant component.
-        # Search the previously created dictionary and, for each value of type1 (i.e. 'otu') 
-        # in the second column of the input file, assign the corresponding 
-        # key to type1_list, then do the same thing for each type2 (i.e. 'pheno') value and 
-        # its corresponding list
+        # Generate a list of each specified node type in the giant component. Search the previously created dictionary and, for each 
+        # value of type1 (i.e. 'otu') in the second column of the input file, assign the corresponding key to type1_list, then do the 
+        # same thing for each type2 (i.e. 'pheno') value and its corresponding list
         for key,value in node_type_dict.items():
             try:
                 if re.search(type1, value):
@@ -101,28 +111,11 @@ if __name__ == '__main__':
             except:
                 print("Unexpected value in the 'type' column of node_type input file.")
 
-        # From the otu_list/pheno_list, only take the nodes that are present 
-        # in the giant component. This is what the intersect1d function does. 
-        # This is because I don't want to generate a new node type file for 
-        # every network and this way I can keep using the same one.
-        # node_pairs_whole_nw = len(type1_list) * len(type2_list)       
-                
-        # print("\nNumber of nodes in " + node_type1 + " group: " + str(len(type1_list)))
-        # print("Number of nodes in " + node_type2 + " group: " + str(len(type2_list)))
-        # print("Total number of pairs between the two groups in the entire network: " + str(node_pairs_whole_nw))
-
+        # From the otu_list/pheno_list, only take the nodes that are present in the giant component. This is what the 
+        # intersect1d function does. This prevents the need to generate  a new node type file for every network.                
         type1_for_dict = np.intersect1d(type1_list, gc_nodes)
-        #print("\nCommon nodes between node_type1 input and giant component:")
-        #print(type1_for_dict)
-
         type2_for_dict = np.intersect1d(type2_list, gc_nodes)
-        #print("\nCommon nodes between node_type2 input and giant component:")
-        #print(type2_for_dict)
 
-        # Add the nodes from node_type1 and node_type2 that are exclusive to 
-        # the network to their respective dictionaries, then return the 
-        # dictionaries and use them to call the 
-        # restricted_betweenness_centrality function
         subnet_dict.add("Type1", type1_for_dict)
         subnet_dict.add("Type2", type2_for_dict)
         return(subnet_dict)
@@ -138,31 +131,31 @@ if __name__ == '__main__':
         return all_sp
         
     # Main driver of the code
-    parser = argparse.ArgumentParser(description="Example command: python find_all_shortest_paths_bw_subnets.py <network.pickle> --node-map <map.csv> --node-groups gene pheno", add_help=False)
+    parser = argparse.ArgumentParser(description="Example command: python ./analysis/find_all_shortest_paths_bw_subnets.py --network <file.pickle> --network-format <format> --map <map.csv> --node-groups <group1> <group2> --out-dir <directory>", add_help=False)
 
-    requiredArgGroup  = parser.add_argument_group('Required arguments')        
+    requiredArgGroup = parser.add_argument_group('Required arguments')        
     requiredArgGroup.add_argument("--network", type=str, help="The path to the network file, either in .pickle or .csv format; see --network-format", required=True)
     requiredArgGroup.add_argument("--network-format", type=str, dest="network_format", choices=['pickle', 'csv'], help="Network file; Either use 'pickle' if you have already created the network.pickle file from calc_network_properties.py, or 'csv' if the network was reconstructed using an alternative pipeline (must be in .csv format and have 'partner1' and 'partner2' as the headers for the two node columns)", required=True)   
-    requiredArgGroup.add_argument("--node-map", type=str, dest="node_map", help="Mapping file (csv) of nodes and their subnetworks", required=True)
+    requiredArgGroup.add_argument("--map", type=str, help="Mapping file (csv) of nodes and their subnetworks", required=True)
     requiredArgGroup.add_argument("--node-groups", nargs = 2, dest="node_groups", help = "The two groups in the mapping file you want to find the shortest paths between", required=True)
+    requiredArgGroup.add_argument("--out-dir", type=str, dest = "outdir", help="Path to output directory", required=True)
 
     optionalArgGroup  = parser.add_argument_group('Optional arguments')        
     optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 
-    # parser = argparse.ArgumentParser(description='Example: python find_all_shortest_paths_bw_subnets.py <network.pickle> --node_map <map.csv> --node_groups gene pheno')
-    # parser.add_argument("network", help = 'pickled network file from assess_network.py')
-    # parser.add_argument("--node_map", help = 'Mapping file (csv) of nodes and their subnetworks')
-    # parser.add_argument("--node_groups", nargs = 2, help = 'The two groups in the mapping file you want to find the shortest paths between')
-
     args = parser.parse_args()
 
     # set command arguments as variables
-    map = args.node_map
+    map = args.map
     node_type1 = args.node_groups[0]
     node_type2 = args.node_groups[1]
 
-    filedir = os.path.dirname(os.path.abspath(args.network))
-
+    outdir = args.outdir
+    if not outdir[-1] == "/":
+        outdir = outdir + "/"
+        
+    if not os.path.exists(outdir):
+        os.makedirs(outdir)  
         
     # Load in the network
     if args.network_format == 'pickle':
@@ -180,16 +173,14 @@ if __name__ == '__main__':
         network_name = args.network[:-4] # remove the csv extension from file name      
         network_name = network_name.split('/')[-1]
 
-    filepath_nw_name = filedir + "/" + network_name
+    filepath_nw_name = outdir + network_name
     print(filepath_nw_name)
 
     # Find only the giant component
     gc = max(connected_component_subgraphs(G), key=len)
     gc_nodes = gc.nodes()
 
-    # Call assign_node_types to find the nodes belonging to the two subnetworks
-    # takes mapping file, the nodes in the gc, and the type of each node 
-    # (from the mapping file) as input, then assigns 
+    # find the nodes belonging to the two subnetworks
     two_subnets = assign_node_type(map, gc_nodes, node_type1, node_type2) 
     
     gc_pairs = len(two_subnets['Type1']) * len(two_subnets['Type2'])
@@ -209,15 +200,17 @@ if __name__ == '__main__':
                 sp_len_and_num_sp = spath + "," + str(len(list(sp_nodes))) # Use len(list()) to find how many generators were created, then append
                 out_file.write(sp_len_and_num_sp + "\n") # write to file
 
-
-        # Do the same thing, but this time, find the nodes in the shortest path
-        #out_file.write("\nNumber of shortest paths\n")
-        #for x in two_subnets['Type1']:
-        #    for y in two_subnets['Type2']:
-        #        sp_nodes = number_shortest_paths(G, x, y)
-        #        num_sp = len(list(sp_nodes))
-        #        out_file.write(x + "," + y + "," + str(num_sp) + "\n")
-
+# =============================================================================
+#   NOTE: This functionality should work, but will be implemented later.
+#
+#         # Do the same thing, but this time, find the nodes in the shortest path
+#         out_file.write("\nNumber of shortest paths\n")
+#         for x in two_subnets['Type1']:
+#             for y in two_subnets['Type2']:
+#                 sp_nodes = number_shortest_paths(G, x, y)
+#                 num_sp = len(list(sp_nodes))
+#                 out_file.write(x + "," + y + "," + str(num_sp) + "\n")
+# =============================================================================
         
         # Overwrite any previous file with the same name instead of appending
         out_file.truncate()
