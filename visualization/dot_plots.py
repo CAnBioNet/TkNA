@@ -13,6 +13,7 @@ Created on Thu Nov  3 11:52:11 2022
 @author: Nolan K Newman <newmanno@oregonstate.edu>
 """
 
+from adjustText import adjust_text
 import argparse
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -90,25 +91,22 @@ if __name__ == '__main__':
         return(degbibc)
 
     # Add dots on top of density plot
-    def add_text(df, xchoice, ychoice, fig):
+    def add_text(df, xchoice, ychoice, ax):
         '''
-        Function that creates a dictionary keyed on node name, with a value of a list of the values calculated for the two user-selected properties, default x is degree, y is BiBC
+        Function that adds text to kde plot from a dictionary keyed on node name, with a value of a list of the values calculated for the two user-selected properties
 
         Arguments:
             - df: data frame pre-filtered to contain desired nodes in 'index' column containing node names and other columns containing the x and y properties
             - xchoice: user-defined property to plot on the X-axis
             - ychoice: user-defined property to plot on the Y-axis
-            - fig: seaborn scatterplot figure to add text labels to
+            - fig: matplotlib axis to add text labels to
         '''
-        name_prop_prop_dict = {}
-
+        texts = [] # list of text locations to avoid overlapping with labels
         for index, row in df.iterrows():
-            name_prop_prop_dict[row[0]] = [row[xchoice], row[ychoice]]
-
-        for k,v in name_prop_prop_dict.items():
-            fig.annotate(str(k), (v[0],v[1]), fontsize=18)
-
-        return(fig)
+            nodename = row[0]
+            texts.append(ax.text(row[xchoice], row[ychoice], nodename, ha='center', va='center', fontsize=14))
+        adjust_text(texts, ax=ax, avoid_points=False, avoid_text=False)
+        return(ax)
 
     testing = False
 
