@@ -28,7 +28,7 @@ import matplotlib.pyplot as plt
 
 ####### Get user input ########
 
-parser = argparse.ArgumentParser(description="Example command: python calc_network_properties.py --network <csv network file> --bibc --bibc-groups node_types --bibc-calc-type bibc --node-map <node map csv> --node-groups micro pheno", add_help=False)
+parser = argparse.ArgumentParser(description="Example command: python ./analysis/calc_network_properties.py --network <file.csv> --bibc --bibc-groups <choice> --bibc-calc-type <choice> --map <file.csv> --node-groups <group 1> <group 2> --out-dir <directory>", add_help=False)
 
 requiredArgGroup = parser.add_argument_group('Required arguments')        
 requiredArgGroup.add_argument("--network", help= "The network file in csv format containing the reconstructed network. Must have columns called 'partner1' and 'partner2'")

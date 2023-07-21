@@ -97,7 +97,7 @@ if __name__ == '__main__':
         pq = [p,Q]
         return(pq)            
 
-    parser = argparse.ArgumentParser(description="Example command: python louvain_partition.py --network <file.csv> --network-format csv --map <map.csv>", add_help=False)
+    parser = argparse.ArgumentParser(description="Example command: python louvain_partition.py --network <file.csv> --network-format csv --map <map.csv> --out-dir <directory>", add_help=False)
 
     requiredArgGroup = parser.add_argument_group('Required arguments')   
     requiredArgGroup.add_argument("--network", type=str, help="The path to the network file, either in .pickle or .csv format; see --network-format", required=True)

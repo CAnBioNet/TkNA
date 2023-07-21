@@ -124,7 +124,7 @@ if __name__ == '__main__':
     else:
         print("")
 
-        parser = argparse.ArgumentParser(description="Example command: python dot_plots.py --pickle network.pickle --node_props node_properties_modified.txt --network_file network_output_comp.csv --propx BiBC --propy Node_degrees --top_num 5 --top_num_per_type 3", add_help=False)
+        parser = argparse.ArgumentParser(description="Example command: python ./visualization/dot_plots.py --pickle <file.pickle> --node-props  <file.txt> --network-file <file.csv> --propx BiBC --propy Node_degrees --top-num <integer> --top-num-per-type <inte-ger> --plot-dir <directory> --file-dir <directory>", add_help=False)
 
         requiredArgGroup  = parser.add_argument_group('Required arguments')
         requiredArgGroup.add_argument("--pickle", type=str, help="Pickled network file output by calc_network_properties.py", required=True)

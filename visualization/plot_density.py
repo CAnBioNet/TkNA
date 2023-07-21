@@ -48,29 +48,11 @@ if __name__ == '__main__':
         plt.figure(figsize=(10,8))
 
         ax = plt.axes()
-        #cbaxes = inset_axes(ax, width="100%", height="10%", loc=8)
         cax, kw = mpl.colorbar.make_axes(ax, location="top", orientation="horizontal", pad=0.075)
 
         fig1 = sns.kdeplot(xprop, yprop, shade=True, ax=ax, cmap=col, cbar=True, cbar_ax=cax, cbar_kws=dict(ticks=LowHighLocator(), format=LowHighFormatter(), label='Likelihood of random finding', use_gridspec=False, **kw))
 
         cax.xaxis.set_ticks_position('bottom')
-
-
-        #fig1 = sns.kdeplot(xprop, yprop, shade=True, cmap=col)
-        #cb = mpl.colorbar.ColorbarBase(fig1, ticks=[0,9], format=LowHighFormatter(), label='Likelihood of random finding', orientation='horizontal')
-        #fig1.xaxis.set_ticks_position('top')
-
-        #fig1 = sns.kdeplot(xprop,yprop,shade=True,cmap=col, cbar=True, cbar_kws=dict(ticks = [0,9], label='Likelihood of random finding', use_gridspec = False, location = "top"))
-        #fig2 = sns.kdeplot(xprop,yprop,shade=True)
-
-
-        #cbar = fig1.collections[0].colorbar
-        #print(fig1)
-
-        #cbar.set_ticklabels(['Low', 'High'])
-
-        #plt.draw()
-
 
         return(fig1)
 
@@ -92,16 +74,11 @@ if __name__ == '__main__':
 
             texts_bibcdeg.append(ax.text(v[1], v[0], k + "\n" + dic_prob[k], ha='center', va='center', fontsize=12))
             bbox = dot.get_window_extent(ax.get_figure().canvas.get_renderer())
-            #bb_height_mult = 10000 * bbox.height
-            #bb_width_mult = 10000 * bbox.width
-            #bbox = mpl.transforms.Bbox([[bbox.xmin-bb_width_mult, bbox.ymin-bb_height_mult], [bbox.xmax+bb_width_mult, bbox.ymax+bb_height_mult]])
             bbox = bbox.expanded(1.1, 1.1)
             bboxes.append(bbox)
 
-        #print(bboxes)
         bkgnd_cols = mpl.cm.get_cmap('Reds')
         bkgnd_col = bkgnd_cols(13)
-        print(bkgnd_col)
 
         ax.set_facecolor(bkgnd_col)
         ax.grid(False)
@@ -137,15 +114,12 @@ if __name__ == '__main__':
     if testing:
         rand_net = "random_networks_synthesized_Nolan.csv"
         pick = "inputs_for_downstream_plots_Nolan.pickle"
-        # nnodes_density = 4
-        # nnodes_density_per_type = 3
-        # density_node_types = ['gene']
         bibc_name = "BiBC"
         nodes_to_plot = ['OTU_259506', 'fasting leptin']
 
     else:
         print("")
-        parser = argparse.ArgumentParser(description="Example command: python plot_density.py random_network_condensed.csv inputs_for_downstream_plots.pickle", add_help=False)
+        parser = argparse.ArgumentParser(description="Example command: python ./visualization/plot_density.py --rand-net <file.csv> --pickle <file.pickle> --bibc-name <name>", add_help=False)
 
         requiredArgGroup  = parser.add_argument_group('Required arguments')
         requiredArgGroup.add_argument("--rand-net", type=str, dest="rand_net", help="Random network file output by synthesize_network_stats.py", required=True)
@@ -156,22 +130,10 @@ if __name__ == '__main__':
         optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
         optionalArgGroup.add_argument("--nodes-to-plot", type=str, nargs='+', dest="nodes_to_plot", help="A list of nodes to plot on the density plot")
 
-
-        # parser = argparse.ArgumentParser(description="Example command: python plot_density.py random_network_condensed.csv inputs_for_downstream_plots.pickle")
-        # parser.add_argument("rand_net", type=str, help="Random network file output by condense_random_networks.py")
-        # parser.add_argument("pickle", type=str, help="inputs_for_downstream_plots.pickle file output by dot_plots.py")
-        # # parser.add_argument("--nnodes_density", type=str, help="The number of total nodes you want to plot on top of the density plot, regardless of node type")
-        # # parser.add_argument("--nnodes_density_per_type", type=str, help="The number of nodes you want to plot on top of the density plot of each node type")
-        # # parser.add_argument("--nodes_to_plot", type=list, help="The node types to plot on top of density plot")
-        # parser.add_argument("--dens_list_to_plot", type=str, nargs='+', help="A list of nodes to plot on the density plot")
-
         args = parser.parse_args()
 
         rand_net = args.rand_net
         pick = args.pickle
-        # nnodes_density = args.nnodes_density
-        # nnodes_density_per_type = args.nnodes_density_per_type
-        # node_props = args.density_node_types
         bibc_name = args.bibc_name
         nodes_to_plot = args.nodes_to_plot
 
@@ -187,8 +149,6 @@ if __name__ == '__main__':
     rand_nets = rand_nets.dropna(axis=0)
     rand_nets_check = check_rand_net_output(rand_nets)
 
-    print(rand_nets)
-
     # If the random network data frame passes the check:
     if rand_nets_check:
 
@@ -201,12 +161,8 @@ if __name__ == '__main__':
         node_props = pload[0]
         top_nodes = pload[1]
         top_nodes_per_type = pload[2]
-        # plotdir = "./" # location of previously created plots directory
 
-        # !!!!!!!!!!Must uncomment the following before publishing
         plotdir = pload[3] # location of previously created plots directory
-
-        print(node_props)
 
         # First find how many top nodes have both a degree and BiBC greater than the indicated node
         all_nodes_dict = {}
@@ -249,8 +205,6 @@ if __name__ == '__main__':
         kdefig = plot_kde(rand_nets['BiBC'], rand_nets['Degree'], 'Reds')
         texts = add_text(top_nodes_dict, prob_dict, kdefig)
 
-
-        #kdefig = kdefig.get_figure()
         plt.savefig(plotdir + "density_plot_with_top_nodes_from_dotplots.png", bbox_inches='tight', dpi=600)
         print("Plot saved: " + plotdir + "density_plot_with_top_nodes_from_dotplots.png")
         plt.clf()
@@ -264,7 +218,6 @@ if __name__ == '__main__':
 
         # Only plot the top X nodes, where X is a user-defined number
         for k,v in top_nodes_per_type.items():
-            # print(k,v)
 
             top_dens_nodes_per_type = BiBC_deg_sorted[BiBC_deg_sorted['index'].isin(v)]
             top_dens_nodes_per_type = top_dens_nodes_per_type[['index','Node_degrees', bibc_name]]
@@ -297,7 +250,6 @@ if __name__ == '__main__':
 
             # Only plot the user-specified nodes from dens_list_to_plot
             for i in nodes_to_plot:
-                # print(i)
                 selected_node = BiBC_deg_sorted[BiBC_deg_sorted['index']  == i]
                 selected_node = selected_node[['index','Node_degrees', bibc_name]]
 

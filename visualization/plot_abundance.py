@@ -102,7 +102,7 @@ if __name__ == '__main__':
     else:
         print("")
 
-        parser = argparse.ArgumentParser(description="Example command: python plot_abundance.py --pickle inputs_for_downstream_plots.pickle --abund_data Expt1.csv Expt2.csv --metadata Expt1_meta.csv Expt2_meta.csv --color_group Treatment --x_axis_abund Experiment --nodes_to_plot geneABC geneDEF", add_help=False)
+        parser = argparse.ArgumentParser(description="Example command: python ./visualization/plot_abundance.py --pickle <file.pickle> --abund-data <list of files> --metadata <list of files> --x-axis <choice> --group-names <list of names> --group-colors <list of color names> --nodes_to_plot geneABC geneDEF", add_help=False)
 
         requiredArgGroup  = parser.add_argument_group('Required arguments')
         requiredArgGroup.add_argument("--pickle", type=str, help="inputs_for_downstream_plots.pickle file output by dot_plots.py", required=True)
