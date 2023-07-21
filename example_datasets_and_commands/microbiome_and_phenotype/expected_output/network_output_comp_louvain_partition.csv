@@ -1,0 +1,82 @@
+Node,Subnetwork_partition
+OTU_4345268,microbe_0
+OTU_265011,microbe_4
+OTU_346804,microbe_2
+OTU_272758,microbe_0
+OTU_262104,microbe_4
+OTU_185222,microbe_0
+OTU_261016,microbe_4
+OTU_349246,microbe_4
+OTU_196191,microbe_0
+OTU_193064,microbe_2
+OTU_180362,microbe_4
+OTU_259993,microbe_3
+OTU_1902400,microbe_3
+OTU_259506,microbe_2
+OTU_261132,microbe_2
+OTU_273737,microbe_4
+OTU_264155,microbe_2
+OTU_129394,microbe_2
+OTU_206324,microbe_1
+OTU_176154,microbe_1
+OTU_269037,microbe_0
+OTU_539647,microbe_3
+OTU_549756,microbe_3
+OTU_229452,microbe_2
+OTU_1129461,microbe_4
+OTU_344703,microbe_3
+OTU_170950,microbe_0
+OTU_1995182,microbe_3
+OTU_631764,microbe_1
+OTU_331013,microbe_2
+OTU_187233,microbe_3
+OTU_182764,microbe_3
+OTU_4448052,microbe_4
+OTU_191811,microbe_4
+OTU_179703,microbe_1
+OTU_264846,microbe_4
+OTU_266946,microbe_4
+OTU_197099,microbe_0
+OTU_191274,microbe_2
+OTU_230268,microbe_4
+OTU_268063,microbe_0
+OTU_4468805,microbe_0
+OTU_193672,microbe_1
+OTU_194151,microbe_1
+OTU_191616,microbe_0
+OTU_324888,microbe_3
+OTU_187962,microbe_3
+OTU_320249,microbe_4
+OTU_272889,microbe_4
+OTU_264225,microbe_4
+OTU_203713,microbe_1
+OTU_188225,microbe_3
+OTU_268492,microbe_4
+OTU_270200,microbe_1
+OTU_198209,microbe_1
+OTU_261590,microbe_1
+OTU_166911,microbe_3
+OTU_460611,microbe_4
+OTU_309916,microbe_4
+OTU_198194,microbe_4
+OTU_297143,microbe_1
+OTU_185177,microbe_0
+OTU_182712,microbe_2
+OTU_272092,microbe_4
+OTU_324013,microbe_1
+OTU_261142,microbe_0
+OTU_134762,microbe_1
+OTU_174320,microbe_4
+OTU_191067,microbe_1
+OTU_288680,microbe_2
+OTU_445144,microbe_1
+OTU_264734,microbe_1
+fasting glucose from GTT,pheno_0
+fed glucose,pheno_0
+HOMA-IR,pheno_1
+120min glucose,pheno_0
+fasting insulin,pheno_1
+fasting leptin,pheno_1
+fasting glucose from HOMA serum,pheno_0
+Body weight,pheno_1
+GTT-AUC,pheno_0
