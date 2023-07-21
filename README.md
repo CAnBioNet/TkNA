@@ -6,7 +6,13 @@
 
 Note that script paths are given relative to the top-level repository directory.
 
-### 1. Import the data and metadata for the run
+### 1. Normalize data
+Data should be normalized prior to running TkNA. Examples of normalization methods can be found in the TkNA manuscript.
+
+### 2. Format data and set statistical thresholds
+Data must be formatted in the format specified in the TkNA manuscript.
+
+### 3. Import the data and metadata for the run
 
 #### Usage
 ```
@@ -25,7 +31,7 @@ python reconstruction/intake_data.py --data-dir ./project_folder/input/ --out-fi
 #### Outputs
 A single `.zip` file containing most information required for the next step
 
-### 2. Run the correlations and comparisons, supplying the config file, which tells code which thresholds to apply. For larger datasets, use more cores.
+### 4. Run the correlations and comparisons, supplying the config file, which tells code which thresholds to apply. For larger datasets, use more cores.
 
 #### Usage
 ```
@@ -45,7 +51,7 @@ python ./reconstruction/run.py --data-source ./project_folder/output/all_data_an
 #### Outputs
  - A single zipped directory containing the analysis performed
 
-### 3. Convert the output files to csv
+### 5. Convert the output files to csv
 
 #### Usage
 ```
@@ -69,70 +75,145 @@ python ./reconstruction/to_csv.py --data-file ./project_folder/output/network_ou
  - `node_comparisons.csv`: comparisons performed and found to be statistically significant, values listed in the name are the values of the thresholds applied in the config file
  - `config_values.txt`: All the user-specified options for making the network
 
-### 4. Assess the quality of the reconstructed network
+### 6. Assess the quality of the reconstructed network
 
 #### Usage
 ```
-python ./analysis/assess_network.py --file <network file>
+python ./analysis/assess_network.py --file <network file> --out-dir <directory>
 ```
 
 #### Example command
 ```
-python ./analysis/assess_network.py --file ./project_folder/output/network_output/correlations_bw_signif_measurables.csv
+python ./ analysis/assess_network.py --file ./project_folder/output/network_output/correlations_bw_signif_measurables.csv --out-dir ./project_folder/output/network_output/
 ```
 
 #### Inputs
  - `--file`: `correlations_bw_signif_measurables.csv` file created with `to_csv.py`
+ - `--out-dir`: Path to the directory to output results to
+
 
 #### Outputs
- - `network_quality_assessment.txt`: Contains the calculations (also sent to standard output) on the quality of the reconstructed network. Outputs to the same directory the input file is stored in.
- - `network.pickle`: A pickled file containing the network. Used as input to future steps. Outputs to the same directory the input file is stored in.
+ - `network_quality_assessment.csv`: Contains the network quality statistics of the reconstructed network, calculated per edge type.
+ 
+### 7. Identify clusters of nodes (OPTIONAL)...
 
-### 5. Calculate network and node properties of the reconstructed network
+### ...using Infomap
 
 #### Usage
 ```
-python ./analysis/calc_network_properties.py --pickle <file.pickle> --bibc --bibc-groups <choice> --bibc-calc-type <choice> --node-map <file.csv> --node-groups <group 1> <group 2>
+python ./analysis/infomap_assignment.py --network <file> --network-format <format> --map <file.csv> --out-dir <directory>
 ```
 
 #### Example command
 ```
-python ./analysis/calc_network_properties.py --pickle ./project_folder/output/network_output/network.pickle --bibc --bibc-groups node_types --bibc-calc-type rbc --node-map ./project_folder/input/map_file.csv --node-groups micro pheno
-```
-
-#### Inputs and arguments
- - `--pickle`: `network.pickle` file created with `assess_network.py`
- - `--bibc`: Flag for whether to compute Bipartite Betweenness Centrality (BiBC). This is highly recommended and also required for future steps
- - `--bibc-groups`: Choice for what to compute BiBC on, either distinct groups (`node_types`) or on the two most modular regions of the network (found using the Louvain method)
- - `--bibc-calc-type`: Choice for whether to normalize based on amount of nodes in each group (`rbc`) or not (`bibc`)?
- - `--node-map`: csv file containing the name of nodes in the first column and the type of the node (gene, phenotype, microbe, etc.) in the second column
- - `--node-groups`: Required if `node_types` is specified for `--bibc-groups`. It’s the two groups of nodes to calculate BiBC/RBC on. The types must be present in the `--node-map file`
-
-#### Outputs
- - `network_properties.txt`: Tab-delimited `.txt` file of calculated network properties
- - `subnetwork_properties.txt`: Tab-delimited `.txt` file of calculated subnetwork properties
- - `node_properties.txt`: Tab-delimited `.txt` file of calculated node properties
-
-### 6. Create random networks
-
-#### Usage
-```
-python ./random_networks/create_random_networks.py --template-network <file.pickle> --networks-file <file.zip>
-```
-
-#### Example command
-```
-python ./random_networks/create_random_networks.py --template-network ./project_folder/output/network_output/network.pickle --networks-file ./project_folder/output/network_output/all_random_nws.zip
+python ./analysis/infomap_assignment.py --network ./project_folder/output/network_output/network.csv --network-format csv --map ./project_folder/input/type_map.csv --out-dir ./project_folder/output/network_output/
 ```
 
 #### Inputs
- - `--template-network`: The pickled network file output by `assess_network.py`
- - `--networks-file`: File to output zipped networks to
+ - `--network`: `The path to the network file, either in .pickle or .csv format
+ - `--network-format`: Format of the network file; Either use 'pickle' with the network.pickle file output made by assess_network.py (if network was reconstructed using the TkNA pipeline) or 'csv' if the network was reconstructed using an alternative pipeline (must be in .csv format and have 'partner1' and 'partner2' as the headers for the two node columns
+ - `--map`: CSV file with the name of the node in the first column and its data type in the second column
+ - `--out-dir`: Path to the directory to output results to
 
-#### Outputs
- - A zip file containing all created networks
 
-### 7. Analyze random networks
+#### Output
+ - `network_infomap_partition.csv`: CSV file containing the name of the node in column 1 and the subnetwork number it was assigned in column 2. 
+
+### ...using the Louvain method
+
+#### Usage
+```
+python ./analysis/louvain_partition.py --network <file> --network-format <format> --map <file.csv> --out-dir <directory>	
+```
+
+#### Example command
+```
+Python ./analysis/louvain_partition.py --network ./project_folder/output/network_output/network.csv --network-format csv --map ./project_folder/input/type_map.csv --out-dir ./project_folder/output/network_output/
+```
+
+#### Inputs and arguments
+ - `--network`: `The path to the network file, either in .pickle or .csv format
+ - `--network-format`: Format of the network file; Either use 'pickle' with the network.pickle file output made by assess_network.py (if network was reconstructed using the TkNA pipeline) or 'csv' if the network was reconstructed using an alternative pipeline (must be in .csv format and have 'partner1' and 'partner2' as the headers for the two node columns
+ - `--map`: CSV file with the name of the node in the first column and its data type in the second column
+ - `--out-dir`: Path to the directory to output results to
+
+#### Output
+ - `network_louvain_partition.csv`: CSV file containing the name of the node in column 1 and the subnetwork number it was assigned in column 2. 
+
+### 8. Perform functional enrichment analysis for groups of nodes (OPTIONAL)
+
+Functional enrichment of the resulting partitions can be performed using the methods mentioned in the TkNA manuscript.
+
+### 9. Find the distance (shortest path) between two pathways 
+
+Pathways closer to one another potentially interact more than those that are further away.
+
+#### Usage
+```
+python ./analysis/find_all_shortest_paths_bw_subnets.py --network <file.pickle> --network-format <format> --map <map.csv> --node-groups <group1> <group2> --out-dir <directory> 
+```
+
+#### Example command
+```
+python ./analysis/find_all_shortest_paths_bw_subnets.py --network ./project_folder/output/network_output/network.pickle --node-map ./project_folder/input/map_file.csv --node-groups gene pheno --out-dir ./project_folder/output/network_output/
+```
+
+#### Inputs and arguments
+ - `--network`: The path to the network file, either in .pickle or .csv format
+ - `--network-format`: Format of the network file; Either use 'pickle' with the network.pickle file output made by assess_network.py (if network was reconstructed using the TkNA pipeline) or 'csv' if the network was reconstructed using an alternative pipeline (must be in .csv format and have 'partner1' and 'partner2' as the headers for the two node columns
+ - `--map`: CSV file with the name of the node in the first column and its data type in the second column
+ - `--out-dir`: Path to the directory to output results to
+
+#### Output
+ - `shortest_path_bw_<group1>_and_<group2>_results.csv`: CSV file containing the name of each node in each pair in columns 1 and 2, as well as the shortest path length between that pair in column 3 and the number of shortest paths for the pair in column 4.
+
+### 10. Calculate network topology parameters (e.g. degree, BiBC, etc.)
+
+#### Usage
+```
+python ./analysis/calc_network_properties.py --network <file.csv> --bibc --bibc-groups <choice> --bibc-calc-type <choice> --map <file.csv> --node-groups <group 1> <group 2> --out-dir <directory>
+```
+
+#### Example command
+```
+python ./analysis/calc_network_properties.py --network ./project_folder/output/network_output/network.csv --bibc --bibc-groups node_types --bibc-calc-type rbc --map ./project_folder/input/type_map.csv --node-groups micro pheno --out-dir ./project_folder/output/network_output/
+```
+
+#### Inputs and arguments
+ - `--network`: The network file in CSV format containing the reconstructed network. Must have columns called 'partner1' and 'partner2'.
+ - `--bibc`: Flag for whether to compute Bipartite Betweenness Centrality (BiBC). This is highly rec-ommended and also required for future steps
+ - `--bibc-groups`: Choice for what to compute BiBC on, either distinct groups (node_types) or on the two most modular regions of the network (found using the Louvain method)
+ - `--bibc-calc-type`: Choice for whether to normalize based on the number of nodes in each group (rbc) or not (bibc)
+ - `--node-map`: CSV file containing the name of nodes in the first column and the type of the node (gene, phenotype, microbe, etc.) in the second column
+ - `--node-groups`: Required if node_types is specified for --bibc-groups. It’s the two groups of nodes to calculate BiBC/RBC on. The types must be present in the --node-map file
+ - `--out-dir`: Path to the directory to output results to
+
+#### Output
+ - `network_properties.txt`: Tab-delimited .txt file of calculated network properties
+ - `subnetwork_properties.txt`: Tab-delimited .txt file of calculated subnetwork properties
+ - `node_properties.txt`: Tab-delimited .txt file of calculated node properties
+
+### 11. Create random networks
+
+#### Usage
+```
+python ./random_networks/create_random_networks.py --template-network <file.pickle> --networks-file <file.zip> 	
+```
+
+#### Example command
+```
+python ./random_networks/create_random_networks.py --template-network ./project_folder/output/network_output/network.pickle --networks-file ./project_folder/output/network_output/all_random_nws.zip 
+```
+
+#### Inputs
+ - `--template-network`: The pickled network file output by `calc_network_properties.py`
+ - `--networks-file`: .zip file to output zipped networks to
+ - `--num-networks`: optional; default 10,000; number of random networks to create
+ 
+#### Output
+ - A single .zip file containing all created networks
+ 
+### 12. Analyze random networks
 
 #### Usage
 ```
@@ -155,11 +236,11 @@ python ./random_networks/compute_network_stats.py --networks-file ./project_fold
 #### Outputs
  - A single zip file with degree/BiBC results of all random networks
 
-### 8. Condense random network outputs into one file
+### 13. Condense random network outputs into one file
 
 #### Usage
 ```
-python ./random_networks/synthesize_network_stats.py --network-stats-file <file.zip> --synthesized-stats-file <file.csv>
+python ./random_networks/synthesize_network_stats.py --network-stats-file <file.zip> --synthesized-stats-file <file.csv> 
 ```
 
 #### Example command
@@ -174,16 +255,16 @@ python ./random_networks/synthesize_network_stats.py --network-stats-file ./proj
 #### Outputs
  - A single `.csv` file that contains the top node, sorted first by BiBC and then by Node_degrees (unless otherwise specified with `--flip-priority`), for each of the random networks
 
-### 9. Create dot plots for node properties
+### 14. Create dot plots for node properties
 
 #### Usage
 ```
-python ./visualization/dot_plots.py --pickle <file.pickle> --node-props  <file.txt> --network-file <file.csv> --propx BiBC --propy Node_degrees --top-num <integer> --top-num-per-type <integer>
+python ./visualization/dot_plots.py --pickle <file.pickle> --node-props  <file.txt> --network-file <file.csv> --propx BiBC --propy Node_degrees --top-num <integer> --top-num-per-type <inte-ger> --plot-dir <directory> --file-dir <directory>
 ```
 
 #### Example command
 ```
-python ./visualization/dot_plots.py --pickle ./project_folder/output/network_output/network.pickle --node-props ./project_folder/output/network_output/node-properties.txt --network-file ./project_folder/output/network_output/network_output_comp.csv --propx BiBC --propy Node_degrees --top-num 5 --top-num-per-type 3
+python ./visualization/dot_plots.py --pickle ./project_folder/output/network_output/network.pickle --node-props ./project_folder/output/network_output/node-properties.txt --network-file ./project_folder/output/network_output/network_output_comp.csv --propx BiBC --propy Node_degrees --top-num 5 --top-num-per-type 3	--plot-dir ./project_folder/output/network_output/plots/ --file-dir ./project_folder/output/network_output/
 ```
 
 #### Inputs
@@ -194,6 +275,8 @@ python ./visualization/dot_plots.py --pickle ./project_folder/output/network_out
  - `--propy`: Node property to plot on Y-axis.
  - `--top-num`: Number of nodes you want to zoom in to on the property v property plot
  - `--top-num-per-type`: The number of nodes to plot for each data type when zoomed in on the plot
+ - `--plot-dir`: Path to the directory to output the resulting plots to
+ - `--file-dir`: Path to the directory to save the resulting inputs_for_downstream_plots.pickle file to
 
 #### Default outputs
  - `degree_distribution_dotplot.png`: Distribution of the number of nodes which each degree in the network
@@ -201,102 +284,48 @@ python ./visualization/dot_plots.py --pickle ./project_folder/output/network_out
  - `<propx>_v_<propy>_distribution_<node_type>_nodes_only.png`: Same as previous plot, but with just the nodes from each data type. There will be one plot produced for each data type
  - `<propx>_v_<propy>_distribution_top_<top-num>_nodes.png`: Same as the second plot, but zoomed in on the top nodes
  - `<propx>_v_<propy>_distribution_top_<top-num-per-type>_nodes_<data_type>_only.png`: same as third plot, but zoomed in on the top nodes per data type.
-
-### 10. Plot abundances of nodes
+ - `inputs_for_downstream_plots.pickle`: contains information for future commands
+ 
+### 15. Create abundance plots
 
 #### Usage
 ```
-python ./visualization/plot_abundance.py --pickle <file.pickle> --abund-data <list of files> --metadata <list of files> --color-group <choice> --x-axis <choice>
+python ./visualization/plot_abundance.py --pickle <file.pickle> --abund-data <list of files> --metadata <list of files> --x-axis <choice> --group-names <list of names> --group-colors <list of color names> 
 ```
 
 #### Example command
 ```
-python ./visualization/plot_abundance.py --pickle ./project_folder/output/network_output/inputs_for_downstream_plots.pickle --abund-data ./project_folder/input/Expt1.csv ./project_folder/input/Expt2.csv --metadata ./project_folder/input/Expt1_meta.csv ./project_folder/input/Expt2_meta.csv --color-group Treatment --x-axis Experiment
+python ./visualization/plot_abundance.py --pickle ./project_folder/output/network_output/inputs_for_downstream_plots.pickle --abund-data ./project_folder/input/Expt1.csv ./project_folder/input/Expt2.csv --metadata ./project_folder/input/Expt1_meta.csv ./project_folder/input/Expt2_meta.csv --x-axis Experiment --group-names NCD HFD --group-colors orange blue
 ```
 
 #### Inputs
  - `--pickle`: `inputs_for_downstream_plots.pickle` file output by `dot_plots.py`
  - `--abund_data`: List of data files containing expressions/abundances
  - `--metadata`: List of metadata files containing Experiment/Treatment columns
- - `--color-group`: Variable to color the plot by
  - `--x-axis`: Variable you wish to group the data by on the x-axis
+ - `--group-names`: A list of the names of the treatment groups; must match the order of names in --group-colors
+ - `--group-colors`: A list of the names of the colors to use for each specified group; must match the order of colors in --group-names. Accepted colors can be found at https://matplotlib.org/stable/gallery/color/named_colors.html
 
 #### Outputs
  - One boxplot for each of the top nodes (found in `dot_plots.py`) as well as additional plots if specified with the optional argument `--nodes-to-plot`
 
-### 11. Plot density/contour plot of distributions of top nodes in a random network and overlay the nodes from the actual reconstructed network
+### 16. Plot density/contour plot of distributions of top nodes in a random network and overlay the nodes from the actual reconstructed network
 
 #### Usage
 ```
-python ./visualization/plot_density.py --rand-net <file.csv> --pickle <file.pickle>
+python ./visualization/plot_density.py --rand-net <file.csv> --pickle <file.pickle> --bibc-name <name>
 ```
 
 #### Example command
 ```
-python ./visualization/plot_density.py --rand-net ./project_folder/output/network_output/random_networks_synthesized.csv --pickle ./project_folder/output/network_output/inputs_for_downstream_plots.pickle
+python ./visualization/plot_density.py --rand-net ./project_folder/output/network_output/random_networks_synthesized.csv --pickle ./project_folder/output/network_output/inputs_for_downstream_plots.pickle --bibc-name BiBC_micro_pheno
 ```
 
 #### Inputs
  - `--rand-net`: file output by `synthesize_network_stats.py`
  - `--pickle`: `inputs_for_downstream_plots.pickle` file output by `dot_plots.py`
-
+ - `--bibc-name`: The 'name' of the BiBC calculation performed, from the node_properties.txt file. Exam-ple: BiBC_microbe_pheno (if BiBC was calculated between the microbe and pheno groups)
+ 
 #### Default outputs
  - `density_plot_with_top_nodes_from_dotplots.png`: contour plot with the top nodes (found in `dot_plots.py`) from the real reconstructed network overlaid on top
  - `density_plot_with_top_<data_type>_nodes_only.png`: Same as previous, but contains just one data type per output file
-
-### Optional: Infomap
-Used to identify clusters of nodes in a network.
-
-#### Usage
-```
-python ./analysis/infomap_assignment.py --pickle <file.pickle>
-```
-
-#### Example command
-```
-python ./analysis/infomap_assignment.py --pickle ./project_folder/output/network_output/network.pickle
-```
-
-#### Inputs
- - `--pickle`: `network.pickle` file output by `assess_network.py`
-
-#### Output
- - `network_infomap_partition.csv`: `.csv` file containing the name of the node in column 1 and the subnetwork number it was assigned in column 2.
-
-### Optional: Louvain
-
-#### Usage
-```
-python ./analysis/louvain_partition.py --pickle <file.pickle>
-```
-
-#### Example command
-```
-Python ./analysis/louvain_partition.py --pickle ./project_folder/output/network_output/network.pickle
-```
-
-#### Inputs
- - `--pickle`: `network.pickle` file output by `assess_network.py`
-
-#### Output
- - `network_infomap_partition.csv`: `.csv` file containing the name of the node in column 1 and the subnetwork it was assigned in column 2.
-
-### Optional: Find shortest paths between subnetworks
-
-#### Usage
-```
-python ./analysis/find_all_shortest_paths_bw_subnets.py --network <file.pickle> --node-map <map.csv> --node-groups <group1> <group2>
-```
-
-#### Example command
-```
-python ./analysis/find_all_shortest_paths_bw_subnets.py --network ./project_folder/output/network_output/network.pickle --node-map ./project_folder/input/map_file.csv --node-groups gene pheno
-```
-
-#### Inputs
- - `--network`: `network.pickle` file output by `assess_network.py`
- - `--node-map`: Mapping file (csv) of nodes and their subnetworks
- - `--node-groups`: The two groups in the mapping file you want to find the shortest paths between
-
-#### Output
- - `shortest_path_bw_<group1>_and_<group2>_results.csv`: `.csv` file containing the name of each node in each pair in columns 1 and 2, as well as the shortest path length between that pair in column 3 and the number of shortest paths for the pair in column 4
