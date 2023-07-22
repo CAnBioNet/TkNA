@@ -4,6 +4,7 @@ from multiprocessing import Pool, shared_memory
 import numpy
 from scipy import stats, special
 from statsmodels.stats import multitest
+import time
 import xarray
 
 from .NetworkReconstructor import NetworkReconstructor
@@ -11,21 +12,26 @@ from .util import matchingCoords, withoutDim, SharedArrayParams
 
 numpy.seterr(all="raise")
 
+def sharedMemoryName(name, runnerId):
+	return f"{name}_{runnerId}"
+
 class CorrelationWorker:
-	def __init__(self, dataParams, correlationsAndPValuesParams):
+	def __init__(self, runnerId, dataParams, correlationsAndPValuesParams):
+		self.runnerId = runnerId
+
 		self.dataParams = dataParams
 		self.correlationsAndPValuesParams = correlationsAndPValuesParams
 
 		self.initialized = False
 
 	def initialize(self):
-		self.dataSharedMemory = shared_memory.SharedMemory(name="expressionData")
+		self.dataSharedMemory = shared_memory.SharedMemory(name=sharedMemoryName("expressionData", self.runnerId))
 		self.data = numpy.ndarray(shape=self.dataParams.shape, dtype=self.dataParams.dtype, buffer=self.dataSharedMemory.buf)
 
-		self.correlationsSharedMemory = shared_memory.SharedMemory(name="correlations")
+		self.correlationsSharedMemory = shared_memory.SharedMemory(name=sharedMemoryName("correlations", self.runnerId))
 		self.correlations = numpy.ndarray(shape=self.correlationsAndPValuesParams.shape, dtype=self.correlationsAndPValuesParams.dtype, buffer=self.correlationsSharedMemory.buf)
 
-		self.pValuesSharedMemory = shared_memory.SharedMemory(name="pValues")
+		self.pValuesSharedMemory = shared_memory.SharedMemory(name=sharedMemoryName("pValues", self.runnerId))
 		self.pValues = numpy.ndarray(shape=self.correlationsAndPValuesParams.shape, dtype=self.correlationsAndPValuesParams.dtype, buffer=self.pValuesSharedMemory.buf)
 
 	def correlationMethod(self):
@@ -58,7 +64,7 @@ class CorrelationWorkerSpearman(CorrelationWorker):
 
 	def initialize(self):
 		super().initialize()
-		self.rankedSharedMemory = shared_memory.SharedMemory(name="spearmanRanked")
+		self.rankedSharedMemory = shared_memory.SharedMemory(name=sharedMemoryName("spearmanRanked", self.runnerId))
 		self.ranked = numpy.ndarray(shape=self.rankedParams.shape, dtype=self.rankedParams.dtype, buffer=self.rankedSharedMemory.buf)
 
 	def correlationMethod(self, indices):
@@ -75,8 +81,10 @@ class CorrelationWorkerSpearman(CorrelationWorker):
 			else:
 				r = covariance / (xStd * yStd)
 
-		if abs(r) == 1:
+		rEps = numpy.finfo(type(r)).eps
+		if abs(abs(r) - 1) <= rEps:
 			p = 0
+			r = numpy.sign(r) # Round r to 1 or -1
 		else:
 			dof = len(x_ranked) - 2
 			t = r * numpy.sqrt(dof / (1 - numpy.square(r)))
@@ -119,14 +127,17 @@ def combineDifferencePValues(config, correctedPValues):
 	combineMethod = config["differenceCombinePValuesMethod"]
 
 	def fisher(pValues):
-		statistic, pValue = stats.combine_pvalues(pValues)
+		# Ignore error divison by zero warnings that occur when one of the p-values is 0,
+		# as a correct combined p-value of 0 is produced regardless
+		with numpy.errstate(divide="ignore"):
+			statistic, pValue = stats.combine_pvalues(pValues[~numpy.isnan(pValues)])
 		return pValue
 
 	methodMap = {
 		"fisher": fisher
 	}
 	if combineMethod in methodMap:
-		combinedPValues = xarray.apply_ufunc(methodMap[combineMethod], correctedPValues, input_core_dims=[["differentialExperiment"]], vectorize=True)
+		combinedPValues = xarray.apply_ufunc(methodMap[combineMethod], correctedPValues, input_core_dims=[["experiment"]], vectorize=True)
 	else:
 		raise Exception("Unknown p-value combine method specified")
 
@@ -138,18 +149,18 @@ def filterOnDifferencePValues(config, pValues, pValueType):
 
 	if isinstance(threshold, dict):
 		def filterType(typePValues):
-			cellType = str(typePValues.coords["differentialCellType"].item())
+			cellType = str(typePValues.coords["cellType"].item())
 			if cellType not in threshold:
 				raise Exception("No threshold for {} specified in difference p-value thresholds".format(cellType))
 			return typePValues <= threshold[cellType]
-		filterTable = pValues.groupby("differentialCellType").map(filterType)
+		filterTable = pValues.groupby("cellType").map(filterType)
 	else:
 		filterTable = pValues <= threshold
 
 	return filterTable
 
 def filterOnCorrectedDifferencePValues(config, correctedPValues):
-	maxPValues = correctedPValues.max(dim="differentialExperiment")
+	maxPValues = correctedPValues.max(dim="experiment")
 	return filterOnDifferencePValues(config, maxPValues, "corrected")
 
 def filterOnCombinedDifferencePValues(config, combinedPValues):
@@ -180,7 +191,7 @@ def combineAndFilterFoldChanges(config, foldChanges, foldChangeSigns):
 		"percentagreement": percentAgreement
 	}
 	if filterMethod in methodMap:
-		combinedSigns = xarray.apply_ufunc(methodMap[filterMethod], foldChanges, foldChangeSigns, input_core_dims=[["differentialExperiment"], ["differentialExperiment"]], vectorize=True)
+		combinedSigns = xarray.apply_ufunc(methodMap[filterMethod], foldChanges, foldChangeSigns, input_core_dims=[["experiment"], ["experiment"]], vectorize=True)
 	else:
 		raise Exception("Unknown fold change filter method specified")
 	filterTable = combinedSigns != 0
@@ -188,10 +199,33 @@ def combineAndFilterFoldChanges(config, foldChanges, foldChangeSigns):
 	return combinedSigns, filterTable
 
 def stackDifferenceCellTypeAndMeasurable(data):
-	return data.stack({"measurableAndCellType": ("measurable", "differentialCellType")})
+	return data.stack({"measurableAndCellType": ("measurable", "cellType")})
 
-def calculateCorrelations(config, filteredData):
-	networkTreatments = config["networkTreatments"]
+def calculateCorrelations(config, filteredData, cores=None):
+	metatreatments = config["metatreatments"]
+	if metatreatments is None:
+		metatreatments = {}
+		networkTreatment = config["networkTreatment"]
+		for experiment in filteredData.coords["experiment"].data:
+			metatreatments[experiment] = [(experiment, networkTreatment)]
+
+	metatreatmentReverseMap = {}
+	for metatreatmentName, experimentAndTreatments in metatreatments.items():
+		for experimentAndTreatment in experimentAndTreatments:
+			metatreatmentReverseMap[experimentAndTreatment] = metatreatmentName
+
+	metatreatmentCoords = []
+	for organismCoord in filteredData.coords["organism"]:
+		experimentAndTreatment = (organismCoord.experiment.item(), organismCoord.treatment.item())
+		if experimentAndTreatment in metatreatmentReverseMap:
+			metatreatmentCoords.append(metatreatmentReverseMap[experimentAndTreatment])
+		else:
+			metatreatmentCoords.append(None)
+
+	filteredData = filteredData.assign_coords(coords={"metatreatment": ("organism", metatreatmentCoords)})
+
+	# Used to identify the current run's shared memory
+	runnerId = str(time.time())
 
 	def prepareSpearman(treatmentData):
 		spearmanKwargs = {}
@@ -199,17 +233,18 @@ def calculateCorrelations(config, filteredData):
 		# See https://bottleneck.readthedocs.io/en/v1.3.4/reference.html#bottleneck.rankdata
 		rankedParams = SharedArrayParams(treatmentData.shape, numpy.float64)
 		rankedNBytes = numpy.prod(rankedParams.shape) * rankedParams.dtype().itemsize
-		rankedSharedMemory = shared_memory.SharedMemory(create=True, size=rankedNBytes, name="spearmanRanked")
+		rankedSharedMemory = shared_memory.SharedMemory(create=True, size=rankedNBytes, name=sharedMemoryName("spearmanRanked", runnerId))
 		ranked = numpy.ndarray(rankedParams.shape, rankedParams.dtype, buffer=rankedSharedMemory.buf)
+		organismAxis = treatmentData.get_axis_num("organism")
 		# Ranks begin at 1
-		ranked[:] = bottleneck.rankdata(treatmentData, axis=0)
+		ranked[:] = bottleneck.rankdata(treatmentData, axis=organismAxis)
 
 		spearmanKwargs["rankedParams"] = rankedParams
 
 		n = treatmentData.sizes["organism"]
 
 		# Check that all ranks are distinct before using formula
-		modes = stats.mode(ranked, axis=1)
+		modes = stats.mode(ranked, axis=organismAxis, keepdims=False)
 		spearmanKwargs["useCoefficient"] = numpy.all(modes.count == 1)
 		if spearmanKwargs["useCoefficient"]:
 			# From https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient#Definition_and_calculation
@@ -229,21 +264,20 @@ def calculateCorrelations(config, filteredData):
 	if correlationMethod not in methodMap:
 		raise Exception("Unknown correlation method specified")
 
-	treatmentDatasets = [filteredData.sel(organism=filteredData.treatment==treatment) for treatment in networkTreatments]
-	treatmentData = xarray.concat(treatmentDatasets, "organism")
+	treatmentData = filteredData
 
-	def calculateForTreatment(treatmentData):
+	def calculateForMetatreatment(treatmentData):
 		# TODO: Create correlation/pvalue dtype?
 
 		correlationsAndPValuesParams = SharedArrayParams((treatmentData.sizes["measurableAndCellType"], treatmentData.sizes["measurableAndCellType"]), numpy.float64)
 		correlationsAndPValuesNBytes = numpy.prod(correlationsAndPValuesParams.shape) * correlationsAndPValuesParams.dtype().itemsize
-		correlationsSharedMemory = shared_memory.SharedMemory(create=True, size=correlationsAndPValuesNBytes, name="correlations")
+		correlationsSharedMemory = shared_memory.SharedMemory(create=True, size=correlationsAndPValuesNBytes, name=sharedMemoryName("correlations", runnerId))
 		correlations = numpy.ndarray(correlationsAndPValuesParams.shape, correlationsAndPValuesParams.dtype, buffer=correlationsSharedMemory.buf)
-		pValuesSharedMemory = shared_memory.SharedMemory(create=True, size=correlationsAndPValuesNBytes, name="pValues")
+		pValuesSharedMemory = shared_memory.SharedMemory(create=True, size=correlationsAndPValuesNBytes, name=sharedMemoryName("pValues", runnerId))
 		pValues = numpy.ndarray(correlationsAndPValuesParams.shape, correlationsAndPValuesParams.dtype, buffer=pValuesSharedMemory.buf)
 
 		treatmentDataParams = SharedArrayParams(treatmentData.shape, treatmentData.dtype)
-		treatmentDataSharedMemory = shared_memory.SharedMemory(create=True, size=treatmentData.nbytes, name="expressionData")
+		treatmentDataSharedMemory = shared_memory.SharedMemory(create=True, size=treatmentData.nbytes, name=sharedMemoryName("expressionData", runnerId))
 		dataCopy = numpy.ndarray(treatmentDataParams.shape, dtype=treatmentDataParams.dtype, buffer=treatmentDataSharedMemory.buf)
 		dataCopy[:] = treatmentData.values[:]
 
@@ -254,8 +288,8 @@ def calculateCorrelations(config, filteredData):
 			methodKwargs = {}
 			endArgs = []
 
-		worker = methodWorker(**methodKwargs, dataParams=treatmentDataParams, correlationsAndPValuesParams=correlationsAndPValuesParams)
-		with Pool() as p:
+		worker = methodWorker(**methodKwargs, runnerId=runnerId, dataParams=treatmentDataParams, correlationsAndPValuesParams=correlationsAndPValuesParams)
+		with Pool(cores) as p:
 			p.map(worker, itertools.combinations(range(treatmentData.sizes["measurableAndCellType"]), 2))
 
 		treatmentDataSharedMemory.close()
@@ -287,21 +321,31 @@ def calculateCorrelations(config, filteredData):
 
 		return results
 
-	correlationResults = treatmentData.groupby("experiment").map(lambda experimentData: experimentData.groupby("treatment").map(calculateForTreatment))
+	correlationResults = treatmentData.groupby("metatreatment").map(calculateForMetatreatment)
 
 	return correlationResults["correlations"], correlationResults["pValues"]
 
 def combineCorrelationPValues(config, pValues):
 	combineMethod = config["correlationCombinePValuesMethod"]
 
+	metatreatmentsToCombine = config["metatreatmentsToCombine"]
+	if metatreatmentsToCombine is None:
+		metatreatmentsToCombine = [metatreatment for metatreatment in set(pValues.coords["metatreatment"].data) if metatreatment is not None]
+
+	# Skip combining if there is only one metatreatment selected
+	if len(metatreatmentsToCombine) == 1:
+		return pValues.sel(metatreatment=metatreatmentsToCombine[0])
+
+	pValues = pValues.sel(metatreatment=metatreatmentsToCombine)
+
 	def fisher():
 		# Ignore errors that occur for p = 0
 		with numpy.errstate(divide="ignore"):
-			chi2 = -2 * (numpy.log(pValues)).sum(dim="experiment")
-		dof = 2 * pValues.sizes["experiment"]
+			chi2 = -2 * (numpy.log(pValues)).sum(dim="metatreatment")
+		dof = 2 * pValues.sizes["metatreatment"]
 		combinedPValues = stats.chi2.sf(chi2, df=dof)
 
-		newDims, newCoords = withoutDim(pValues, "experiment")
+		newDims, newCoords = withoutDim(pValues, "metatreatment")
 		combinedPValues = xarray.DataArray(combinedPValues, dims=newDims, coords=newCoords)
 		return combinedPValues
 
@@ -359,24 +403,19 @@ def correctCorrelationPValues(config, combinedPValues):
 	def correctTypeProduct(pValues):
 		return pValues.groupby("cellType1").map(lambda type1Data: type1Data.groupby("cellType2").map(correctPValues))
 
-	def correctTreatment(treatmentData):
-		# Perform corrections
-		correctedTreatmentData = treatmentData.groupby("measurableType1").map(lambda type1Data: type1Data.groupby("measurableType2").map(correctTypeProduct))
+	# Perform corrections
+	correctedPValues = combinedPValues.groupby("measurableType1").map(lambda measurableType1Data: measurableType1Data.groupby("measurableType2").map(correctTypeProduct))
 
-		# Copy data across the diagonal
-		# (this works because the correction method makes all duplicate/diagonal entries 0)
-		correctedTreatmentData = correctedTreatmentData.to_numpy()
-		correctedTreatmentData += correctedTreatmentData.T
+	# Copy data across the diagonal
+	# (this works because the correction method makes all duplicate/diagonal entries 0)
+	correctedPValues += correctedPValues.to_numpy().T
 
-		return correctedTreatmentData
-
-	correctedPValues = combinedPValues.groupby("treatment").map(lambda treatmentData: correctTreatment(treatmentData))
 	return correctedPValues
 
 def filterDiagonals(pValues):
 	diagonalFilter = numpy.ones([pValues.sizes["measurableAndCellType1"], pValues.sizes["measurableAndCellType2"]], dtype=bool)
 	numpy.fill_diagonal(diagonalFilter, 0)
-	diagonalFilter = xarray.DataArray([diagonalFilter], dims=pValues.dims, coords=pValues.coords)
+	diagonalFilter = xarray.DataArray(diagonalFilter, dims=pValues.dims, coords=pValues.coords)
 	return diagonalFilter
 
 def filterOnCorrelationPValues(config, pValues, pValueType):
@@ -402,7 +441,7 @@ def filterOnCorrelationPValues(config, pValues, pValueType):
 	return filterTable
 
 def filterOnIndividualCorrelationPValues(config, pValues):
-	maxPValues = pValues.max(dim="experiment")
+	maxPValues = pValues.max(dim="metatreatment")
 	return filterOnCorrelationPValues(config, maxPValues, "individual")
 
 def filterOnCombinedCorrelationPValues(config, combinedPValues):
@@ -415,19 +454,19 @@ def combineAndFilterCorrelations(config, correlations, correlationSigns):
 	filterMethod = config["correlationFilterMethod"]
 
 	def allSameSign():
-		filterTable = (correlationSigns.isel(experiment=0) == correlationSigns).all(dim="experiment")
-		combinedSigns = correlationSigns.isel(experiment=0).where(filterTable, 0)
+		filterTable = (correlationSigns.isel(metatreatment=0) == correlationSigns).all(dim="metatreatment")
+		combinedSigns = correlationSigns.isel(metatreatment=0).where(filterTable, 0)
 		return combinedSigns, filterTable
 
 	# Should be greater than 0.5, as otherwise there can be ties between signs
 	percentThreshold = config["correlationFilterPercentAgreementThreshold"]
 	def percentAgreement():
-		numExperiments = correlationSigns.sizes["experiment"]
-		experimentAxis = correlationSigns.get_axis_num("experiment")
-		positiveFilterTable = (numpy.count_nonzero(correlationSigns == 1, axis=experimentAxis) / numExperiments) > percentThreshold
-		negativeFilterTable = (numpy.count_nonzero(correlationSigns == -1, axis=experimentAxis) / numExperiments) > percentThreshold
+		numMetatreatments = correlationSigns.sizes["metatreatment"]
+		metatreatmentAxis = correlationSigns.get_axis_num("metatreatment")
+		positiveFilterTable = (numpy.count_nonzero(correlationSigns == 1, axis=metatreatmentAxis) / numMetatreatments) > percentThreshold
+		negativeFilterTable = (numpy.count_nonzero(correlationSigns == -1, axis=metatreatmentAxis) / numMetatreatments) > percentThreshold
 		filterTable = positiveFilterTable | negativeFilterTable
-		ones = xarray.ones_like(correlationSigns.isel(experiment=0))
+		ones = xarray.ones_like(correlationSigns.isel(metatreatment=0))
 		combinedSigns = ones.where(positiveFilterTable, 0) - ones.where(negativeFilterTable, 0)
 		return combinedSigns, filterTable
 
@@ -443,16 +482,16 @@ def combineAndFilterCorrelations(config, correlations, correlationSigns):
 	return combinedSigns, filterTable
 
 def filterOnExpectedEdges(config, foldChangeSigns, correlationSigns, measurableFilter):
-	stacked1 = foldChangeSigns.stack({"measurableAndCellType1": ("measurable", "differentialCellType")})
+	stacked1 = foldChangeSigns.stack({"measurableAndCellType1": ("measurable", "cellType")})
 	stacked1 = stacked1.sel(measurableAndCellType1=stacked1.coords["measurableAndCellType1"][measurableFilter.rename(measurableAndCellType="measurableAndCellType1")])
-	stacked2 = foldChangeSigns.stack({"measurableAndCellType2": ("measurable", "differentialCellType")})
+	stacked2 = foldChangeSigns.stack({"measurableAndCellType2": ("measurable", "cellType")})
 	stacked2 = stacked2.sel(measurableAndCellType2=stacked2.coords["measurableAndCellType2"][measurableFilter.rename(measurableAndCellType="measurableAndCellType2")])
 	foldChangeSignProducts = stacked1 * stacked2
 	pucCompliant = foldChangeSignProducts == correlationSigns
 	return pucCompliant, foldChangeSignProducts
 
 class NetworkReconstructorSingleCell(NetworkReconstructor):
-	def reconstructNetwork(self, config, data, **kwargs):
+	def reconstructNetwork(self, config, data, cores=None, **kwargs):
 		def stageCombineCellsByType(allData):
 			allData["cellsCombined"] = combineCellsByType(config, allData["cellData"])
 			allData["stacked"] = stackCellTypeAndMeasurable(config, allData["cellsCombined"])
@@ -472,7 +511,7 @@ class NetworkReconstructorSingleCell(NetworkReconstructor):
 			allData["filteredData"] = allData["stacked"].sel(measurableAndCellType=allData["stacked"].coords["measurableAndCellType"][allData["measurableFilterStacked"]])
 
 		def stageComputeCorrelations(allData):
-			allData["correlationCoefficients"], allData["correlationPValues"] = calculateCorrelations(config, allData["filteredData"])
+			allData["correlationCoefficients"], allData["correlationPValues"] = calculateCorrelations(config, allData["filteredData"], cores)
 			allData["combinedCorrelationPValues"] = combineCorrelationPValues(config, allData["correlationPValues"])
 			allData["correlationSigns"] = numpy.sign(allData["correlationCoefficients"])
 
@@ -498,10 +537,16 @@ class NetworkReconstructorSingleCell(NetworkReconstructor):
 		def stageCreateEdgeList(allData):
 			allData["edges"] =  allData["combinedCorrelationSigns"].where(allData["edgeFilter"], other=0)
 
+		# TODO: Use a Dataset for this too
 		allData = {}
-		allData["cellData"] = data["cellData"]
-		allData["correctedDifferencePValues"] = data["pValue"]
-		allData["foldChanges"] = data["foldChange"]
-		stages = [stageCombineCellsByType, stageCombineDifferencePValues, stageFilterOnDifferences, stageComputeCorrelations, stageFilterOnCorrelations, stageFilterToExpectedEdges, stageCreateEdgeList]
+		allData["cellData"] = data.get_table("cellData")
+		allData["correctedDifferencePValues"] = data.get_table("correctedDifferencePValues")
+		allData["foldChanges"] = data.get_table("foldChanges")
+
+		stages = [stageCombineCellsByType, stageCombineDifferencePValues, stageFilterOnDifferences, stageComputeCorrelations, stageFilterOnCorrelations]
+		if not config["noPUC"]:
+			stages.append(stageFilterToExpectedEdges)
+		stages.append(stageCreateEdgeList)
+
 		return self.runPipeline(stages, allData, **kwargs)
 

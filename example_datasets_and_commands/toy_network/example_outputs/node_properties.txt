@@ -1,9 +1,0 @@
-name	geneE	geneF	geneG	phenoA	phenoB	phenoC	phenoD	
-Node_degrees	3	2	2	2	3	2	2	
-Node_strength	3	2	2	2	3	2	2	
-Node_clustering	0.33333	1.0	1.0	0	0.33333	1.0	1.0	
-Node_closeness	0.54545	0.4	0.4	0.6	0.54545	0.4	0.4	
-Eigenvalue_centrality	0.44962	0.33481	0.33481	0.38381	0.44962	0.33481	0.33481	
-Betweenness_centrality	0.53333	0.0	0.0	0.6	0.53333	0.0	0.0	
-Number_second_neighbors	1	1	1	4	1	1	1	
-BiBC	1.0	0.0	0.0	1.0	0.6666666666666666	0.0	0.0	

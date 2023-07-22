@@ -7,7 +7,7 @@ Giant_component	1.0
 Number_of_connected_components	1
 Freeman_centralization	0.20522
 Mean_closeness_centrality	0.42391
-Modularity	0.36611
+Modularity	0.36817
 Median_comp_size_over_#_nodes	1.0
 Degree_assortativity	0.16694
 Network_fragmentation	 0.0

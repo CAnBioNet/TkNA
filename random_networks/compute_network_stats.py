@@ -19,12 +19,13 @@ def getArgs():
 	parser = argparse.ArgumentParser(description="Computes degree and BiBC for each node in the given networks", add_help=False)
 	requiredArgGroup = parser.add_argument_group("required arguments")
 	optionalArgGroup = parser.add_argument_group("optional arguments")
-	requiredArgGroup.add_argument("--networks-file", type=str, dest="networksFile", required=True, help="Pickle file containing the networks to calculate stats for")
+	requiredArgGroup.add_argument("--networks-file", type=str, dest="networksFile", required=True, help="ZIP file containing the networks to calculate stats for")
 	requiredArgGroup.add_argument("--bibc-groups", choices=["node_types", "modularity"], dest="bibcGroups", required=True, help="Group nodes for BiBC based on type or modularity")
 	requiredArgGroup.add_argument("--bibc-calc-type", choices=["rbc", "bibc"], dest="bibcCalcType", required=True, help="Compute raw BiBC or normalize (rbc)")
-	requiredArgGroup.add_argument("--stats-file", type=str, dest="statsFile", required=True, help="Pickle file to output the network stats to")
+	requiredArgGroup.add_argument("--stats-file", type=str, dest="statsFile", required=True, help="ZIP to output the network stats to")
 	optionalArgGroup.add_argument("--node-map", "-m", dest="nodeMap", help="CSV file mapping nodes to their types. Required if node_types is specified for --bibc-groups.")
 	optionalArgGroup.add_argument("--node-groups", "-g", metavar="GROUP", nargs=2, dest="nodeGroups", help="Two types of nodes to use for BiBC grouping. Required if node_types is specified for --bibc-groups.")
+	optionalArgGroup.add_argument("--cores", type=int, help="Number of cores to use for computation. If not provided, all available cores will be used.")
 	optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 	args = parser.parse_args()
 
@@ -65,16 +66,20 @@ def largestClusters(network):
 # Returns two lists of nodes, one for each type.
 def nodesByType(args, network):
 	nodeMap = defaultdict(list)
+	allTypes = []
 	with open(args.nodeMap) as nodeMapFile:
 		nodeMapReader = csv.reader(nodeMapFile)
 		for row in nodeMapReader:
 			node, nodeType = row[0], row[1]
+			allTypes.append(nodeType)
 			if node in network.nodes:
 				nodeMap[nodeType].append(node)
 
 	for nodeGroup in args.nodeGroups:
-		if nodeGroup not in nodeMap:
+		if nodeGroup not in allTypes:
 			raise Exception(f"Specified node group \"{nodeGroup}\" not in node map")
+		if nodeGroup not in nodeMap:
+			raise Exception(f"Specified node group \"{nodeGroup}\" not present in the largest component of a network. This is likely due to low density in the generated networks.")
 
 	return nodeMap[args.nodeGroups[0]], nodeMap[args.nodeGroups[1]]
 
@@ -141,7 +146,7 @@ if __name__ == "__main__":
 	statsTempDir = tempfile.TemporaryDirectory()
 	statsTempDirPath = Path(statsTempDir.name)
 
-	with Pool() as pool:
+	with Pool(args.cores) as pool:
 		pool.map(partial(calculateNetworkStats, args, networksTempDirPath, statsTempDirPath), os.listdir(networksTempDirPath))
 
 	networksTempDir.cleanup()

@@ -8,6 +8,7 @@ from pathlib import Path
 import xarray
 
 from .util import *
+from util import Dataset
 
 def intakeSingleCellData(dataDir):
 	metadata = json.loads(readAndDecodeFile(dataDir / "metadata.json"))
@@ -33,7 +34,8 @@ def intakeSingleCellData(dataDir):
 	measurables = list(inverseMeasurableTypeMap.keys())
 	nans = numpy.empty((len(experimentNames), len(cellTypes), len(measurables)))
 	nans[:] = numpy.nan
-	allData = xarray.Dataset(data_vars={"pValue": (("differentialExperiment", "differentialCellType", "measurable"), nans.copy()), "foldChange": (("differentialExperiment", "differentialCellType", "measurable"), nans.copy())}, coords={"differentialExperiment": experimentNames, "differentialCellType": cellTypes, "measurable": measurables})
+	pValues = xarray.DataArray(nans.copy(), dims=["experiment", "cellType", "measurable"], coords={"experiment": experimentNames, "cellType": cellTypes, "measurable": measurables})
+	foldChanges = xarray.DataArray(nans.copy(), dims=["experiment", "cellType", "measurable"], coords={"experiment": experimentNames, "cellType": cellTypes, "measurable": measurables})
 
 	allExperimentData = []
 	for experimentMetadata in metadata["experiments"]:
@@ -85,13 +87,22 @@ def intakeSingleCellData(dataDir):
 				cellTypeDataFrame = pandas.read_csv(StringIO(cellTypeDataString), index_col=0)
 				cellTypeDataFrame = cellTypeDataFrame.replace(["na", "NA", "n/a", "N/A"], numpy.nan).apply(partial(pandas.to_numeric, errors="ignore"))
 				cellTypeData = xarray.DataArray(cellTypeDataFrame)
-				cellTypeData = cellTypeData.rename({"dim_0": "measurable", "dim_1": "cell"})
+				cellTypeData = cellTypeData.rename({cellTypeData.dims[0]: "measurable", cellTypeData.dims[1]: "cell"})
 
+				cellCoords = ["{}_{}".format(cell, organism) for cell in cellTypeData.coords["cell"].data] # Ensure all cells have unique coords
 				organismCoords = ["{}_{}".format(experimentName, organism)] * cellTypeData.sizes["cell"]
 				cellTypeCoords = [cellType] * cellTypeData.sizes["cell"]
 				treatmentCoords = [inverseTreatmentMap[organism]] * cellTypeData.sizes["cell"]
 
-				cellTypeData = cellTypeData.assign_coords({"organism": ("cell", organismCoords), "cellType": ("cell", cellTypeCoords), "treatment": ("cell", treatmentCoords)})
+				cellTypeData = cellTypeData.assign_coords({"cell": cellCoords, "organism": ("cell", organismCoords), "cellType": ("cell", cellTypeCoords), "treatment": ("cell", treatmentCoords)})
+
+				negatives = cellTypeData < 0
+				if negatives.any():
+					whereNegative = numpy.argwhere(negatives.data)
+					measurableAxis = negatives.get_axis_num("measurable")
+					negativeMeasurables = {negatives.measurable.data[coords[measurableAxis]] for coords in whereNegative}
+					raise Exception(f"Cannot have negative values in data, but negative values are present in experiment {experimentName}, cell type {cellType} for measurables: {negativeMeasurables}")
+
 				experimentData.append(cellTypeData)
 
 			diffFilePath = cellTypeDir / "diff.csv"
@@ -100,12 +111,12 @@ def intakeSingleCellData(dataDir):
 			diffString = readAndDecodeFile(diffFilePath)
 			differentials = pandas.read_csv(StringIO(diffString), index_col=0)
 			differentials = differentials.replace(["na", "NA", "n/a", "N/A"], numpy.nan).apply(partial(pandas.to_numeric, errors="ignore"))
-			missingMeasurables = set(differentials.axes[0]).difference(set(allData.coords["measurable"].data))
+			missingMeasurables = set(differentials.axes[0]).difference(set(pValues.coords["measurable"].data))
 			if len(missingMeasurables) != 0:
 				raise Exception("Measurables in {} not found in organism data: {}".format(diffFilePath, missingMeasurables))
-			differentialIndex = {"differentialExperiment": experimentName, "differentialCellType": cellType, "measurable": list(differentials.axes[0])}
-			allData["pValue"].loc[differentialIndex] = differentials["p_val_adj"]
-			allData["foldChange"].loc[differentialIndex] = differentials["avg_log2FC"]
+			differentialIndex = {"experiment": experimentName, "cellType": cellType, "measurable": list(differentials.axes[0])}
+			pValues.loc[differentialIndex] = differentials["p_val_adj"]
+			foldChanges.loc[differentialIndex] = differentials["avg_log2FC"]
 
 		combinedExperimentData = xarray.concat(experimentData, dim="cell")
 		experimentCoords = [experimentName] * combinedExperimentData.sizes["cell"]
@@ -113,11 +124,19 @@ def intakeSingleCellData(dataDir):
 		allExperimentData.append(combinedExperimentData)
 
 	data = xarray.concat(allExperimentData, dim="cell")
-	measurableCoords = data.coords["measurable"]
-	typeCoords = [inverseMeasurableTypeMap[measurable.item()] for measurable in measurableCoords]
-	data = data.assign_coords({"measurableType": ("measurable", typeCoords)})
 
-	allData["cellData"] = data
+	def addMeasurableTypeCoords(table):
+		measurableCoords = table.coords["measurable"]
+		typeCoords = [inverseMeasurableTypeMap[measurable.item()] for measurable in measurableCoords]
+		return table.assign_coords({"measurableType": ("measurable", typeCoords)})
+	data = addMeasurableTypeCoords(data)
+	pValues = addMeasurableTypeCoords(pValues)
+	foldChanges = addMeasurableTypeCoords(foldChanges)
 
-	return allData
+	dataset = Dataset()
+	dataset.add_table("cellData", data)
+	dataset.add_table("correctedDifferencePValues", pValues)
+	dataset.add_table("foldChanges", foldChanges)
+
+	return dataset
 

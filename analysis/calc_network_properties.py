@@ -1,23 +1,12 @@
 """
 Author: Nolan K Newman <newmanno@oregonstate.edu>
-Last updated: 1/5/23
+Last updated: 7/19/23
 
-Written in Python v3.5.3
+Written/tested in Python v3.8.10
 
 Description:
-Takes as input the pickled network file created from import_network_data.py and calculates various node and network properties for it
+Takes as input a network file and calculates various node and network properties for it
 
-Developer note: As of 9/29/19, the code no longer relies strictly on positional arguments and instead uses an argparser
-Developer note: As of 2/19/20, the script now has flags to specify whether PUC and BiBC should be calculated. Also added
-                eigenvalue centrality as another node property. On top of that, this version now incorporates positive    
-                and negative ratios of edges in the giant component now.
-Developer note: As of 6/29/20, I removed the dictionary class since I don't think it served much of a purpose. Now I just
-                add to and modify dictionaries like normal. Additionally, I added an argument where the user can specify whether 
-                they would like to calculate node fragmentation. This was needed due to how time intensive that property is to 
-                calculate.
-Developer note: As of 7/17/20, infomap was added as an option to maximize modularity
-Developer note: As of 7/28/20, the code takes a pickled input file of both a networkx graph object and a dictionary of deviation from expected values, not calculated
-                with import_network_data.py
 """
 
 import pickle
@@ -37,65 +26,94 @@ import copy
 import os
 import matplotlib.pyplot as plt
 
-#from infomap import Infomap
-
 ####### Get user input ########
 
-parser = argparse.ArgumentParser(description="Example command: python calc_network_properties.py <pickled network file> --bibc --bibc-groups node_types --bibc-calc-type bibc --node-map <node map csv> --node_groups micro pheno", add_help=False)
+parser = argparse.ArgumentParser(description="Example command: python ./analysis/calc_network_properties.py --network <file.csv> --bibc --bibc-groups <choice> --bibc-calc-type <choice> --map <file.csv> --node-groups <group 1> <group 2> --out-dir <directory>", add_help=False)
 
 requiredArgGroup = parser.add_argument_group('Required arguments')        
-requiredArgGroup.add_argument("--pickle", type=str, help="The pickle file created with import_network_data.py", required=True)
+requiredArgGroup.add_argument("--network", help= "The network file in csv format containing the reconstructed network. Must have columns called 'partner1' and 'partner2'")
+requiredArgGroup.add_argument("--out-dir", dest = "outdir", help= "Path to the directory to output results to")
+
 
 optionalArgGroup = parser.add_argument_group('Optional arguments') 
 optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 optionalArgGroup.add_argument("--frag", help = 'Flag; Do you want to compute node fragmentation centrality? (Significantly increases run-time)', action = 'store_true')
 optionalArgGroup.add_argument("--bibc", help= 'Flag; Do you want to compute BiBC? (Significantly increases run-time)', action = 'store_true')
-optionalArgGroup.add_argument("--bibc-groups", dest = "bibc_groups", choices = ['node_types', 'modularity'], help= "What to compute BiBC on, either distinct groups (node_types) or on the two most modular regions (modularity) of the network (found using the Louvain method). Required if --bibc is set")
-optionalArgGroup.add_argument("--bibc-calc-type", dest="bibc_calc_type", choices = ['rbc', 'bibc'], help= "Would you like to normalize the bibc value based on amount of nodes in each group (rbc) or not (bibc)? Required if --bibc is set.")
-optionalArgGroup.add_argument("--node-map", type=str, dest="node_map", help= "Required if node_types is specified for --bibc-groups. CSV of nodes and their types (i.e. otu, pheno, gene, etc.)")
+optionalArgGroup.add_argument("--bibc-groups", dest = "bibc_groups", choices = ['node_types', 'modularity', "node_groups_list"], help= "What to compute BiBC on, either two distinct groups (node_types), the two most modular regions (modularity) of the network (found using the Louvain method), or multiple groups (node_groups_list, calculates BiBC for each pair of groups specified with --node-groups-list). --bibc-groups is required if --bibc is set")
+optionalArgGroup.add_argument("--bibc-calc-type", dest="bibc_calc_type", choices = ['rbc', 'bibc'], help= "Would you like to normalize the BiBC value based on amount of nodes in each group (rbc) or not (bibc)? Required if --bibc is set.")
+optionalArgGroup.add_argument("--map", type=str, help= "Required if node_types is specified for --bibc-groups. CSV of nodes and their types (i.e. otu, pheno, gene, etc.)")
 optionalArgGroup.add_argument("--node-groups", nargs = 2, type=str, dest="node_groups", help= "2 args; Required if node_types is specified for --bibc-groups. The two groups of nodes to calculate BiBC/RBC on")
-
-
-
-# parser = argparse.ArgumentParser(description='Example: python calc_network_properties.py <pickled network file> --bibc --bibc_groups node_types --bibc_calc_type bibc --node_map <node map csv> --node_groups micro pheno')
-
-# # Required args
-# # pickle output from import_network_data2.py
-# parser.add_argument('pickle', help = 'The pickle file created with import_network_data.py')
-
-# # Flags and optional arguments
-# parser.add_argument("--frag", help = 'Flag; Do you want to compute node fragmentation centrality? (Significantly increases run-time)', action = 'store_true')
-# parser.add_argument("--bibc", help = 'Flag; Do you want to compute BiBC? (Significantly increases run-time)', action = 'store_true')
-# parser.add_argument("--bibc_groups", choices = ['node_types', 'modularity'], help = 'What to compute BiBC on, either distinct groups or on the two most modular regions of the network (found using the Louvain method)')
-# parser.add_argument("--bibc_calc_type", choices = ['rbc', 'bibc'], help = 'Would you like to normalize based on amount of nodes in each group (rbc) or not (bibc)?')
-# parser.add_argument("--node_map", help = 'Required if node_types is specified for --bibc_groups. CSV of nodes and their types (i.e. otu, pheno, gene, etc.)')
-# parser.add_argument("--node_groups", nargs = 2, help = '2 args; Required if node_types is specified for --bibc_groups. Its the two groups of nodes to calculate BiBC/RBC on')
-# parser.add_argument("--subnw_mean_deg", help = 'Required if you wish to calculate subnetwork mean degree. Also requires a mapping file to be supplied with --node_map')
+optionalArgGroup.add_argument("--node-groups-list", dest = "node_groups_list", help= "Similar to the --node-groups argument, but --node-groups-list is a CSV file with all groups that BiBC will be calculated between, one pair per line")
 
 args = parser.parse_args()
+outdir = args.outdir
+
+# Correct the path if needed to the output dir
+if not outdir[-1] == "/":
+    outdir = outdir + "/"
+    
+if not os.path.exists(outdir):
+    os.makedirs(outdir)  
 
 if args.bibc:
     if args.bibc_groups == "node_types":
         bibc_choice = "node_types"
-        node_input_file = args.node_map
+        node_input_file = args.map
         node_type1 = args.node_groups[0]
         node_type2 = args.node_groups[1]
 
     elif args.bibc_groups == "modularity":
         bibc_choice = "modularity"
         
+    elif args.bibc_groups == "node_groups_list":
+        bibc_choice = "node_groups_list"
+        node_input_file = args.map
+        node_type1 = None
+        node_type2 = None
+
     bibc_calc_type = args.bibc_calc_type
 
+def import_nw(fname):
+    
+    row_count = 0 
+    G = nx.Graph()
+    
+    with open(fname) as csvfile:     
+        file = csv.reader(csvfile, delimiter = ',')
+                
+        for row in file:
+                    
+            # Take the index of the source and target node in the header of the file
+            if row_count == 0: 
+                try:
+                    p1 = int(row.index("partner1"))
+                    p2 = int(row.index("partner2"))
+                except ValueError:
+                    print("\n\nERROR: Please make sure 'partner1' and 'partner2' are names of two columns in the input file.\n\n")
+
+            parameter1 = row[p1]
+            parameter2 = row[p2] 
+            
+            # Find each node that made it into the final network and the direction of the edge   
+            if row_count != 0:
+                G.add_edge(parameter1, parameter2)
+    
+            row_count += 1
+
+    csvfile.close()                
+    return(G)
 
 def connected_component_subgraphs(network):
 	return [network.subgraph(component) for component in nx.connected_components(network)]
 
 if __name__ == '__main__':
 
-    # Unpack the pickle
-    p = open(args.pickle, "rb")
-    p = pickle.load(p)
-    G = p
+    network = args.network
+    
+    G = import_nw(network)
+    
+    print("\nNumber of nodes in network: " + str(G.number_of_nodes()))
+    print("Number of edges in network: " + str(G.number_of_edges()) + "\n")
     
     class dictionary(dict):
         def __init__(self):
@@ -103,19 +121,33 @@ if __name__ == '__main__':
         def add(self, key, value):
             self[key] = value 
     
-    # Function that calculates the number of second neighbors for each node
-    def second_neighbors(G,n):
-        nn = []
-        for x in list([y for y in G.neighbors(n)]):
-            nn.append([y for y in G.neighbors(x)])
-        flat_nn = [item for sublist in nn for item in sublist]
-        return [i for i in flat_nn if i not in G.neighbors(n) and i !=  n]
+# =============================================================================
+# NOTE: This function should work properly, but the resulting values were removed from the output file late in development
+#
+#     def second_neighbors(G,n):
+#         '''
+#         Function that calculates the number of second neighbors for each node
+#         '''    
+#         
+#         nn = []
+#         for x in list([y for y in G.neighbors(n)]):
+#             nn.append([y for y in G.neighbors(x)])
+#         flat_nn = [item for sublist in nn for item in sublist]
+#         return [i for i in flat_nn if i not in G.neighbors(n) and i !=  n]
+# =============================================================================
 
-    # Function that takes as input the node_type list from the user and creates a dictionary of the type for each node. Then, for the nodes
-    # that are in the netowrk input file, it assigns types to them based on the typing from the node_type file. It then outputs 2 dictionaries
-    # of nodes, one that includes phenotypes and one that contains OTUs. These then get passed to the restricted_betweenness_centrality function,
-    # where rbc is calculated for each node.
     def assign_node_type(node_list_file, gc_nodes, type1, type2):
+        '''
+        Function that takes as input the node_type list from the user and creates a dictionary of the type for each node. Then, for the nodes
+        that are in the netowrk input file, it assigns types to them based on the typing from the node_type file. It then outputs 2 dictionaries
+        of nodes. These then get passed to the restricted_betweenness_centrality function, where rbc is calculated for each node
+        
+         Arguments:
+             - node_list_file: input file from user
+             - gc_nodes: list of nodes in the giant component
+             - type1: the type of nodes in group 1
+             - type2: the type of nodes in group 2
+        '''    
 
         otu_and_pheno_dict = {}
 
@@ -133,7 +165,7 @@ if __name__ == '__main__':
                 node_type_dict[row[0]] = row[1]
 
         # ensure the node groups supplied are both present in the mapping file
-        for nodeGroup in args.node_groups:
+        for nodeGroup in [type1, type2]:
             if nodeGroup not in list(node_type_dict.values()):
                 raise Exception(f"Specified node group \"{nodeGroup}\" not in node map")
 
@@ -152,12 +184,7 @@ if __name__ == '__main__':
         # This is because I don't want to generate a new node type file for every network and this way I can keep using the same one. 
 
         type1_for_dict = np.intersect1d(type1_list, gc_nodes)
-        print("\nCommon nodes between node_type1 input and giant component:")
-        print(type1_for_dict)        
-
         type2_for_dict = np.intersect1d(type2_list, gc_nodes)
-        print("\nCommon nodes between node_type2 input and giant component:")
-        print(type2_for_dict)        
 
         # Add the nodes from node_type1 and node_type2 that are exclusive to the network to their respective dictionaries, 
         # then return the dictionaries and use them to call the restricted_betweenness_centrality function
@@ -166,52 +193,66 @@ if __name__ == '__main__':
 
         return(otu_and_pheno_dict)
     
-    # Take only the nodes in the giant component and assign each to a subnetwork based on the node mapping file supplied by
-    # the user. Function returns a dictionary of nodes keyed by their subnetwork name
     def create_node_dict(node_list_file, gc_nodes):
-            
-            subnet_dict = dictionary()
-            node_list = list(gc_nodes)        
-            node_type_dict = dictionary()
-            uniq_subnw = []
-            
-            # Add all node-type pairs from the input file into the subnet_dict
-            with open(node_list_file) as node_file:
-                node_file = csv.reader(node_file, delimiter = ',')
-    
-                for row in node_file:
-                    parameter = row[0]
-                    sub = row[1]
-                    
-                    node_type_dict.add(parameter,sub)
-    
-                    # Generate a unique list of user-specified subnetworks
-                    if sub not in uniq_subnw: 
-                        uniq_subnw.append(sub)
-            
-                # Iterate through all the subnetworks and generate a dictionary keyed on subnw name
-                for subnet in uniq_subnw:
-                    templist = [] # Temporary list to hold unique nodes for each subnw 
-                    
-                    for k,v in node_type_dict.items():
-                       
-                        # If the node is part of the GC...
-                        if k in node_list:
-                        
-                            # and if the current subnw in the list is the same as the the current subnetwork in
-                            # the dictionary then add the list key (the node) to the list of nodes in that subnw
-                            if subnet == v: 
-                                #print(subnet + " and " + v + " are the same.")
-                                templist.append(k)
-                                #print(templist)
-                                subnet_dict.add(subnet, templist) # subnet is current subnw in list, k is node name
+        '''
+        Function that works like assign_node_type, but this one is specific for assigning types to all nodes, not just the ones used in the BiBC
+        calculation. Function returns a dictionary of nodes keyed by their subnetwork name. This function was added much later in development and
+        may be rewritten or deleted at a later time to reduce the redundancy of having two similar functions.
+        
+         Arguments:
+             - node_list_file: input file from user
+             - gc_nodes: list of nodes in the giant component
+        '''    
+        
+        subnet_dict = dictionary()
+        node_list = list(gc_nodes)        
+        node_type_dict = dictionary()
+        uniq_subnw = []
+        
+        # Add all node-type pairs from the input file into the subnet_dict
+        with open(node_list_file) as node_file:
+            node_file = csv.reader(node_file, delimiter = ',')
+
+            for row in node_file:
+                parameter = row[0]
+                sub = row[1]
                 
-            return(subnet_dict)
+                node_type_dict.add(parameter,sub)
+
+                # Generate a unique list of user-specified subnetworks
+                if sub not in uniq_subnw: 
+                    uniq_subnw.append(sub)
+        
+            # Iterate through all the subnetworks and generate a dictionary keyed on subnw name
+            for subnet in uniq_subnw:
+                templist = [] # Temporary list to hold unique nodes for each subnw 
+                
+                for k,v in node_type_dict.items():
+                   
+                    # If the node is part of the GC...
+                    if k in node_list:
+                    
+                        # and if the current subnw in the list is the same as the the current subnetwork in
+                        # the dictionary then add the list key (the node) to the list of nodes in that subnw
+                        if subnet == v: 
+                            #print(subnet + " and " + v + " are the same.")
+                            templist.append(k)
+                            #print(templist)
+                            subnet_dict.add(subnet, templist) # subnet is current subnw in list, k is node name
+            
+        return(subnet_dict)
 
 
-    # Function that finds which nodes belong to the two most modular portions of the giant component, then returns
-    # those nodes as a dictionary. These then get passed to the restricted_betweenness_centrality function below.
+    # .
     def bibc_mod(nodes_from_gc):
+        '''
+        Function that finds which nodes belong to the two most modular portions of the giant component, then returns
+        those nodes as a dictionary. These then get passed to the restricted_betweenness_centrality function below.
+        
+        Arguments:
+             - nodes_from_gc: list of nodes in the giant component
+        '''   
+        
         # Split the gc into 'clusters', clustering by the modularity
         part = community_louvain.best_partition(nodes_from_gc)
         
@@ -243,19 +284,11 @@ if __name__ == '__main__':
         return_mod = {}
         return_mod['mod1'] = large_mod
         return_mod['mod2'] = second_large_mod
-        
-        print("\n Network partitions")
-        print("Largest GC partition (", str(len(return_mod['mod1'])), " nodes):")
-        print(return_mod['mod1'])
-        print("\n")
-        print("Second largest GC partition (", str(len(return_mod['mod2'])), " nodes):")    
-        print(return_mod['mod2'])
-        print("\n")
 
         return(return_mod)        
     
     # Calculates BiBC (more correctly called restricted betweenness centrality) for each node
-    def restricted_betweenness_centrality(G,nodes_0,nodes_1,type):
+    def restricted_betweenness_centrality(G,nodes_0,nodes_1,bibctype):
         '''
         Restricted betweenness centrality that only computes centrality using paths with sources
         in nodes_0 and targets in nodes_1 (or vice versa, which double counts).
@@ -269,6 +302,12 @@ if __name__ == '__main__':
         -others: N0*N1
 
         (Should just be able to normalize by len(nodes_0)*len(nodes_1))
+        
+        Arguments:
+            - G: network in nx format
+            - nodes_0: list of nodes in first group of BiBC/RBC calculation
+            - nodes_1: list of nodes in second group of BiBC/RBC calculation
+            - bibctype: str for if user wants to calculate RBC (rbc) or BiBC (bibc)
         '''
         
         flatten = lambda l: [item for sublist in l for item in sublist]
@@ -297,7 +336,7 @@ if __name__ == '__main__':
                 rbc_other[n] = rbc[n]
     
         # If the user specifies rbc as the bibc calculation type, then normalize each node
-        if type == "rbc":
+        if bibctype == "rbc":
             # Normalize each node - code suggested by Kevin and added by Nolan
             for i in rbc_n0:
                 rbc_n0[i] = rbc_n0[i]/((len(nodes_0)-1) * len(nodes_1))
@@ -308,7 +347,7 @@ if __name__ == '__main__':
             for i in rbc_other:
                 rbc_other[i] = rbc_other[i]/(len(nodes_0) * len(nodes_1))
 
-        elif type == "bibc":
+        elif bibctype == "bibc":
             print("Normalization was not conducted on the set of nodes in the rbc function. BiBC was calculated instead.")
 
         # Return the list of BiBC of each node from each of the two groups
@@ -319,6 +358,9 @@ if __name__ == '__main__':
         Another fragmentation measure of Borgatti's, this one based on distance:
     
                 dF = 1 - sum_ij(1/d_ij)/N(N-1)
+                
+        Arguments:
+            - G: network in nx format
         '''
         N = len(G.nodes())
         sum_inv_dij = 0.0
@@ -331,75 +373,36 @@ if __name__ == '__main__':
         else:
             dF = 1
         return dF
-    
-    def plot_deg_dist(G):
-        '''
-        Creates a png of the degree distribution of the nodes in the reconstructed network
-    
-        This code was obtained from yatu's post here: https://stackoverflow.com/questions/53958700/plotting-the-degree-distribution-of-a-graph-using-nx-degree-histogram'
-    
-        '''        
-        
-        degree_freq = nx.degree_histogram(G)
-        degrees = range(len(degree_freq))
-        plt.figure(figsize=(12, 8)) 
-        plt.loglog(degrees, degree_freq,'go-', linestyle='None')  
-        plt.xlabel('Degree')
-        plt.ylabel('Frequency')
      
-    # Deprecated, now plotted in dot_plots.py
-    # def plot_deg_bibc(G):
-    #     '''
-    #     Creates a png of the degree-BiBC distribution of the nodes in the reconstructed network
+    def node_groups_from_list(fname):
+        '''
+        Takes the csv file that the user supplies if they wish to calculate more than 
+        one BiBC analysis. Parses through the file and returns a list of lists of groups to calculate BiBC between
+        '''
         
-    #     '''        
+        group_pairs = [] # list to hold the pairs of groups 
         
-    #     degree_freq = nx.degree_histogram(G)
-    #     degrees = range(len(degree_freq))
-    #     plt.figure(figsize=(12, 8)) 
-    #     plt.loglog(degrees, degree_freq,'go-', linestyle='None')  
-    #     plt.xlabel('Degree')
-    #     plt.ylabel('Frequency')
-
-    # Deprecated, now calculated in infomap_assignment.py
-    # def infomap_partition(G,n_mod=0):
-    #     '''
-    #     Wrapper to make networkx graph input compatible with the infomap
-    #     package, which just calls wrapped C code and has an annoying API
-    #     (i.e. does not talk to networkx directly, does not allow arbitrary
-    #     hashable types as nodes, etc.)
-    #     '''
-    #     im = Infomap()
-    #     # make node-to-int and int-to-node dictionaries
-    #     j = 0
-    #     node_to_int = {}
-    #     int_to_node = {}
-    #     for n in G.nodes():
-    #         node_to_int[n] = j
-    #         int_to_node[j] = n
-    #         j += 1
-    #     # copy the edges into InfoMap
-    #     for e in G.edges():
-    #         im.add_link(node_to_int[e[0]],node_to_int[e[1]])
-    #     # now run in silent mode
-    #     options_string = '--silent --preferred-number-of-modules '+str(n_mod)
-    #     im.run(options_string)
-    #     # set up the node->community id dictionary
-    #     partition = {}
-    #     for node in im.tree:
-    #         if node.is_leaf:
-    #             partition[int_to_node[node.node_id]] = node.module_id - 1
-    #     return im.codelength,partition
-
+        # Add all node-type pairs from the input file into the node_type_dict
+        with open(fname) as group_file:
+            group_file = csv.reader(group_file, delimiter = ',')
+            
+            for row in group_file:
+                pair = [row[0], row[1]]
+                group_pairs.append(pair)
+        
+        return(group_pairs)
+    
     ################################################################################
     ######################## Calculate network properties ##########################
     ################################################################################
 
-    network_name = args.pickle[:-7]
-
-    filedir = os.path.dirname(os.path.abspath(args.pickle))
-
-    with open(filedir + "/network_properties.txt", "w") as file:
+    if network[-4:] != ".csv":
+        print("Network name: " + network + "\n")
+        raise Exception("Please make sure that the network file name you are using ends in '.csv'")
+    else:
+        network_name = network[:-4]
+    
+    with open(outdir + "network_properties.txt", "w") as file:
 
         #------------------------------------------------#
         ###             Network properties             ###
@@ -522,17 +525,11 @@ if __name__ == '__main__':
     file.close()
     
 
-        ################################################################################
-        ########################## Calculate subnetwork properties #####################
-        ################################################################################       
-    with open(filedir + "/subnetwork_properties.txt", "w") as file:
+    ################################################################################
+    ########################## Calculate subnetwork properties #####################
+    ################################################################################       
+    with open(outdir + "subnetwork_properties.txt", "w") as file:
 
-        # mean_deg_subnw = mean_degree_each_subnet_move_argparse_1_2_2023.subnw_mean_degree(G, node_input_file)
-        
-        # print("\n\n\nMEAN DEGREE\n")
-        # print(mean_deg_subnw)
-        # print("\n\n\n")
-       
         file.write("\n### Subnetwork properties ###\n")
         print("Finding subnetwork mean degree...")
         
@@ -541,7 +538,7 @@ if __name__ == '__main__':
         gc_nodes = gc.nodes()
        
         # Assign nodes to subnetworks from the mapping file
-        subnets = create_node_dict(args.node_map, gc_nodes)
+        subnets = create_node_dict(node_input_file, gc_nodes)
         
         meandeg_dict = {}
         for k,v in subnets.items():
@@ -558,10 +555,10 @@ if __name__ == '__main__':
                 
     file.close()
         
-        ################################################################################
-        ########################## Calculate node properties ###########################
-        ################################################################################
-    with open(filedir + "/node_properties.txt", "w") as file:
+    ################################################################################
+    ########################## Calculate node properties ###########################
+    ################################################################################
+    with open(outdir + "node_properties.txt", "w") as file:
     
         ###    Empty cell   ###
         file.write("name\t")    
@@ -650,9 +647,7 @@ if __name__ == '__main__':
     
                 node_frag = distance_fragmentation(H)         
                 node_frag_dict[i] = node_frag
-    
-                #print("The node fragmentation value for", i, "is", node_frag)
-    
+        
             frag = ""
             for key,value in SortedDict(node_frag_dict).items():
                 frag = frag + str(value) + "\t"
@@ -661,7 +656,7 @@ if __name__ == '__main__':
     
             # For testing purposes
             dist_frag = distance_fragmentation(G)
-            print("Distance fragmentation for the entire network: " + str(dist_frag))
+            #print("Distance fragmentation for the entire network: " + str(dist_frag))
 
 
         ### Number of second neighbors ###
@@ -682,7 +677,7 @@ if __name__ == '__main__':
         #for key,value in kc.items():
         #    print(key, ";", value)
 
-        ### Bi-BC ###
+        ### BiBC ###
         # Get the nodes from /just/ the giant component because the rbc function won't work on networks with multiple subgraphs        
         gc_nodes = gc.nodes() # gc was already made earlier in the mean geodesic pathlength function
 
@@ -695,38 +690,23 @@ if __name__ == '__main__':
         otu_pheno_value_list = []        
         otu_pheno_value_str = ""
          
-        def BiBC(choice, node_file, nodes_in_gc, type1, type2, giantcomp, calc_type, otu_pv_list, otu_pv_str):
+        def parse_RBC_results(rbc_list, otu_pv_list, otu_pv_str):
             '''
-            Calculates RBC/BiBC on the specified nodes 
-        
-            This code was obtained from yatu's post here: https://stackoverflow.com/questions/53958700/plotting-the-degree-distribution-of-a-graph-using-nx-degree-histogram'
-        
-            '''   
             
-            # If the user wants to calculate based on pre-defined node types
-            if choice == "node_types":
-                # Pass the gc nodes to the function that will assign the correct node types to each of the nodes    
-                otu_pheno_types = assign_node_type(node_file, nodes_in_gc, type1, type2)
-
-                # Calculate rbc using the above function that Kevin wrote, which takes the outputs of assign_node_type
-                rbc = restricted_betweenness_centrality(giantcomp, otu_pheno_types['Type1'], otu_pheno_types['Type2'], bibc_calc_type)
-                #print(rbc)                
-
-            # Otherwise, if they wish to use modularity as the BiBC parameter...
-            elif choice == "modularity":
-                nodes_in_gc_for_bibc_mod = max(connected_component_subgraphs(G), key=len)
-                nodes_from_bibc_mod = bibc_mod(nodes_in_gc_for_bibc_mod)
-                rbc = restricted_betweenness_centrality(gc, nodes_from_bibc_mod['mod1'], nodes_from_bibc_mod['mod2'], bibc_calc_type)
-    
-            #print(rbc)
-
+            Arguments:
+                - rbc_list: list of dictionaries, one dict for each data type. Keyed on node name and value is RBC/BiBC
+                - otu_pv_list: 
+                - otu_pv_str: 
+            '''
+            
             # Combine the rbc function output into one single dictionary
-            merged_rbc = {**rbc[0], **rbc[1], **rbc[2]}
-
+            merged_rbc = {**rbc_list[0], **rbc_list[1], **rbc_list[2]}
+            
             # Loop through the list of sorted node names and for each one create a new listing in bibc_dict_w_NAs that describes
             # 1) whether the node is present in the network or not and 2) what the BiBC is of that node
             bibc_dict_w_NAs = {}
             for i in node_names_sort:
+                
                 # Check if node is in giant comp by checking to see if it was output from the rbc function (which only accepts the giant comp as input)
                 # If it is present, then just create a key of that node, using the calculated BiBC value
                 if i in merged_rbc:
@@ -737,29 +717,78 @@ if __name__ == '__main__':
 
             # Order the previously made dictionary by key name so it can be input into the properties file
             ordered_bibc = OrderedDict(sorted(bibc_dict_w_NAs.items()))
-                
+                            
             for key,value in ordered_bibc.items():
-                otu_pv_list.append(value) # otu_pheno_value_list created prior to checking if there are multiple giant components
-        
+                otu_pv_list.append(value) 
+                
             # Loop through the list containing just the values, inj order of node names and add each to the otu_pheno_value_str
             for i in otu_pv_list:
                 otu_pv_str = otu_pv_str + str(i) + "\t"
     
-            return(otu_pv_str)        
+            return(otu_pv_str)      
+        
+        def BiBC(choice, node_file, nodes_in_gc, giantcomp, calc_type, otu_pv_list, otu_pv_str, type1, type2):
+            '''
+            Calculates RBC/BiBC on the specified nodes 
+        
+            This code was obtained from yatu's post here: https://stackoverflow.com/questions/53958700/plotting-the-degree-distribution-of-a-graph-using-nx-degree-histogram'
+        
+            '''   
             
-        # The following try-except statement is intended to be used ONLY if there is an issue in calculating rbc, such as there not being 
-        # enough nodes (too restrictive of cutoffs), there only being one modular region of the giant component (if the suer specifies 
-        # modularity for bibc parameter), etc. It should (ideally) not be used to catch other errors.
+            # If the user wants to calculate based on pre-defined node types
+            if choice == "node_types":
+                # Pass the gc nodes to the function that will assign the correct node types to each of the nodes    
+                assigned_types = assign_node_type(node_file, nodes_in_gc, type1, type2)
+
+                # Calculate rbc using the above function which takes the outputs of assign_node_type
+                rbc = restricted_betweenness_centrality(giantcomp, assigned_types['Type1'], assigned_types['Type2'], bibc_calc_type)
+                
+                parse_rbc_str = parse_RBC_results(rbc, otu_pv_list, otu_pv_str)
+                return_str = "BiBC" + "_" + type1 + "_" + type2 + "\t" + parse_rbc_str + "\n"
+
+                return(return_str)
+
+            # Otherwise, if they wish to use modularity as the BiBC parameter...
+            elif choice == "modularity":
+                nodes_in_gc_for_bibc_mod = max(connected_component_subgraphs(G), key=len)
+                nodes_from_bibc_mod = bibc_mod(nodes_in_gc_for_bibc_mod)
+                rbc = restricted_betweenness_centrality(giantcomp, nodes_from_bibc_mod['mod1'], nodes_from_bibc_mod['mod2'], bibc_calc_type)
+                parse_rbc_str = parse_RBC_results(rbc, otu_pv_list, otu_pv_str)
+                return_str = "BiBC_between_modular_regions\t" + parse_rbc_str + "\n"                
+                
+                return(return_str)
+            
+            # Or, if they wish to calculate BiBC between multiple pairs of data types
+            elif choice == "node_groups_list":
+                all_group_pairs = node_groups_from_list(args.node_groups_list)
+                
+                multi_groups_out_str = ""
+                
+                for i in all_group_pairs:
+                    assigned_types = assign_node_type(node_file, nodes_in_gc, i[0], i[1])
+                    
+                    rbc = restricted_betweenness_centrality(giantcomp, assigned_types['Type1'], assigned_types['Type2'], bibc_calc_type)
+                    
+                    otu_pv_list = []
+                    otu_pv_str = ""
+                    parse_rbc_str = parse_RBC_results(rbc, otu_pv_list, otu_pv_str)
+                    
+                    temp_str = "BiBC" + "_" + i[0] + "_" + i[1] + "\t"  + parse_rbc_str + "\n"
+                    
+                    multi_groups_out_str = multi_groups_out_str + temp_str
+                
+                return(multi_groups_out_str)
+            
         if args.bibc:
-            print("Finding each node's BiBC...")
+            print("Finding each node's BiBC/RBC...")
 
             # First check if there are multiple connected components and if so then...
             if len(subg) > 1:
                 print("Multiple components were found in the graph")
 
-                # Check if the two giant comps are the same size. If so then do not bother calculating rbc
+                # Check if the two giant comps are the same size. If so then do not bother calculating BiBC
                 if len(subg[0]) == len(subg[1]):
-                    print("There are multiple giant components. BiBC of each node = NA.")
+                    print("There are multiple giant components. BiBC/RBC of each node = NA.")
     
                     # Make a list that is the length of the number of nodes in the whole network and write "NA" for the BiBC of each 
                     # node, then add those to a string and write the string to the output file
@@ -773,20 +802,26 @@ if __name__ == '__main__':
                 
                 # Otherwise, calculate BiBC      
                 elif (len(subg[0]) != len(subg[1])):
-                    print("BiBC being calculated for giant component.")
-                    output_str = BiBC(bibc_choice, node_input_file, gc_nodes, node_type1, node_type2, gc, bibc_calc_type, otu_pheno_value_list, otu_pheno_value_str)
-                    file.write("BiBC\t" + output_str + "\n")
-
+                    print("BiBC/RBC being calculated for giant component.")
+                    output_str = BiBC(bibc_choice, node_input_file, gc_nodes, gc, bibc_calc_type, otu_pheno_value_list, otu_pheno_value_str, node_type1, node_type2)
+                    file.write(output_str)
 
             # If there is only one giant comp, then compute BiBC on whole graph.        
             else:
                 print("There is only one component. BiBC being calculated on the entire graph.")
-                output_str = BiBC(bibc_choice, node_input_file, gc_nodes, node_type1, node_type2, gc, bibc_calc_type, otu_pheno_value_list, otu_pheno_value_str)
-                file.write("BiBC\t" + output_str + "\n")
+                output_str = BiBC(bibc_choice, node_input_file, gc_nodes, gc, bibc_calc_type, otu_pheno_value_list, otu_pheno_value_str, node_type1, node_type2)
+                #print(output_str)
+                file.write(output_str)
     
         # Overwrite any previous file with same name instead of appending    
         file.truncate()
                 
     file.close()
 
-print("\nNetwork and node properties have been calculated. Check the *properties.txt files in " + filedir + "/.\n")
+    pickle.dump(G, open(outdir + "network.pickle", "wb"))
+
+
+print("\nNetwork and node properties have been calculated. Check the following files for results:")
+print(outdir + "network_properties.txt")
+print(outdir + "subnetwork_properties.txt")
+print(outdir + "node_properties.txt" + "\n")

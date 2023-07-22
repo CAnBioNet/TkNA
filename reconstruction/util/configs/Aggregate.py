@@ -61,6 +61,7 @@ aggregateConfigSpec = Config([
 	TypedConfigItem("correlationFilterPercentAgreementThreshold", Number, default=0.75),
 	TypedConfigItem("metatreatments", dict, default=None),
 	TypedConfigItem("metatreatmentsToCombine", list, default=None),
-	TypedConfigItem("metatreatmentsForDirectionFiltering", list, default=None)
+	TypedConfigItem("metatreatmentsForDirectionFiltering", list, default=None),
+	TypedConfigItem("noPUC", bool, default=False)
 ], validateConfig)
 
