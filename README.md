@@ -111,7 +111,7 @@ python ./analysis/infomap_assignment.py --network ./project_folder/output/networ
 
 #### Inputs
  - `--network`: `The path to the network file, either in .pickle or .csv format
- - `--network-format`: Format of the network file; Either use 'pickle' with the network.pickle file output made by assess_network.py (if network was reconstructed using the TkNA pipeline) or 'csv' if the network was reconstructed using an alternative pipeline (must be in .csv format and have 'partner1' and 'partner2' as the headers for the two node columns
+ - `--network-format`: Format of the network file; Either use 'pickle' with the network.pickle file output made by calc_network_properties.py or 'csv' (must be in .csv format and have 'partner1' and 'partner2' as the headers for the two node columns, e.g. the network_output_comp.csv from to_csv.py)
  - `--map`: CSV file with the name of the node in the first column and its data type in the second column
  - `--out-dir`: Path to the directory to output results to
 
@@ -133,7 +133,7 @@ Python ./analysis/louvain_partition.py --network ./project_folder/output/network
 
 #### Inputs and arguments
  - `--network`: `The path to the network file, either in .pickle or .csv format
- - `--network-format`: Format of the network file; Either use 'pickle' with the network.pickle file output made by assess_network.py (if network was reconstructed using the TkNA pipeline) or 'csv' if the network was reconstructed using an alternative pipeline (must be in .csv format and have 'partner1' and 'partner2' as the headers for the two node columns
+ - `--network-format`: Format of the network file; Either use 'pickle' with the network.pickle file output made by calc_network_properties.py or 'csv' (must be in .csv format and have 'partner1' and 'partner2' as the headers for the two node columns, e.g. the network_output_comp.csv from to_csv.py)
  - `--map`: CSV file with the name of the node in the first column and its data type in the second column
  - `--out-dir`: Path to the directory to output results to
 

@@ -261,7 +261,7 @@ for nw in nws_by_type:
         nw_edge_full_graph_ratio = round((G.number_of_edges()/expec_total) * 100, 2)
     
     else:
-        print("Not enough positive or negative nodes to calculate most basic properties of the " + nw_type + " network. This script requires the input network to have at least two positive log2 foldchange nodes and two negative log2 foldchange nodes")
+        print("Warning: Not enough positive or negative nodes to calculate some basic properties of the " + nw_type + " network. These calculations require the input network to have at least two positive log2 foldchange nodes and two negative log2 foldchange nodes")
         # Calculate PUC (the proportion of edges that do not follow the expected direction). 
         puc = round((100 * (puc_noncompliant / signif_meta_edge)), 2)
         
