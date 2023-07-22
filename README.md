@@ -181,7 +181,7 @@ python ./analysis/calc_network_properties.py --network ./project_folder/output/n
 
 #### Inputs and arguments
  - `--network`: The network file in CSV format containing the reconstructed network. Must have columns called 'partner1' and 'partner2'.
- - `--bibc`: Flag for whether to compute Bipartite Betweenness Centrality (BiBC). This is highly rec-ommended and also required for future steps
+ - `--bibc`: Flag for whether to compute Bipartite Betweenness Centrality (BiBC). This is highly recommended and also required for future steps
  - `--bibc-groups`: Choice for what to compute BiBC on, either distinct groups (node_types) or on the two most modular regions of the network (found using the Louvain method)
  - `--bibc-calc-type`: Choice for whether to normalize based on the number of nodes in each group (rbc) or not (bibc)
  - `--node-map`: CSV file containing the name of nodes in the first column and the type of the node (gene, phenotype, microbe, etc.) in the second column
@@ -324,7 +324,7 @@ python ./visualization/plot_density.py --rand-net ./project_folder/output/networ
 #### Inputs
  - `--rand-net`: file output by `synthesize_network_stats.py`
  - `--pickle`: `inputs_for_downstream_plots.pickle` file output by `dot_plots.py`
- - `--bibc-name`: The 'name' of the BiBC calculation performed, from the node_properties.txt file. Exam-ple: BiBC_microbe_pheno (if BiBC was calculated between the microbe and pheno groups)
+ - `--bibc-name`: The 'name' of the BiBC calculation performed, from the node_properties.txt file. Example: BiBC_microbe_pheno (if BiBC was calculated between the microbe and pheno groups)
  
 #### Default outputs
  - `density_plot_with_top_nodes_from_dotplots.png`: contour plot with the top nodes (found in `dot_plots.py`) from the real reconstructed network overlaid on top
