@@ -130,7 +130,7 @@ if __name__ == "__main__":
 			CsvWriter.Property("Measurable 2", "medians", "measurable2"),
 			CsvWriter.Property("Cell Type 1", "medians", "cellType1"),
 			CsvWriter.Property("Cell Type 2", "medians", "cellType2"),
-			CsvWriter.PropertiesFormatted("Edge Type", "medians", "{}<==>{}", ["cellType1", "cellType2"]),
+			CsvWriter.PropertiesFormatted("Edge Type", "medians", "{}<==>{}", ["cellType1", "cellType2"], order=True),
 			*dataColumns
 		)
 	else:
