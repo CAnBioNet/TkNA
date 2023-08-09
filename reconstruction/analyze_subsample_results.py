@@ -33,7 +33,7 @@ if __name__ == "__main__":
 	dataZip = ZipFile(args.dataFile)
 	nameList = dataZip.namelist()
 	subsampleIndices = sorted({int(name.split("/")[0]) for name in nameList})
-	neededArrays = {arrayName: [] for arrayName in ["correlationCoefficients", "combinedCorrelationPValues", "correctedCorrelationPValues"]}
+	neededArrays = {arrayName: [] for arrayName in ["correlationCoefficients", "combinedCorrelationPValues", "correctedCorrelationPValues", "edges"]}
 	for index in subsampleIndices:
 		for arrayName, arrayList in neededArrays.items():
 			fileName = "{}/{}".format(index, arrayName)
@@ -76,6 +76,7 @@ if __name__ == "__main__":
 	rVals = xarray.concat(dataArrays["correlationCoefficients"], dim="subsample")
 	combinedPVals = xarray.concat(dataArrays["combinedCorrelationPValues"], dim="subsample")
 	correctedPVals = xarray.concat(dataArrays["correctedCorrelationPValues"], dim="subsample")
+	edges = xarray.concat(dataArrays["edges"], dim="subsample")
 
 	if args.singlecell:
 		nodeDims = ["measurableAndCellType1", "measurableAndCellType2"]
@@ -85,9 +86,11 @@ if __name__ == "__main__":
 	combinedPValMedians = combinedPVals.median(dim="subsample")
 	correctedPValMedians = correctedPVals.median(dim="subsample")
 
-	combinedData = rVals.mean(dim="metatreatment")
-	percentInclusions = combinedData.count(dim="subsample") / combinedData.sizes["subsample"]
+	edgeIncluded = edges != 0
+	subsampleAxis = edgeIncluded.get_axis_num("subsample")
+	percentInclusions = xarray.apply_ufunc(numpy.count_nonzero, edgeIncluded, input_core_dims=[edgeIncluded.dims], output_core_dims=[nodeDims], kwargs=dict(axis=subsampleAxis)) / edgeIncluded.sizes["subsample"]
 
+	combinedData = rVals.mean(dim="metatreatment")
 	medians = combinedData.median(dim="subsample")
 	maxs = combinedData.max(dim="subsample")
 	mins = combinedData.min(dim="subsample")
