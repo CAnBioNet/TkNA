@@ -10,7 +10,7 @@ import xarray
 from zipfile import ZipFile
 
 from reconstruction import NetworkReconstructorAggregate, NetworkReconstructorSingleCell
-from util import parseConfigFile
+from util import parseConfigFile, Dataset
 from util.configs import aggregateConfigSpec, singleCellConfigSpec
 
 def getArgs():
@@ -54,20 +54,37 @@ if __name__ == "__main__":
 
 	subsamples = readJson(args.subsampleFile)
 
+	dataset = Dataset()
+	dataset.load_from_file(args.dataFile)
+
 	if args.singlecell:
-		data = xarray.open_dataset(args.dataFile)
 		network_reconstructor = NetworkReconstructorSingleCell()
 	else:
-		data = xarray.open_dataarray(args.dataFile)
 		network_reconstructor = NetworkReconstructorAggregate()
+
+	if args.singlecell:
+		coordToSubsample = "cell"
+	else:
+		coordToSubsample = "organism"
+	tablesToSubsampleNames = []
+	otherTablesNames = []
+	tableNames = dataset.get_table_names()
+	for tableName in tableNames:
+		if coordToSubsample in dataset.get_table(tableName).coords:
+			tablesToSubsampleNames.append(tableName)
+		else:
+			otherTablesNames.append(tableName)
 
 	allResults = []
 	for subsample in subsamples:
-		if args.singlecell:
-			subsampledData = data.isel(cell=subsample)
-		else:
-			subsampledData = data.isel(organism=subsample)
-		results = network_reconstructor.reconstructNetwork(config, subsampledData)
+		subsampledDataset = Dataset()
+		for tableName in otherTablesNames:
+			subsampledDataset.add_table(tableName, dataset.get_table(tableName))
+		for tableName in tablesToSubsampleNames:
+			tableToSubsample = dataset.get_table(tableName)
+			subsampledTable = tableToSubsample.isel({coordToSubsample: subsample})
+			subsampledDataset.add_table(tableName, subsampledTable)
+		results = network_reconstructor.reconstructNetwork(config, subsampledDataset)
 		allResults.append(results)
 
 	args.outputFile.parent.mkdir(parents=True, exist_ok=True)

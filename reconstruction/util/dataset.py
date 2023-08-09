@@ -18,6 +18,9 @@ class Dataset:
 		self.objects = {}
 		self.loaded = False
 
+	def get_table_names(self):
+		return self.tables.keys()
+
 	def add_table(self, name, table):
 		if name in self.tables:
 			raise ItemExistsError(f"Table with name \"{name}\" already exists in dataset")
