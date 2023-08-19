@@ -18,7 +18,7 @@ def getArgs():
 	requiredArgGroup.add_argument("-n", "--nsubsamples", type=int, required=True, help="Number of subsamples to generate.")
 	optionalArgGroup.add_argument("-s", "--singlecell", action="store_true", default=False, help="Create subsamples for single-cell data instead of aggregate data. By default, this will subsample cells rather than organisms. To override this behavior, use the -o/--organism option to subsample organisms or the -b/--both-organisms-and-cells option to subsample both.")
 	optionalArgGroup.add_argument("-o", "--organism", action="store_true", default=False, help="Subsample over organisms, even for single-cell data (this is the default behavior for aggregate data)")
-	optionalArgGroup.add_argument("-b", "--both-organisms-and-cells", dest="bothOrganismsAndCells", nargs=2, metavar=("ORGANISM_NSUBSAMPLES", "ORGANISM_PROPORTION"), help="Subsample over organisms, then over cells (only applicable to single-cell, -s). The additional arguments are the number of times to sample the organisms and the proportion of organisms in each treatment to use for each subsample. For each sample of organisms, the cells in each organism will be sampled within their cell type NSUBSAMPLES (-n/--nsubsamples) times with proportion PROPORTION (-p/--proportion). This will produce a total of ORGANISM_NSUBSAMPLES * NSUBSAMPLES subsamples. Proportion must satisfy 0 < p < 1.")
+	optionalArgGroup.add_argument("-b", "--both-organisms-and-cells", dest="bothOrganismsAndCells", nargs=1, metavar="ORGANISM_PROPORTION", help="Subsample over organisms and cells (only applicable to single-cell, -s). The additional argument is the proportion of organisms in each treatment to use for each subsample and must satisfy 0 < p < 1.")
 	optionalArgGroup.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 	args = parser.parse_args()
 
@@ -43,8 +43,7 @@ def getArgs():
 			raise Exception("Can only use -b/--both-organisms-and-single-cells with single-cell data (-s/--singlecell).")
 
 	if bothOrganismsAndCells:
-		args.organismNSubsamples = int(args.bothOrganismsAndCells[0])
-		args.organismProportion = float(args.bothOrganismsAndCells[1])
+		args.organismProportion = float(args.bothOrganismsAndCells[0])
 		if args.organismProportion <= 0 or args.organismProportion >= 1:
 			raise Exception("Proportion of organisms out of bounds. Must satisfy 0 < p < 1.")
 
@@ -89,26 +88,22 @@ if __name__ == "__main__":
 			organismCellMap[organism].append(index)
 
 		def subsampleCells(organisms):
-			subsamples = []
-			for i in range(args.nsubsamples):
-				subsample = []
-				for organism in organisms:
-					organismCellIndices = set(organismCellMap[organism])
-					for cellType in cellTypeMap:
-						cellTypeCellIndices = set(cellTypeMap[cellType])
-						matchingCellIndices = organismCellIndices.intersection(cellTypeCellIndices)
-						subsetSubsampleSize = round(args.proportion * len(matchingCellIndices))
-						subsetSubsample = random.sample(matchingCellIndices, subsetSubsampleSize)
-						subsample.extend(subsetSubsample)
-				subsample.sort()
-				subsamples.append(subsample)
-			return subsamples
+			subsample = []
+			for organism in organisms:
+				organismCellIndices = set(organismCellMap[organism])
+				for cellType in cellTypeMap:
+					cellTypeCellIndices = set(cellTypeMap[cellType])
+					matchingCellIndices = organismCellIndices.intersection(cellTypeCellIndices)
+					subsetSubsampleSize = round(args.proportion * len(matchingCellIndices))
+					subsetSubsample = random.sample(matchingCellIndices, subsetSubsampleSize)
+					subsample.extend(subsetSubsample)
+			subsample.sort()
+			return subsample
 
 		if args.organism or args.bothOrganismsAndCells:
 			# Take a sample of the organisms from each treatment
-			organismNSubsamples = args.nsubsamples if args.organism else args.organismNSubsamples
 			organismProportion = args.proportion if args.organism else args.organismProportion
-			for i in range(organismNSubsamples):
+			for i in range(args.nsubsamples):
 				organismSubsample = []
 				for experimentOrganisms in experimentMap.values():
 					for treatmentOrganisms in treatmentMap.values():
@@ -122,11 +117,12 @@ if __name__ == "__main__":
 					subsamples.append(subsample)
 				elif args.bothOrganismsAndCells:
 					# Now that we have a sample of the organisms, take a sample of each selected organism's cells within each cell type
-					subsamples.extend(subsampleCells(organismSubsample))
+					subsamples.append(subsampleCells(organismSubsample))
 				else:
 					raise Exception("Argument state invalid.")
 		else:
-			subsamples.extend(subsampleCells(organismCellMap.keys()))
+			for i in range(args.nsubsamples):
+				subsamples.append(subsampleCells(organismCellMap.keys()))
 	else:
 		data = dataset.get_table("originalData")
 
