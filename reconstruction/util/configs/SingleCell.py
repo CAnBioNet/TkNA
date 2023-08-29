@@ -53,6 +53,7 @@ singleCellConfigSpec = Config([
 		MultiTypeConfigItem("combined", [Number, dict], default=0.05),
 		MultiTypeConfigItem("corrected", [Number, dict], default=0.1)
 	]), default=UseSubDefaults()),
+	MultiTypeConfigItem("correlationCoefficientThresholds", [Number, dict], default=None),
 	TypedConfigItem("correlationFilterMethod", str, default="allsamesign"),
 	TypedConfigItem("correlationFilterPercentAgreementThreshold", Number, default=0.75),
 	TypedConfigItem("correctCorrelationPValuesAfterConsistencyFiltering", bool, default=False),

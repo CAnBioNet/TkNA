@@ -418,13 +418,11 @@ def filterDiagonals(pValues):
 	diagonalFilter = xarray.DataArray(diagonalFilter, dims=pValues.dims, coords=pValues.coords)
 	return diagonalFilter
 
-def filterOnCorrelationPValues(config, pValues, pValueType):
+def filterUsingThreshold(values, threshold, valueType):
 	# TODO: Thresholds for measurableType combinations as well
-	threshold = config["correlationPValueThresholds"][pValueType]
-
 	if isinstance(threshold, dict):
-		def filterTypeCombo(typeComboPValues):
-			cellTypes = [str(typeComboPValues.coords[typeCoord][0].values) for typeCoord in ["cellType1", "cellType2"]]
+		def filterTypeCombo(typeComboValues):
+			cellTypes = [str(typeComboValues.coords[typeCoord][0].values) for typeCoord in ["cellType1", "cellType2"]]
 			cellTypeString = "({}, {})".format(*cellTypes)
 			cellTypeStringReversed = "({1}, {0})".format(*cellTypes)
 			if cellTypeString in threshold:
@@ -432,13 +430,22 @@ def filterOnCorrelationPValues(config, pValues, pValueType):
 			elif cellTypeStringReversed in threshold:
 				typeComboThreshold = threshold[cellTypeStringReversed]
 			else:
-				raise Exception("No threshold for {} specified in correlation p-value thresholds".format(cellTypeString))
-			return typeComboPValues <= typeComboThreshold
-		filterTable = pValues.groupby("cellType1").map(lambda cellType1Data: cellType1Data.groupby("cellType2").map(filterTypeCombo))
+				raise Exception(f"No threshold for {cellTypeString} specified in {valueType} thresholds")
+			return typeComboValues <= typeComboThreshold
+		filterTable = values.groupby("cellType1").map(lambda cellType1Data: cellType1Data.groupby("cellType2").map(filterTypeCombo))
 	else:
-		filterTable = pValues <= threshold
+		filterTable = values <= threshold
 
 	return filterTable
+
+def filterOnCorrelationCoefficients(config, coefficients):
+	threshold = config["correlationCoefficientThresholds"]
+	maxCoefficients = coefficients.max(dim="metatreatment")
+	return filterUsingThreshold(maxCoefficients, threshold, "correlation coefficient")
+
+def filterOnCorrelationPValues(config, pValues, pValueType):
+	threshold = config["correlationPValueThresholds"][pValueType]
+	return filterUsingThreshold(pValues, threshold, "correlation p-value")
 
 def filterOnIndividualCorrelationPValues(config, pValues):
 	maxPValues = pValues.max(dim="metatreatment")
@@ -529,6 +536,10 @@ class NetworkReconstructorSingleCell(NetworkReconstructor):
 			allData["combinedCorrelationPValueFilter"] = filterOnCombinedCorrelationPValues(config, allData["combinedCorrelationPValues"])
 			allData["correctedCorrelationPValueFilter"] = filterOnCorrectedCorrelationPValues(config, allData["correctedCorrelationPValues"])
 			allData["edgeFilter"] = allData["diagonalFilter"] & allData["individualCorrelationPValueFilter"] & allData["combinedCorrelationPValueFilter"] & allData["correctedCorrelationPValueFilter"] & allData["correlationFilter"]
+
+			if config["correlationCoefficientThresholds"] is not None:
+				allData["correlationCoefficientFilter"] = filterOnCorrelationCoefficients(config, allData["correlationCoefficients"])
+				allData["edgeFilter"] &= allData["correlationCoefficientFilter"]
 
 		def stageFilterToExpectedEdges(allData):
 			allData["expectedEdgeFilter"], allData["foldChangeSignProducts"] = filterOnExpectedEdges(config, allData["combinedFoldChangeSigns"], allData["combinedCorrelationSigns"], allData["measurableFilterStacked"])
