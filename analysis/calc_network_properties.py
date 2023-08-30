@@ -31,8 +31,8 @@ import matplotlib.pyplot as plt
 parser = argparse.ArgumentParser(description="Example command: python ./analysis/calc_network_properties.py --network <file.csv> --bibc --bibc-groups <choice> --bibc-calc-type <choice> --map <file.csv> --node-groups <group 1> <group 2> --out-dir <directory>", add_help=False)
 
 requiredArgGroup = parser.add_argument_group('Required arguments')        
-requiredArgGroup.add_argument("--network", help= "The network file in csv format containing the reconstructed network. Must have columns called 'partner1' and 'partner2'")
-requiredArgGroup.add_argument("--out-dir", dest = "outdir", help= "Path to the directory to output results to")
+requiredArgGroup.add_argument("--network", help= "The network file in csv format containing the reconstructed network. Must have columns called 'partner1' and 'partner2'", required=True)
+requiredArgGroup.add_argument("--out-dir", dest = "outdir", help= "Path to the directory to output results to", required=True)
 
 
 optionalArgGroup = parser.add_argument_group('Optional arguments') 
