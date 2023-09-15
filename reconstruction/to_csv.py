@@ -164,6 +164,8 @@ def setupEdgeCsv(data, config):
 	if not config["noPUC"]:
 		data["expectedEdgeFilterInt"] = data["expectedEdgeFilter"].astype(int)
 		data["nonPucPassed"] = data["diagonalFilter"] & data["individualCorrelationPValueFilter"] & data["combinedCorrelationPValueFilter"] & data["correctedCorrelationPValueFilter"] & data["correlationFilter"]
+		if "correlationCoefficientFilter" in data:
+			data["nonPucPassed"] &= data["correlationCoefficientFilter"]
 	data["meanValue"] = data["originalData"].groupby("experiment").map(lambda a: a.mean(dim="organism"))
 	data["medianValue"] = data["originalData"].groupby("experiment").map(lambda a: a.median(dim="organism"))
 
@@ -308,6 +310,11 @@ def writeConfigValues(config, outDir):
 
 	def writeThresholds(thresholdKey):
 		pValueThresholds = config[thresholdKey]
+
+		if not isinstance(pValueThresholds, dict):
+			configValuesFile.write("\tall: {}\n".format(pValueThresholds))
+			return
+
 		arePerTypeThresholds = False
 		types = []
 		for threshold in pValueThresholds.values():
@@ -332,13 +339,22 @@ def writeConfigValues(config, outDir):
 			for thresholdType, threshold in pValueThresholds.items():
 				configValuesFile.write("\t{}: {}\n".format(thresholdType, threshold))
 
-	configValuesFile.write("Comparison thresholds:\n")
+	configValuesFile.write("Comparison p-value thresholds:\n")
 	writeThresholds("differencePValueThresholds")
 
 	configValuesFile.write("\n")
 
-	configValuesFile.write("Correlation thresholds:\n")
+	configValuesFile.write("Correlation p-value thresholds:\n")
 	writeThresholds("correlationPValueThresholds")
+
+	coefficientThresholds = config["correlationCoefficientThresholds"]
+	if coefficientThresholds is not None:
+		configValuesFile.write("\nCorrelation coefficient thresholds:\n")
+		if not isinstance(coefficientThresholds, dict):
+			configValuesFile.write("\tall: {}\n".format(coefficientThresholds))
+		else:
+			for type_, threshold in coefficientThresholds.items():
+				configValuesFile.write("\t{}: {}\n".format(type_, threshold))
 
 	configValuesFile.close()
 
