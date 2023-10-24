@@ -117,6 +117,8 @@ nws_by_type = find_unique_networks(corr_file)
 
 output_properties_df = pd.DataFrame()
     
+#print(nws_by_type[0])
+
 for nw in nws_by_type:
     
     nw_type = str(nw.Edge_Type.unique()[0])
@@ -137,6 +139,7 @@ for nw in nws_by_type:
     signif_meta_edge = 0 # number of edges that are significant and pass the meta-analysis thresholds
     
     for index, row in nw.iterrows():
+
         parameters = row['partner1'], row['partner2']
     
         list_to_tuple = tuple(parameters)
@@ -194,7 +197,10 @@ for nw in nws_by_type:
     
     total_nodes = int(pos_nodes) + int(neg_nodes)
 
-    obs_edge_node_ratio = G.number_of_edges() / total_nodes
+    if total_nodes != 0:
+        obs_edge_node_ratio = G.number_of_edges() / total_nodes
+    else: 
+        obs_edge_node_ratio = "NaN"
 
     if neg_nodes != 0:
         obs_posneg_node_ratio = int(pos_nodes) / int(neg_nodes)
@@ -206,6 +212,7 @@ for nw in nws_by_type:
     else:
         obs_negpos_node_ratio = "NaN"
 
+    print("\n\n\nSubnetwork type: " + nw_type)
 
     # Find the number of edges in a full graph
     if pos_nodes > 2 and neg_nodes > 2:
@@ -261,13 +268,20 @@ for nw in nws_by_type:
         nw_edge_full_graph_ratio = round((G.number_of_edges()/expec_total) * 100, 2)
     
     else:
-        print("Warning: Not enough positive or negative nodes to calculate some basic properties of the " + nw_type + " network. These calculations require the input network to have at least two positive log2 foldchange nodes and two negative log2 foldchange nodes")
-        # Calculate PUC (the proportion of edges that do not follow the expected direction). 
-        puc = round((100 * (puc_noncompliant / signif_meta_edge)), 2)
+        print("\n\n!!!\nWarning: Not enough positive or negative nodes to calculate some or all basic properties of the " + nw_type + " network. \nThese calculations require the input network to have at least two positive log2 foldchange nodes and two negative log2 foldchange nodes.\n!!!")
         
+        if signif_meta_edge != 0:
+            # Calculate PUC (the proportion of edges that do not follow the expected direction). 
+            puc = round((100 * (puc_noncompliant / signif_meta_edge)), 2)
+        else:
+            puc = "NA"  
+            
         # mean degree
-        mdeg = 2 * G.number_of_edges() / G.number_of_nodes()      
-        
+        if G.number_of_nodes() != 0:
+            mdeg = 2 * G.number_of_edges() / G.number_of_nodes()      
+        else:
+            mdeg = "NaA"
+            
         expec_pos = "NA"
         expec_neg = "NA"
         expec_total = "NA"          
@@ -309,7 +323,6 @@ for nw in nws_by_type:
         
 
     
-    print("\n\n\nSubnetwork type: " + nw_type)
     print("\nPUC: " + "{}%".format(str(puc)))
     print("Mean degree: " + str(mdeg))
     print("Edges in network over the edges in a full graph: " + str(nw_edge_full_graph_ratio))
