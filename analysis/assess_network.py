@@ -204,15 +204,15 @@ for nw in nws_by_type:
     fc_parameters_current_nw = dict((k, fc_parameters[k]) for k in G.nodes())   
 
     # Find the ratio of positive:negative edges (and vice versa) in the observed graph
-    if int(negative_corr_nw) != 0:
+    try:
         obs_posneg_ratio = int(positive_corr_nw)/int(negative_corr_nw)
-    else:
-        obs_posneg_ratio = "Inf"
+    except:
+        obs_posneg_ratio = "NA"
         
-    if int(positive_corr_nw) != 0:
+    try:
         obs_negpos_ratio = int(negative_corr_nw)/int(positive_corr_nw)
-    else:
-        obs_negpos_ratio = "Inf"
+    except:
+        obs_negpos_ratio = "NA"
 
 
     # Count the number of positive and negative nodes in the current network  
@@ -222,20 +222,20 @@ for nw in nws_by_type:
     
     total_nodes = int(pos_nodes) + int(neg_nodes)
 
-    if total_nodes != 0:
+    try:
         obs_edge_node_ratio = G.number_of_edges() / total_nodes
-    else: 
-        obs_edge_node_ratio = "NaN"
+    except:
+        obs_edge_node_ratio = "NA"
 
-    if neg_nodes != 0:
+    try:
         obs_posneg_node_ratio = int(pos_nodes) / int(neg_nodes)
-    else:
-        obs_posneg_node_ratio = "NaN"
+    except:
+        obs_posneg_node_ratio = "NA"
         
-    if pos_nodes != 0:            
+    try:
         obs_negpos_node_ratio = int(neg_nodes) / int(pos_nodes)
-    else:
-        obs_negpos_node_ratio = "NaN"
+    except:
+        obs_negpos_node_ratio = "NA"
 
 
     # Find the number of edges in a full graph
@@ -253,36 +253,36 @@ for nw in nws_by_type:
         expec_edge_node_ratio = expec_total / total_nodes
             
         # Find the ratio of positive:negative edges (and vice versa) in a full graph
-        if expec_neg != 0:
+        try:
             ideal_ratio_posneg = round(expec_pos/expec_neg, 2)
-        else: 
-            ideal_ratio_posneg = "Inf"
+        except:
+            ideal_ratio_posneg = "NA"
         
-        if expec_pos != 0:
+        try:
             ideal_ratio_negpos = round(expec_neg/expec_pos, 2)
-        else:
-            ideal_ratio_negpos = "Inf"
+        except:
+            ideal_ratio_negpos = "NA"
             
         # Calculate the non-normalized deviation from the expected (full) graph
-        if obs_posneg_ratio != "Inf" and ideal_ratio_posneg != "Inf":
+        try:
             dev_posneg = round(obs_posneg_ratio/ideal_ratio_posneg, 2)
-        else:
+        except:
             dev_posneg = "NA"
             
-        if obs_negpos_ratio != "Inf" and ideal_ratio_negpos != "Inf":
+        try:
             dev_negpos = round(obs_negpos_ratio/ideal_ratio_negpos, 2)
-        else:
+        except:
             dev_negpos = "NA"
         
         #Calculate the normalized deviation from the expected (full) graph
-        if obs_posneg_ratio != "Inf" and ideal_ratio_posneg != "Inf":
+        try:
             dev_norm_posneg = round((obs_posneg_ratio - ideal_ratio_posneg) / ideal_ratio_posneg, 2)
-        else:
+        except:
             dev_norm_posneg = "NA"
             
-        if obs_negpos_ratio != "Inf" and ideal_ratio_negpos != "Inf":
+        try:
             dev_norm_negpos = round((obs_negpos_ratio - ideal_ratio_negpos) / ideal_ratio_negpos, 2)
-        else:
+        except:
             dev_norm_negpos = "NA"
         
         # calculate the normalized deviation of the edge:node (density) from the full graph
@@ -300,16 +300,16 @@ for nw in nws_by_type:
         with open(args.outdir + "assess_network_log.txt","a") as logfile:
             logfile.write(warnmessage)
         
-        if signif_meta_edge != 0:
+        try:
             # Calculate PUC (the proportion of edges that do not follow the expected direction). 
             puc = round((100 * (puc_noncompliant / signif_meta_edge)), 2)
-        else:
+        except:
             puc = "NA"  
             
         # mean degree
-        if G.number_of_nodes() != 0:
+        try:
             mdeg = 2 * G.number_of_edges() / G.number_of_nodes()      
-        else:
+        except:
             mdeg = "NA"
             
         expec_pos = "NA"
