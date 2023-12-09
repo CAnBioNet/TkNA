@@ -4,6 +4,13 @@ import tempfile
 import xarray
 from zipfile import ZipFile
 
+# Adapted from https://github.com/pydata/xarray/pull/7689
+def resetDataarrayEncoding(da):
+	ds = da._to_temp_dataset()
+	reset_variables = {k: v._replace(encoding={}) for k, v, in ds.variables.items()}
+	ds = ds._replace(variables=reset_variables, encoding={})
+	return da._from_temp_dataset(ds)
+
 class NetworkReconstructor:
 	def runPipeline(self, stages, allData={}, start=None, stopStage=None, dataOutFilePath=None):
 		started = True
@@ -32,6 +39,7 @@ class NetworkReconstructor:
 				for dim in dims:
 					if isinstance(dataArray.get_index(dim), pandas.MultiIndex):
 						dataArray = dataArray.reset_index(dim)
+				dataArray = resetDataarrayEncoding(dataArray) # See https://github.com/pydata/xarray/issues/6352
 				dataArray.to_netcdf(tempFile.name)
 				dataOutZip.write(tempFile.name, arcname=dataName)
 				tempFile.close()
