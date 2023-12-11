@@ -174,7 +174,7 @@ python ./analysis/find_all_shortest_paths_bw_subnets.py --network ./project_fold
 python ./analysis/calc_network_properties.py --network <file.csv> --bibc --bibc-groups <choice> --bibc-calc-type <choice> --map <file.csv> --node-groups <group 1> <group 2> --out-dir <directory>
 ```
 
-#### Example command
+#### Example command:
 ```
 python ./analysis/calc_network_properties.py --network ./project_folder/output/network_output/network_output_comp.csv --bibc --bibc-groups node_types --bibc-calc-type rbc --map ./project_folder/input/type_map.csv --node-groups microbe pheno --out-dir ./project_folder/output/network_output/
 ```
