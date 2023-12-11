@@ -295,7 +295,7 @@ python ./visualization/plot_abundance.py --pickle <file.pickle> --abund-data <li
 
 #### Example command
 ```
-python ./visualization/plot_abundance.py --pickle ./project_folder/output/network_output/inputs_for_downstream_plots.pickle --abund-data ./project_folder/input/Expt1.csv ./project_folder/input/Expt2.csv --metadata ./project_folder/input/Expt1_meta.csv ./project_folder/input/Expt2_meta.csv --x-axis Experiment --group-names NCD HFD --group-colors orange blue
+python ./visualization/plot_abundance.py --pickle ./project_folder/output/network_output/inputs_for_downstream_plots.pickle --abund-data ./project_folder/input/Experiment1.csv ./project_folder/input/Experiment2.csv --metadata ./project_folder/input/Experiment1_group_map.csv ./project_folder/input/Experiment2_group_map.csv --x-axis Experiment --group-names ileum8wkHFHS ileum8wkNCD stool4wkHFHS stool8wkHFHS --group-colors orange blue red green
 ```
 
 #### Inputs
