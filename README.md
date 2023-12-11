@@ -128,7 +128,7 @@ python ./analysis/louvain_partition.py --network <file> --network-format <format
 
 #### Example command
 ```
-Python ./analysis/louvain_partition.py --network ./project_folder/output/network_output/network_output_comp.csv --network-format csv --map ./project_folder/input/type_map.csv --out-dir ./project_folder/output/network_output/
+python ./analysis/louvain_partition.py --network ./project_folder/output/network_output/network_output_comp.csv --network-format csv --map ./project_folder/input/type_map.csv --out-dir ./project_folder/output/network_output/
 ```
 
 #### Inputs and arguments
