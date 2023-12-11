@@ -1,22 +1,22 @@
 1.	Open your terminal and enter the bash shell (if it is not the default shell of your machine)
 
-	[Linux@vaughan ~]$ bash
+	bash
 
 2.	Create a new virtual environment. Note: I chose this name for the environment because I just needed a new environment to write this tutorial. Please choose a name more meaningful for yours. And also note that I am specifying the python version 3.8.10, which is a version I know works with the current version of the code. Note: If you cannot run the conda command, then you will need to install miniconda first, which can be done by using wget to download the correct file from here: https://docs.conda.io/en/latest/miniconda.html, then run the file)
 
-	(base) [newmanno@vaughan ~]$ conda create --name python_nw_test python=3.8.10
+	conda create --name python_nw_test python=3.8.10
 
 	Press “y” if asked if you want to proceed
 
 3.	Activate (meaning move into) your new environment
 
-	(base) [newmanno@vaughan ~]$ conda activate python_nw_test
+	conda activate python_nw_test
 
 	Then note that “base” has changed to say the name of your environment you are in.
 
 4.	Create a new directory where you want to clone the repo to. Reminder that the 'mkdir' command is used to create a new directory 
 
-5.  Create a GitHub account at https://github.com/ if you do not have one already.
+5.      Create a GitHub account at https://github.com/ if you do not have one already.
 
 5.	Go to your .ssh/ directory (should be located in your home directory) and check for a file ending in .pub
 	
@@ -34,7 +34,7 @@
 
 7.	You should now have a directory called network_analysis in your analysis directory. Enter that directory and run the following, which will install all the python packages to your newly created conda environment. Note that pip should have been downloaded with miniconda when it was installed (see step 2).
 
-	(python_nw_test) [newmanno@vaughan network_analysis]$ pip install -r requirements.txt
+	pip install -r requirements.txt
 
 8.	Note: whenever there are changes made to the code on github, you can use “git pull” to pull changes from github with the directory name of the current repository you are in, without needing to specify the URL to the repository
 
