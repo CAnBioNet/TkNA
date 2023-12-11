@@ -155,7 +155,7 @@ python ./analysis/find_all_shortest_paths_bw_subnets.py --network <file.pickle> 
 
 #### Example command
 ```
-python ./analysis/find_all_shortest_paths_bw_subnets.py --network ./project_folder/output/network_output/network.pickle --node-map ./project_folder/input/map_file.csv --node-groups gene pheno --out-dir ./project_folder/output/network_output/
+python ./analysis/find_all_shortest_paths_bw_subnets.py --network ./project_folder/output/network_output/network_output_comp.csv --network-format csv --map ./project_folder/input/type_map.csv --node-groups microbe pheno --out-dir ./project_folder/output/network_output/
 ```
 
 #### Inputs and arguments
