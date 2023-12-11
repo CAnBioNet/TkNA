@@ -318,7 +318,7 @@ python ./visualization/plot_density.py --rand-net <file.csv> --pickle <file.pick
 
 #### Example command
 ```
-python ./visualization/plot_density.py --rand-net ./project_folder/output/network_output/random_networks_synthesized.csv --pickle ./project_folder/output/network_output/inputs_for_downstream_plots.pickle --bibc-name BiBC_micro_pheno
+python ./visualization/plot_density.py --rand-net ./project_folder/output/network_output/random_networks_synthesized.csv --pickle ./project_folder/output/network_output/inputs_for_downstream_plots.pickle --bibc-name BiBC_microbe_pheno
 ```
 
 #### Inputs
