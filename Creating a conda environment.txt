@@ -30,7 +30,7 @@
 	
 6.	Go to your directory where you want to clone the reopsitory to and enter the following command, which will clone the repository from github to your local directory
 	
-	git clone git@github.com:newmanno/network_calculations.git
+	git clone git@github.com:/CAnBioNet/TkNA.git <directory to create>
 
 7.	You should now have a directory called network_analysis in your analysis directory. Enter that directory and run the following, which will install all the python packages to your newly created conda environment. Note that pip should have been downloaded with miniconda when it was installed (see step 2).
 
