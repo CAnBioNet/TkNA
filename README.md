@@ -84,7 +84,7 @@ python ./analysis/assess_network.py --file <network file> --out-dir <directory>
 
 #### Example command
 ```
-python ./ analysis/assess_network.py --file ./project_folder/output/network_output/correlations_bw_signif_measurables.csv --out-dir ./project_folder/output/network_output/
+python ./analysis/assess_network.py --file ./project_folder/output/network_output/correlations_bw_signif_measurables.csv --out-dir ./project_folder/output/network_output/
 ```
 
 #### Inputs
