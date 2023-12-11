@@ -222,7 +222,7 @@ python ./random_networks/compute_network_stats.py --networks-file <file.zip> --b
 
 #### Example command
 ```
-python ./random_networks/compute_network_stats.py --networks-file ./project_folder/output/network_output/all_random_nws.zip --bibc-groups node_types --bibc-calc-type rbc --stats-file ./project_folder/output/network_output/random_network_analysis.zip --node-map ./project_folder/input/map_file.csv --node-groups gene pheno
+python ./random_networks/compute_network_stats.py --networks-file ./project_folder/output/network_output/all_random_nws.zip --bibc-groups node_types --bibc-calc-type rbc --stats-file ./project_folder/output/network_output/random_network_analysis.zip --node-map ./project_folder/input/type_map.csv --node-groups microbe pheno
 ```
 
 #### Inputs
