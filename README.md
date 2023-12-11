@@ -264,7 +264,7 @@ python ./visualization/dot_plots.py --pickle <file.pickle> --node-props  <file.t
 
 #### Example command
 ```
-python ./visualization/dot_plots.py --pickle ./project_folder/output/network_output/network.pickle --node-props ./project_folder/output/network_output/node-properties.txt --network-file ./project_folder/output/network_output/network_output_comp.csv --propx BiBC --propy Node_degrees --top-num 5 --top-num-per-type 3	--plot-dir ./project_folder/output/network_output/plots/ --file-dir ./project_folder/output/network_output/
+python ./visualization/dot_plots.py --pickle ./project_folder/output/network_output/network.pickle --node-props ./project_folder/output/network_output/node_properties.txt --network-file ./project_folder/output/network_output/network_output_comp.csv --propx BiBC_microbe_pheno --propy Node_degrees --top-num 5 --top-num-per-type 3	--plot-dir ./project_folder/output/network_output/plots/ --file-dir ./project_folder/output/network_output/
 ```
 
 #### Inputs
