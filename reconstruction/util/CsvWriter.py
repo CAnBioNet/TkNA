@@ -1,5 +1,5 @@
 import csv
-from itertools import chain
+from itertools import chain, product
 import numpy
 
 class ColumnSpec:
@@ -97,14 +97,20 @@ class Per(ColumnSpec):
 		super().__init__(**kwargs)
 		self.titleTemplate = titleTemplate
 		self.dataKey = dataKey
-		self.perDim = perDim
+		if isinstance(perDim, list):
+			self.perDims = perDim
+		else:
+			self.perDims = [perDim]
 
 	def getHeaders(self, data):
-		self.perCoords = data[self.dataKey].coords[self.perDim].data # Save coordinates to keep order consistent with values
-		return [self.titleTemplate.format(coord) for coord in self.perCoords]
+		self.perCoords = list(product(*[data[self.dataKey].coords[perDim].data for perDim in self.perDims])) # Save coordinates to keep order consistent with values
+		return [self.titleTemplate.format(*coords) for coords in self.perCoords]
 
 	def _getValues(self, data, dim, coords, dataArr):
-		return [dataArr.sel({self.perDim: perCoord, dim: coords}).data for perCoord in self.perCoords]
+		return [dataArr.sel(dict(
+			{dim: coords},
+			**{perDim: perCoord for perDim, perCoord in zip(self.perDims, perCoords)}
+		)).data for perCoords in self.perCoords]
 
 	def getDataKeys(self):
 		return [self.dataKey]
@@ -199,15 +205,21 @@ class CoordComponentPer(ColumnSpec):
 		self.dataKey = dataKey
 		self.componentIndex = componentIndex
 		self.componentDim = componentDim
-		self.perDim = perDim
+		if isinstance(perDim, list):
+			self.perDims = perDim
+		else:
+			self.perDims = [perDim]
 
 	def getHeaders(self, data):
-		self.perCoords = data[self.dataKey].coords[self.perDim].data # Save coordinates to keep order consistent with values
-		return [self.titleTemplate.format(coord) for coord in self.perCoords]
+		self.perCoords = list(product(*[data[self.dataKey].coords[perDim].data for perDim in self.perDims])) # Save coordinates to keep order consistent with values
+		return [self.titleTemplate.format(*coords) for coords in self.perCoords]
 
 	def _getValues(self, data, dim, coords, dataArr):
 		components = [coord[self.componentIndex] for coord in coords]
-		return [dataArr.sel({self.perDim: perCoord, self.componentDim: components}).data for perCoord in self.perCoords]
+		return [dataArr.sel(dict(
+			{self.componentDim: components},
+			**{perDim: perCoord for perDim, perCoord in zip(self.perDims, perCoords)}
+		)).data for perCoords in self.perCoords]
 
 	def getDataKeys(self):
 		return [self.dataKey]

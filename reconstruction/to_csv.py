@@ -58,8 +58,12 @@ def setupMeasurableCsv(data, config):
 	csvConfig = CsvWriter.Config("measurable",
 		CsvWriter.Coordinate("ID"),
 		CsvWriter.Property("Type", "originalData", "measurableType"),
-		CsvWriter.Per("Median Value ({})", "medianValue", "experiment"),
-		CsvWriter.Per("Mean Value ({})", "meanValue", "experiment"),
+		CsvWriter.Per("Median Value (Experiment: {})", "medianValueE", "experiment"),
+		CsvWriter.Per("Median Value (Treatment: {})", "medianValueT", "treatment"),
+		CsvWriter.Per("Median Value (Experiment: {}, Treatment: {})", "medianValueET", ["experiment", "treatment"]),
+		CsvWriter.Per("Mean Value (Experiment: {})", "meanValueE", "experiment"),
+		CsvWriter.Per("Mean Value (Treatment: {})", "meanValueT", "treatment"),
+		CsvWriter.Per("Mean Value (Experiment: {}, Treatment: {})", "meanValueET", ["experiment", "treatment"]),
 		CsvWriter.Per("Comparison p-value ({})", "differencePValues", "experiment"),
 		CsvWriter.Per("Median Log2 Fold Change ({})", "medianFoldChanges", "experiment"),
 		CsvWriter.Per("Mean Log2 Fold Change ({})", "meanFoldChanges", "experiment"),
@@ -70,8 +74,13 @@ def setupMeasurableCsv(data, config):
 	)
 
 	# Initialize computed columns so that they are counted as present in the dataset
-	data["meanValue"] = None
-	data["medianValue"] = None
+	data["medianValueE"] = None
+	data["medianValueT"] = None
+	data["medianValueET"] = None
+	data["meanValueE"] = None
+	data["meanValueT"] = None
+	data["meanValueET"] = None
+
 	data["consistentFoldChange"] = None
 
 	dataKeys = csvConfig.getDataKeys()
@@ -84,8 +93,14 @@ def setupMeasurableCsv(data, config):
 		raise MissingDataError(missingKeys)
 
 	# Determine computed columns
-	data["meanValue"] = data["originalData"].groupby("experiment").map(lambda a: a.mean(dim="organism"))
-	data["medianValue"] = data["originalData"].groupby("experiment").map(lambda a: a.median(dim="organism"))
+	data["medianValueE"] = data["originalData"].groupby("experiment").map(lambda a: a.median(dim="organism"))
+	data["medianValueT"] = data["originalData"].groupby("treatment").map(lambda a: a.median(dim="organism"))
+	data["medianValueET"] = data["originalData"].groupby("experiment").map(lambda a: a.groupby("treatment").map(lambda a: a.median(dim="organism")))
+
+	data["meanValueE"] = data["originalData"].groupby("experiment").map(lambda a: a.mean(dim="organism"))
+	data["meanValueT"] = data["originalData"].groupby("treatment").map(lambda a: a.mean(dim="organism"))
+	data["meanValueET"] = data["originalData"].groupby("experiment").map(lambda a: a.groupby("treatment").map(lambda a: a.mean(dim="organism")))
+
 	data["consistentFoldChange"] = xarray.apply_ufunc(lambda signs: numpy.all(signs == signs[0]), data["foldChangeSigns"], input_core_dims=[["experiment"]], vectorize=True)
 
 	return csvConfig, data
@@ -121,13 +136,21 @@ def setupEdgeCsv(data, config):
 		CsvWriter.Column("Mean rho Coefficient", "combinedCoefficients"),
 		CsvWriter.Column("Combined corr FDR", "correctedCorrelationPValues"),
 		CsvWriter.CoordComponent("partner1 name", 0),
-		CsvWriter.CoordComponentPer("partner1_MedianValue ({})", "medianValue", 0, "measurable", "experiment"),
-		CsvWriter.CoordComponentPer("partner1_MeanValue ({})", "meanValue", 0, "measurable", "experiment"),
+		CsvWriter.CoordComponentPer("partner1_MedianValue (Experiment: {})", "medianValueE", 0, "measurable", "experiment"),
+		CsvWriter.CoordComponentPer("partner1_MedianValue (Treatment: {})", "medianValueT", 0, "measurable", "treatment"),
+		CsvWriter.CoordComponentPer("partner1_MedianValue (Experiment: {}, Treatment: {})", "medianValueET", 0, "measurable", ["experiment", "treatment"]),
+		CsvWriter.CoordComponentPer("partner1_MeanValue (Experiment: {})", "meanValueE", 0, "measurable", "experiment"),
+		CsvWriter.CoordComponentPer("partner1_MeanValue (Treatment: {})", "meanValueT", 0, "measurable", "treatment"),
+		CsvWriter.CoordComponentPer("partner1_MeanValue (Experiment: {}, Treatment: {})", "meanValueET", 0, "measurable", ["experiment", "treatment"]),
 		CsvWriter.CoordComponentPer("partner1_MedianLog2FoldChange ({})", "medianFoldChanges", 0, "measurable", "experiment"),
 		CsvWriter.CoordComponentPer("partner1_MeanLog2FoldChange ({})", "meanFoldChanges", 0, "measurable", "experiment"),
 		CsvWriter.CoordComponent("partner2 name", 1),
-		CsvWriter.CoordComponentPer("partner2_MedianValue ({})", "medianValue", 1, "measurable", "experiment"),
-		CsvWriter.CoordComponentPer("partner2_MeanValue ({})", "meanValue", 1, "measurable", "experiment"),
+		CsvWriter.CoordComponentPer("partner2_MedianValue (Experiment: {})", "medianValueE", 1, "measurable", "experiment"),
+		CsvWriter.CoordComponentPer("partner2_MedianValue (Treatment: {})", "medianValueT", 1, "measurable", "treatment"),
+		CsvWriter.CoordComponentPer("partner2_MedianValue (Experiment: {}, Treatment: {})", "medianValueET", 1, "measurable", ["experiment", "treatment"]),
+		CsvWriter.CoordComponentPer("partner2_MeanValue (Experiment: {})", "meanValueE", 1, "measurable", "experiment"),
+		CsvWriter.CoordComponentPer("partner2_MeanValue (Treatment: {})", "meanValueT", 1, "measurable", "treatment"),
+		CsvWriter.CoordComponentPer("partner2_MeanValue (Experiment: {}, Treatment: {})", "meanValueET", 1, "measurable", ["experiment", "treatment"]),
 		CsvWriter.CoordComponentPer("partner2_MedianLog2FoldChange ({})", "medianFoldChanges", 1, "measurable", "experiment"),
 		CsvWriter.CoordComponentPer("partner2_MeanLog2FoldChange ({})", "meanFoldChanges", 1, "measurable", "experiment"),
 		CsvWriter.Column("Correlations Passed Consistency Filter ({})".format(consistencyDescriptor), "correlationFilter"),
@@ -145,8 +168,12 @@ def setupEdgeCsv(data, config):
 	if not config["noPUC"]:
 		data["expectedEdgeFilterInt"] = None
 		data["nonPucPassed"] = None
-	data["meanValue"] = None
-	data["medianValue"] = None
+	data["medianValueE"] = None
+	data["medianValueT"] = None
+	data["medianValueET"] = None
+	data["meanValueE"] = None
+	data["meanValueT"] = None
+	data["meanValueET"] = None
 
 	dataKeys = csvConfig.getDataKeys()
 	# Add keys for the data the computed columns depend on to ensure its existence
@@ -166,8 +193,14 @@ def setupEdgeCsv(data, config):
 		data["nonPucPassed"] = data["diagonalFilter"] & data["individualCorrelationPValueFilter"] & data["combinedCorrelationPValueFilter"] & data["correctedCorrelationPValueFilter"] & data["correlationFilter"]
 		if "correlationCoefficientFilter" in data:
 			data["nonPucPassed"] &= data["correlationCoefficientFilter"]
-	data["meanValue"] = data["originalData"].groupby("experiment").map(lambda a: a.mean(dim="organism"))
-	data["medianValue"] = data["originalData"].groupby("experiment").map(lambda a: a.median(dim="organism"))
+
+	data["medianValueE"] = data["originalData"].groupby("experiment").map(lambda a: a.median(dim="organism"))
+	data["medianValueT"] = data["originalData"].groupby("treatment").map(lambda a: a.median(dim="organism"))
+	data["medianValueET"] = data["originalData"].groupby("experiment").map(lambda a: a.groupby("treatment").map(lambda a: a.median(dim="organism")))
+
+	data["meanValueE"] = data["originalData"].groupby("experiment").map(lambda a: a.mean(dim="organism"))
+	data["meanValueT"] = data["originalData"].groupby("treatment").map(lambda a: a.mean(dim="organism"))
+	data["meanValueET"] = data["originalData"].groupby("experiment").map(lambda a: a.groupby("treatment").map(lambda a: a.mean(dim="organism")))
 
 	return csvConfig, data
 
