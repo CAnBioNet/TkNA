@@ -7,7 +7,7 @@ from statsmodels.stats import multitest
 import time
 import xarray
 
-from .NetworkReconstructor import NetworkReconstructor
+from .NetworkReconstructor import NetworkReconstructor, verifyTreatmentsPresent
 from .util import matchingCoords, withoutDim, SharedArrayParams
 
 numpy.seterr(all="raise")
@@ -558,6 +558,8 @@ class NetworkReconstructorSingleCell(NetworkReconstructor):
 		if not config["noPUC"]:
 			stages.append(stageFilterToExpectedEdges)
 		stages.append(stageCreateEdgeList)
+
+		verifyTreatmentsPresent(allData["cellData"], config)
 
 		return self.runPipeline(stages, allData, **kwargs)
 

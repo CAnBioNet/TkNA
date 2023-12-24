@@ -9,7 +9,7 @@ import time
 import xarray
 import warnings
 
-from .NetworkReconstructor import NetworkReconstructor
+from .NetworkReconstructor import NetworkReconstructor, verifyTreatmentsPresent
 from .util import matchingCoords, withoutDim, SharedArrayParams
 
 numpy.seterr(all="raise")
@@ -736,6 +736,8 @@ class NetworkReconstructorAggregate(NetworkReconstructor):
 		if not config["noPUC"]:
 			stages.append(filterToExpectedEdges)
 		stages.append(createEdgeList)
+
+		verifyTreatmentsPresent(allData["originalData"], config)
 
 		return self.runPipeline(stages, allData, **kwargs)
 

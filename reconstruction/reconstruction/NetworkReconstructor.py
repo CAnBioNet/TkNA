@@ -1,8 +1,38 @@
+from collections import defaultdict
 import networkx
 import pandas
 import tempfile
 import xarray
 from zipfile import ZipFile
+
+# Checks that the treatments specified in the config file are present in the relevant experiments
+def verifyTreatmentsPresent(data, config):
+	metatreatments = config["metatreatments"]
+	if metatreatments is not None:
+		metatreatmentETMap = defaultdict(set)
+		for metatreatmentMembers in metatreatments.values():
+			for experimentAndTreatment in metatreatmentMembers:
+				experiment = experimentAndTreatment[0]
+				treatment = experimentAndTreatment[1]
+				metatreatmentETMap[experiment].add(treatment)
+
+	networkTreatment = config["networkTreatment"]
+	groupedByExperiment = data.groupby("experiment")
+	for experiment in groupedByExperiment:
+		experimentName = experiment[0]
+		experimentArray = experiment[1]
+
+		if "comparisonTreatments" in config:
+			for treatment in config["comparisonTreatments"]:
+				if treatment not in experimentArray.treatment:
+					raise Exception(f"Treatment {treatment} specified in \"comparisonTreatments\" is not present in experiment {experimentName}")
+
+		if networkTreatment is not None and networkTreatment not in experimentArray.treatment:
+			raise Exception(f"Treatment {networkTreatment} specified in \"networkTreatment\" is not present in experiment {experimentName}")
+		if metatreatments is not None:
+			for treatment in metatreatmentETMap[experimentName]:
+				if treatment not in experimentArray.treatment:
+					raise Exception(f"Treatment {treatment} specified in \"metatreatments\" is not present in experiment {experimentName}")
 
 # Adapted from https://github.com/pydata/xarray/pull/7689
 def resetDataarrayEncoding(da):
