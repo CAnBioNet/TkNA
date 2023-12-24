@@ -182,6 +182,9 @@ def writeSummary(data, config, csvConfig, outDir):
 	includedEdges = [tuple(edge) for edge in includedEdges]
 
 	fileName = "network_output_comp.csv"
+	if len(includedEdges) == 0:
+		print(f"WARNING: No edges in final network. {fileName} will not be created.")
+		return
 	CsvWriter.writeCsv(outDir / fileName, csvConfig, data, includedEdges)
 
 def writeMeasurableCsvSingleCell(data, config, filePath, nodesOnly):
