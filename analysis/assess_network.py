@@ -2,7 +2,7 @@
 """
 Created on Mon Apr 29 12:01:46 2019
 
-Last updated: 7/19/23
+Last updated: 10/24/23
 
 Written/tested in Python v3.8.10
 
@@ -17,7 +17,7 @@ Inputs
 	--out-dir: Path to the directory to output results to
 Outputs
     network_quality_assessment.csv: Contains the network quality statistics of the reconstructed network, calculated per edge type. 
-
+    assess_network_log.txt: Contains any stadard output warning messages
 """
 
 ###################################################################################
@@ -36,7 +36,7 @@ from itertools import combinations_with_replacement
 
 fc_parameters = {}
 
-testing = False
+testing = False # Flag used only when testing this code in an IDE
 
 if testing:
     net_file = "correlations_bw_signif_measurables.csv"
@@ -57,6 +57,16 @@ else:
     net_file = args.file
     outdir = args.outdir
     
+# Correct the path if needed to the output dir
+if not outdir[-1] == "/":
+    outdir = outdir + "/"
+    
+if not os.path.exists(outdir):
+    os.makedirs(outdir)  
+    
+if os.path.exists(outdir + "assess_network_log.txt"):
+  os.remove(outdir + "assess_network_log.txt")
+    
 def find_unique_networks(df):
     '''
     Function to find redundant pairs of edge types (e.g. microbe<==>gene and gene<==>microbe) and extract subnetworks based on those unique types
@@ -69,20 +79,27 @@ def find_unique_networks(df):
     all_params = []
     uniq_pairs = df.Edge_Type.unique()
     
+    print(uniq_pairs)
+    
     # Get a list of all parameters
     for i in uniq_pairs:  
         all_params.append(i.split('<==>')[0])
         all_params.append(i.split('<==>')[1])
         
+    print(all_params)
+        
     # Find all unique pairs of parameters
     uniq_params = [*set(all_params)]
     set_possible_combinations = set(combinations_with_replacement(uniq_params, r=2))
-    
+    print(set_possible_combinations)
+
     # Convert the set to a list
     all_possible_combinations = []
     for val in set_possible_combinations:
         all_possible_combinations.append(str(val[0]) + "<==>" + str(val[1]))
-    
+     
+    print(all_possible_combinations)
+  
     # Rename the edge in the data frame by flipping parameter 1 and 2 if the edge is not found in the all_possible_combinations list. 
     for index, row in df.iterrows():
         if row['Edge_Type'] not in all_possible_combinations:
@@ -95,9 +112,11 @@ def find_unique_networks(df):
     for i in all_possible_combinations:
         subnw = df.loc[df['Edge_Type'] == i]
         nws_by_type.append(subnw)
-        
-    return(nws_by_type)
-        
+    
+    # Delete data frames that are empty, since you will not always have pairs of all edge types
+    nws_by_type_no_empty = list(filter(lambda df: not df.empty, nws_by_type))
+       
+    return(nws_by_type_no_empty)
         
 net_file_trimmed = net_file[:-4] # trim the ".csv" or ".txt" from the input file string   
     
@@ -116,10 +135,18 @@ corr_file['Final_Network_Value'] = corr_file['Final_Network_Value'].astype('int'
 nws_by_type = find_unique_networks(corr_file)
 
 output_properties_df = pd.DataFrame()
-    
+
+print("printing nws_by_type")
+
+#print(nws_by_type)
+
 for nw in nws_by_type:
-    
+
+    #print(nw)    
+
     nw_type = str(nw.Edge_Type.unique()[0])
+
+    #print("\n\n\nSubnetwork type: " + nw_type)
 
     fc_parameters = {}
     G = nx.Graph() 
@@ -137,6 +164,7 @@ for nw in nws_by_type:
     signif_meta_edge = 0 # number of edges that are significant and pass the meta-analysis thresholds
     
     for index, row in nw.iterrows():
+
         parameters = row['partner1'], row['partner2']
     
         list_to_tuple = tuple(parameters)
@@ -176,15 +204,15 @@ for nw in nws_by_type:
     fc_parameters_current_nw = dict((k, fc_parameters[k]) for k in G.nodes())   
 
     # Find the ratio of positive:negative edges (and vice versa) in the observed graph
-    if int(negative_corr_nw) != 0:
+    try:
         obs_posneg_ratio = int(positive_corr_nw)/int(negative_corr_nw)
-    else:
-        obs_posneg_ratio = "Inf"
+    except:
+        obs_posneg_ratio = "NA"
         
-    if int(positive_corr_nw) != 0:
+    try:
         obs_negpos_ratio = int(negative_corr_nw)/int(positive_corr_nw)
-    else:
-        obs_negpos_ratio = "Inf"
+    except:
+        obs_negpos_ratio = "NA"
 
 
     # Count the number of positive and negative nodes in the current network  
@@ -194,17 +222,20 @@ for nw in nws_by_type:
     
     total_nodes = int(pos_nodes) + int(neg_nodes)
 
-    obs_edge_node_ratio = G.number_of_edges() / total_nodes
+    try:
+        obs_edge_node_ratio = G.number_of_edges() / total_nodes
+    except:
+        obs_edge_node_ratio = "NA"
 
-    if neg_nodes != 0:
+    try:
         obs_posneg_node_ratio = int(pos_nodes) / int(neg_nodes)
-    else:
-        obs_posneg_node_ratio = "NaN"
+    except:
+        obs_posneg_node_ratio = "NA"
         
-    if pos_nodes != 0:            
+    try:
         obs_negpos_node_ratio = int(neg_nodes) / int(pos_nodes)
-    else:
-        obs_negpos_node_ratio = "NaN"
+    except:
+        obs_negpos_node_ratio = "NA"
 
 
     # Find the number of edges in a full graph
@@ -222,36 +253,36 @@ for nw in nws_by_type:
         expec_edge_node_ratio = expec_total / total_nodes
             
         # Find the ratio of positive:negative edges (and vice versa) in a full graph
-        if expec_neg != 0:
+        try:
             ideal_ratio_posneg = round(expec_pos/expec_neg, 2)
-        else: 
-            ideal_ratio_posneg = "Inf"
+        except:
+            ideal_ratio_posneg = "NA"
         
-        if expec_pos != 0:
+        try:
             ideal_ratio_negpos = round(expec_neg/expec_pos, 2)
-        else:
-            ideal_ratio_negpos = "Inf"
+        except:
+            ideal_ratio_negpos = "NA"
             
         # Calculate the non-normalized deviation from the expected (full) graph
-        if obs_posneg_ratio != "Inf" and ideal_ratio_posneg != "Inf":
+        try:
             dev_posneg = round(obs_posneg_ratio/ideal_ratio_posneg, 2)
-        else:
+        except:
             dev_posneg = "NA"
             
-        if obs_negpos_ratio != "Inf" and ideal_ratio_negpos != "Inf":
+        try:
             dev_negpos = round(obs_negpos_ratio/ideal_ratio_negpos, 2)
-        else:
+        except:
             dev_negpos = "NA"
         
         #Calculate the normalized deviation from the expected (full) graph
-        if obs_posneg_ratio != "Inf" and ideal_ratio_posneg != "Inf":
+        try:
             dev_norm_posneg = round((obs_posneg_ratio - ideal_ratio_posneg) / ideal_ratio_posneg, 2)
-        else:
+        except:
             dev_norm_posneg = "NA"
             
-        if obs_negpos_ratio != "Inf" and ideal_ratio_negpos != "Inf":
+        try:
             dev_norm_negpos = round((obs_negpos_ratio - ideal_ratio_negpos) / ideal_ratio_negpos, 2)
-        else:
+        except:
             dev_norm_negpos = "NA"
         
         # calculate the normalized deviation of the edge:node (density) from the full graph
@@ -261,13 +292,26 @@ for nw in nws_by_type:
         nw_edge_full_graph_ratio = round((G.number_of_edges()/expec_total) * 100, 2)
     
     else:
-        print("Warning: Not enough positive or negative nodes to calculate some basic properties of the " + nw_type + " network. These calculations require the input network to have at least two positive log2 foldchange nodes and two negative log2 foldchange nodes")
-        # Calculate PUC (the proportion of edges that do not follow the expected direction). 
-        puc = round((100 * (puc_noncompliant / signif_meta_edge)), 2)
+    
+        warnmessage = "\n\n!!!\nWarning: Not enough positive or negative nodes to calculate some or all basic properties of the " + nw_type + " network. \nThese calculations require the input network to have at least two positive log2 foldchange nodes and two negative log2 foldchange nodes.\nThis likely indicates too strict thresholds (fold change and/or correlations) were used. Consider adjusting thresholds accordingly.\n!!!"
+    
+        print(warnmessage)
         
+        with open(args.outdir + "assess_network_log.txt","a") as logfile:
+            logfile.write(warnmessage)
+        
+        try:
+            # Calculate PUC (the proportion of edges that do not follow the expected direction). 
+            puc = round((100 * (puc_noncompliant / signif_meta_edge)), 2)
+        except:
+            puc = "NA"  
+            
         # mean degree
-        mdeg = 2 * G.number_of_edges() / G.number_of_nodes()      
-        
+        try:
+            mdeg = 2 * G.number_of_edges() / G.number_of_nodes()      
+        except:
+            mdeg = "NA"
+            
         expec_pos = "NA"
         expec_neg = "NA"
         expec_total = "NA"          
@@ -309,7 +353,6 @@ for nw in nws_by_type:
         
 
     
-    print("\n\n\nSubnetwork type: " + nw_type)
     print("\nPUC: " + "{}%".format(str(puc)))
     print("Mean degree: " + str(mdeg))
     print("Edges in network over the edges in a full graph: " + str(nw_edge_full_graph_ratio))
@@ -340,13 +383,6 @@ output_properties_df.index = ['PUC (%)',
                               'Negative edges', 
                               'Total edges']
 output_properties_df.index.name = 'Property'
-
-# Correct the path if needed to the output dir
-if not outdir[-1] == "/":
-    outdir = outdir + "/"
-    
-if not os.path.exists(outdir):
-    os.makedirs(outdir)  
 
 output_properties_df.to_csv(f"{outdir}network_quality_assessment.csv", na_rep = "NA")
 

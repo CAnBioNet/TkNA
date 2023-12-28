@@ -84,7 +84,7 @@ python ./analysis/assess_network.py --file <network file> --out-dir <directory>
 
 #### Example command
 ```
-python ./ analysis/assess_network.py --file ./project_folder/output/network_output/correlations_bw_signif_measurables.csv --out-dir ./project_folder/output/network_output/
+python ./analysis/assess_network.py --file ./project_folder/output/network_output/correlations_bw_signif_measurables.csv --out-dir ./project_folder/output/network_output/
 ```
 
 #### Inputs
@@ -106,12 +106,12 @@ python ./analysis/infomap_assignment.py --network <file> --network-format <forma
 
 #### Example command
 ```
-python ./analysis/infomap_assignment.py --network ./project_folder/output/network_output/network.csv --network-format csv --map ./project_folder/input/type_map.csv --out-dir ./project_folder/output/network_output/
+python ./analysis/infomap_assignment.py --network ./project_folder/output/network_output/network_output_comp.csv --network-format csv --map ./project_folder/input/type_map.csv --out-dir ./project_folder/output/network_output/
 ```
 
 #### Inputs
  - `--network`: `The path to the network file, either in .pickle or .csv format
- - `--network-format`: Format of the network file; Either use 'pickle' with the network.pickle file output made by calc_network_properties.py or 'csv' (must be in .csv format and have 'partner1' and 'partner2' as the headers for the two node columns, e.g. the network_output_comp.csv from to_csv.py)
+ - `--network-format`: Format of the network file; Either use 'pickle' or 'csv' (must be in .csv format and have 'partner1' and 'partner2' as the headers for the two node columns, e.g. the network_output_comp.csv from to_csv.py)
  - `--map`: CSV file with the name of the node in the first column and its data type in the second column
  - `--out-dir`: Path to the directory to output results to
 
@@ -128,12 +128,12 @@ python ./analysis/louvain_partition.py --network <file> --network-format <format
 
 #### Example command
 ```
-Python ./analysis/louvain_partition.py --network ./project_folder/output/network_output/network.csv --network-format csv --map ./project_folder/input/type_map.csv --out-dir ./project_folder/output/network_output/
+python ./analysis/louvain_partition.py --network ./project_folder/output/network_output/network_output_comp.csv --network-format csv --map ./project_folder/input/type_map.csv --out-dir ./project_folder/output/network_output/
 ```
 
 #### Inputs and arguments
  - `--network`: `The path to the network file, either in .pickle or .csv format
- - `--network-format`: Format of the network file; Either use 'pickle' with the network.pickle file output made by calc_network_properties.py or 'csv' (must be in .csv format and have 'partner1' and 'partner2' as the headers for the two node columns, e.g. the network_output_comp.csv from to_csv.py)
+ - `--network-format`: Format of the network file; Either use 'pickle' or 'csv' (must be in .csv format and have 'partner1' and 'partner2' as the headers for the two node columns, e.g. the network_output_comp.csv from to_csv.py)
  - `--map`: CSV file with the name of the node in the first column and its data type in the second column
  - `--out-dir`: Path to the directory to output results to
 
@@ -144,7 +144,7 @@ Python ./analysis/louvain_partition.py --network ./project_folder/output/network
 
 Functional enrichment of the resulting partitions can be performed using the methods mentioned in the TkNA manuscript.
 
-### 9. Find the distance (shortest path) between two pathways 
+### 9. Find the distance (shortest path) between two pathways (OPTIONAL)
 
 Pathways closer to one another potentially interact more than those that are further away.
 
@@ -155,7 +155,7 @@ python ./analysis/find_all_shortest_paths_bw_subnets.py --network <file.pickle> 
 
 #### Example command
 ```
-python ./analysis/find_all_shortest_paths_bw_subnets.py --network ./project_folder/output/network_output/network.pickle --node-map ./project_folder/input/map_file.csv --node-groups gene pheno --out-dir ./project_folder/output/network_output/
+python ./analysis/find_all_shortest_paths_bw_subnets.py --network ./project_folder/output/network_output/network_output_comp.csv --network-format csv --map ./project_folder/input/type_map.csv --node-groups microbe pheno --out-dir ./project_folder/output/network_output/
 ```
 
 #### Inputs and arguments
@@ -174,9 +174,9 @@ python ./analysis/find_all_shortest_paths_bw_subnets.py --network ./project_fold
 python ./analysis/calc_network_properties.py --network <file.csv> --bibc --bibc-groups <choice> --bibc-calc-type <choice> --map <file.csv> --node-groups <group 1> <group 2> --out-dir <directory>
 ```
 
-#### Example command
+#### Example command:
 ```
-python ./analysis/calc_network_properties.py --network ./project_folder/output/network_output/network.csv --bibc --bibc-groups node_types --bibc-calc-type rbc --map ./project_folder/input/type_map.csv --node-groups micro pheno --out-dir ./project_folder/output/network_output/
+python ./analysis/calc_network_properties.py --network ./project_folder/output/network_output/network_output_comp.csv --bibc --bibc-groups node_types --bibc-calc-type rbc --map ./project_folder/input/type_map.csv --node-groups microbe pheno --out-dir ./project_folder/output/network_output/
 ```
 
 #### Inputs and arguments
@@ -222,7 +222,7 @@ python ./random_networks/compute_network_stats.py --networks-file <file.zip> --b
 
 #### Example command
 ```
-python ./random_networks/compute_network_stats.py --networks-file ./project_folder/output/network_output/all_random_nws.zip --bibc-groups node_types --bibc-calc-type rbc --stats-file ./project_folder/output/network_output/random_network_analysis.zip --node-map ./project_folder/input/map_file.csv --node-groups gene pheno
+python ./random_networks/compute_network_stats.py --networks-file ./project_folder/output/network_output/all_random_nws.zip --bibc-groups node_types --bibc-calc-type rbc --stats-file ./project_folder/output/network_output/random_network_analysis.zip --node-map ./project_folder/input/type_map.csv --node-groups microbe pheno
 ```
 
 #### Inputs
@@ -264,7 +264,7 @@ python ./visualization/dot_plots.py --pickle <file.pickle> --node-props  <file.t
 
 #### Example command
 ```
-python ./visualization/dot_plots.py --pickle ./project_folder/output/network_output/network.pickle --node-props ./project_folder/output/network_output/node-properties.txt --network-file ./project_folder/output/network_output/network_output_comp.csv --propx BiBC --propy Node_degrees --top-num 5 --top-num-per-type 3	--plot-dir ./project_folder/output/network_output/plots/ --file-dir ./project_folder/output/network_output/
+python ./visualization/dot_plots.py --pickle ./project_folder/output/network_output/network.pickle --node-props ./project_folder/output/network_output/node_properties.txt --network-file ./project_folder/output/network_output/network_output_comp.csv --propx BiBC_microbe_pheno --propy Node_degrees --top-num 5 --top-num-per-type 3	--plot-dir ./project_folder/output/network_output/plots/ --file-dir ./project_folder/output/network_output/
 ```
 
 #### Inputs
@@ -295,7 +295,7 @@ python ./visualization/plot_abundance.py --pickle <file.pickle> --abund-data <li
 
 #### Example command
 ```
-python ./visualization/plot_abundance.py --pickle ./project_folder/output/network_output/inputs_for_downstream_plots.pickle --abund-data ./project_folder/input/Expt1.csv ./project_folder/input/Expt2.csv --metadata ./project_folder/input/Expt1_meta.csv ./project_folder/input/Expt2_meta.csv --x-axis Experiment --group-names NCD HFD --group-colors orange blue
+python ./visualization/plot_abundance.py --pickle ./project_folder/output/network_output/inputs_for_downstream_plots.pickle --abund-data ./project_folder/input/Experiment1.csv ./project_folder/input/Experiment2.csv --metadata ./project_folder/input/Experiment1_group_map.csv ./project_folder/input/Experiment2_group_map.csv --x-axis Experiment --group-names ileum8wkHFHS ileum8wkNCD stool4wkHFHS stool8wkHFHS --group-colors orange blue red green
 ```
 
 #### Inputs
@@ -318,7 +318,7 @@ python ./visualization/plot_density.py --rand-net <file.csv> --pickle <file.pick
 
 #### Example command
 ```
-python ./visualization/plot_density.py --rand-net ./project_folder/output/network_output/random_networks_synthesized.csv --pickle ./project_folder/output/network_output/inputs_for_downstream_plots.pickle --bibc-name BiBC_micro_pheno
+python ./visualization/plot_density.py --rand-net ./project_folder/output/network_output/random_networks_synthesized.csv --pickle ./project_folder/output/network_output/inputs_for_downstream_plots.pickle --bibc-name BiBC_microbe_pheno
 ```
 
 #### Inputs
