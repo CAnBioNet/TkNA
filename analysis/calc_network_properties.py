@@ -31,8 +31,8 @@ import matplotlib.pyplot as plt
 parser = argparse.ArgumentParser(description="Example command: python ./analysis/calc_network_properties.py --network <file.csv> --bibc --bibc-groups <choice> --bibc-calc-type <choice> --map <file.csv> --node-groups <group 1> <group 2> --out-dir <directory>", add_help=False)
 
 requiredArgGroup = parser.add_argument_group('Required arguments')        
-requiredArgGroup.add_argument("--network", help= "The network file in csv format containing the reconstructed network. Must have columns called 'partner1' and 'partner2'")
-requiredArgGroup.add_argument("--out-dir", dest = "outdir", help= "Path to the directory to output results to")
+requiredArgGroup.add_argument("--network", help= "The network file in csv format containing the reconstructed network. Must have columns called 'partner1' and 'partner2'", required=True)
+requiredArgGroup.add_argument("--out-dir", dest = "outdir", help= "Path to the directory to output results to", required=True)
 
 
 optionalArgGroup = parser.add_argument_group('Optional arguments') 
@@ -242,7 +242,10 @@ if __name__ == '__main__':
             
         return(subnet_dict)
 
-
+    def louv(nodes_from_gc):
+        part = community_louvain.best_partition(nodes_from_gc)
+        return(part)
+        
     # .
     def bibc_mod(nodes_from_gc):
         '''
@@ -528,33 +531,74 @@ if __name__ == '__main__':
     ################################################################################
     ########################## Calculate subnetwork properties #####################
     ################################################################################       
-    with open(outdir + "subnetwork_properties.txt", "w") as file:
-
-        file.write("\n### Subnetwork properties ###\n")
-        print("Finding subnetwork mean degree...")
+    if args.bibc:
+        if bibc_choice == "node_types" or bibc_choice == "node_groups_list":
+            with open(outdir + "subnetwork_properties.txt", "w") as file:
         
-        # Find only the giant component
-        gc = max(connected_component_subgraphs(G), key=len)
-        gc_nodes = gc.nodes()
-       
-        # Assign nodes to subnetworks from the mapping file
-        subnets = create_node_dict(node_input_file, gc_nodes)
-        
-        meandeg_dict = {}
-        for k,v in subnets.items():
-            total_degree = 0
-            sg = G.subgraph(v)
-            for i in sg.nodes():
-                total_degree += sg.degree[i]
-            mean_degree = total_degree / nx.number_of_nodes(sg)
-            meandeg_dict[k] = mean_degree # Make a new key with the name of k and the value of mean_degree
-            file.write(str(k) + "_mean_degree\t" + str(mean_degree) + "\n")
-    
-        # Overwrite any previous file with same name instead of appending    
-        file.truncate()
+                file.write("### Subnetwork properties ###\n")
+                print("Finding subnetwork mean degree...")
                 
-    file.close()
+                # Find only the giant component
+                gc = max(connected_component_subgraphs(G), key=len)
+                gc_nodes = gc.nodes()
+               
+                # Assign nodes to subnetworks from the mapping file
+                subnets = create_node_dict(node_input_file, gc_nodes)
+                
+                meandeg_dict = {}
+                for k,v in subnets.items():
+                    print(k,v)
+                    total_degree = 0
+                    sg = G.subgraph(v)
+                    for i in sg.nodes():
+                        total_degree += sg.degree[i]
+                    mean_degree = total_degree / nx.number_of_nodes(sg)
+                    meandeg_dict[k] = mean_degree # Make a new key with the name of k and the value of mean_degree
+                    file.write(str(k) + "_mean_degree\t" + str(mean_degree) + "\n")
+            
+                # Overwrite any previous file with same name instead of appending    
+                file.truncate()
+                        
+            file.close()
+            
+        elif bibc_choice == "modularity":
+            with open(outdir + "subnetwork_properties.txt", "w") as file:
         
+                file.write("### Subnetwork properties ###\n")
+                print("Finding subnetwork mean degree...")
+                
+                # Find only the giant component
+                gc = max(connected_component_subgraphs(G), key=len)
+                gc_nodes = gc.nodes()
+               
+                # Find modular regions of the network and assign nodes to them
+                partitions = louv(gc)                
+                meandeg_dict = {}
+                
+                partitions_flipped = {}
+                for k,v in partitions.items():
+                    if v in partitions_flipped:
+                        partitions_flipped[v].append(k)
+                    else:
+                        partitions_flipped[v] = [k]
+                                
+                for k,v in partitions_flipped.items():
+                    total_degree = 0
+                    sg = G.subgraph(v)
+                    for i in sg.nodes():
+                        total_degree += sg.degree[i]
+                    mean_degree = total_degree / nx.number_of_nodes(sg)
+                    meandeg_dict[k] = mean_degree # Make a new key with the name of k and the value of mean_degree
+                    file.write(str(k) + "_mean_degree\t" + str(mean_degree) + "\n")
+            
+                # Overwrite any previous file with same name instead of appending    
+                file.truncate()
+                        
+            file.close()
+    else:
+        with open(outdir + "subnetwork_properties.txt", "w") as file:
+            file.write("### Subnetwork properties ###\n")
+            file.write("Subnetwork properties were not calculated. These properties are only calculated if the --bibc flag is used.")
     ################################################################################
     ########################## Calculate node properties ###########################
     ################################################################################
@@ -727,7 +771,7 @@ if __name__ == '__main__':
     
             return(otu_pv_str)      
         
-        def BiBC(choice, node_file, nodes_in_gc, giantcomp, calc_type, otu_pv_list, otu_pv_str, type1, type2):
+        def BiBC(choice, nodes_in_gc, giantcomp, calc_type, otu_pv_list, otu_pv_str, t1 = None, t2 = None, mapfile = None):
             '''
             Calculates RBC/BiBC on the specified nodes 
         
@@ -738,20 +782,19 @@ if __name__ == '__main__':
             # If the user wants to calculate based on pre-defined node types
             if choice == "node_types":
                 # Pass the gc nodes to the function that will assign the correct node types to each of the nodes    
-                assigned_types = assign_node_type(node_file, nodes_in_gc, type1, type2)
+                assigned_types = assign_node_type(mapfile, nodes_in_gc, t1, t2)
 
                 # Calculate rbc using the above function which takes the outputs of assign_node_type
                 rbc = restricted_betweenness_centrality(giantcomp, assigned_types['Type1'], assigned_types['Type2'], bibc_calc_type)
                 
                 parse_rbc_str = parse_RBC_results(rbc, otu_pv_list, otu_pv_str)
-                return_str = "BiBC" + "_" + type1 + "_" + type2 + "\t" + parse_rbc_str + "\n"
+                return_str = "BiBC" + "_" + t1 + "_" + t2 + "\t" + parse_rbc_str + "\n"
 
                 return(return_str)
 
             # Otherwise, if they wish to use modularity as the BiBC parameter...
             elif choice == "modularity":
-                nodes_in_gc_for_bibc_mod = max(connected_component_subgraphs(G), key=len)
-                nodes_from_bibc_mod = bibc_mod(nodes_in_gc_for_bibc_mod)
+                nodes_from_bibc_mod = bibc_mod(giantcomp)
                 rbc = restricted_betweenness_centrality(giantcomp, nodes_from_bibc_mod['mod1'], nodes_from_bibc_mod['mod2'], bibc_calc_type)
                 parse_rbc_str = parse_RBC_results(rbc, otu_pv_list, otu_pv_str)
                 return_str = "BiBC_between_modular_regions\t" + parse_rbc_str + "\n"                
@@ -765,7 +808,7 @@ if __name__ == '__main__':
                 multi_groups_out_str = ""
                 
                 for i in all_group_pairs:
-                    assigned_types = assign_node_type(node_file, nodes_in_gc, i[0], i[1])
+                    assigned_types = assign_node_type(mapfile, nodes_in_gc, i[0], i[1])
                     
                     rbc = restricted_betweenness_centrality(giantcomp, assigned_types['Type1'], assigned_types['Type2'], bibc_calc_type)
                     
@@ -803,14 +846,20 @@ if __name__ == '__main__':
                 # Otherwise, calculate BiBC      
                 elif (len(subg[0]) != len(subg[1])):
                     print("BiBC/RBC being calculated for giant component.")
-                    output_str = BiBC(bibc_choice, node_input_file, gc_nodes, gc, bibc_calc_type, otu_pheno_value_list, otu_pheno_value_str, node_type1, node_type2)
+                    if bibc_choice == "node_types" or bibc_choice == "node_groups_list":
+                        output_str = BiBC(bibc_choice, gc_nodes, gc, bibc_calc_type, otu_pheno_value_list, otu_pheno_value_str, t1 = node_type1, t2 = node_type2, mapfile = node_input_file)
+                    elif bibc_choice == "modularity":
+                        output_str = BiBC(bibc_choice, gc_nodes, gc, bibc_calc_type, otu_pheno_value_list, otu_pheno_value_str)                        
                     file.write(output_str)
 
             # If there is only one giant comp, then compute BiBC on whole graph.        
             else:
                 print("There is only one component. BiBC being calculated on the entire graph.")
-                output_str = BiBC(bibc_choice, node_input_file, gc_nodes, gc, bibc_calc_type, otu_pheno_value_list, otu_pheno_value_str, node_type1, node_type2)
-                #print(output_str)
+                if bibc_choice == "node_types" or bibc_choice == "node_groups_list":                
+                    output_str = BiBC(bibc_choice, gc_nodes, gc, bibc_calc_type, otu_pheno_value_list, otu_pheno_value_str, t1 = node_type1, t2 = node_type2, mapfile = node_input_file)
+                elif bibc_choice == "modularity":
+                    output_str = BiBC(bibc_choice, gc_nodes, gc, bibc_calc_type, otu_pheno_value_list, otu_pheno_value_str)
+                    
                 file.write(output_str)
     
         # Overwrite any previous file with same name instead of appending    

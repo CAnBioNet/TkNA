@@ -26,16 +26,20 @@ def intakeAggregateData(dataDir):
 
 		experimentDataString = readAndDecodeFile(dataDir / experimentMetadata["dataFile"])
 		experimentDataDataframe = pandas.read_csv(StringIO(experimentDataString), index_col=0)
-		experimentDataDataframe = experimentDataDataframe.replace(["na", "NA", "n/a", "N/A"], numpy.nan).apply(partial(pandas.to_numeric, errors="ignore"))
+		experimentDataDataframe = experimentDataDataframe.replace(["", "na", "NA", "n/a", "N/A"], numpy.nan)
+		try:
+			experimentDataDataframe = experimentDataDataframe.apply(partial(pandas.to_numeric))
+		except Exception as e:
+			raise Exception(f"Error parsing data from experiment {experimentName} as numeric: {e}") from None
+
+		experimentData = xarray.DataArray(experimentDataDataframe)
+		experimentData = experimentData.rename({experimentData.dims[0]: "measurable", experimentData.dims[1]: "organism"})
 
 		treatmentMapString = readAndDecodeFile(dataDir / experimentMetadata["treatmentMapFile"])
 		if experimentMetadata["treatmentMapFile"].endswith(".json"):
 			treatmentMap = json.loads(treatmentMapString)
 		elif experimentMetadata["treatmentMapFile"].endswith(".csv"):
 			treatmentMap = readClassificationCsv(treatmentMapString)
-
-		experimentData = xarray.DataArray(experimentDataDataframe)
-		experimentData = experimentData.rename({experimentData.dims[0]: "measurable", experimentData.dims[1]: "organism"})
 
 		organismCoords = experimentData.coords["organism"]
 

@@ -72,18 +72,21 @@ class Property(ColumnSpec):
 		return [self.dataKey]
 
 class PropertiesFormatted(ColumnSpec):
-	def __init__(self, title, dataKey, formatStr, propertyDims, **kwargs):
+	def __init__(self, title, dataKey, formatStr, propertyDims, order=False, **kwargs):
 		super().__init__(**kwargs)
 		self.title = title
 		self.dataKey = dataKey
 		self.formatStr = formatStr
 		self.propertyDims = propertyDims
+		self.order = order
 
 	def getHeaders(self, data):
 		return [self.title]
 
 	def _getValues(self, data, dim, coords, dataArr):
 		properties = numpy.array([dataArr.sel({dim: coords}).coords[propertyDim].data for propertyDim in self.propertyDims]).T
+		if self.order:
+			properties.sort(axis=1)
 		return [[self.formatStr.format(*propertyList) for propertyList in properties]]
 
 	def getDataKeys(self):

@@ -85,7 +85,12 @@ def intakeSingleCellData(dataDir):
 			for organism, organismFileName in organismFileMap.items():
 				cellTypeDataString = readAndDecodeFile(cellTypeDir / organismFileName)
 				cellTypeDataFrame = pandas.read_csv(StringIO(cellTypeDataString), index_col=0)
-				cellTypeDataFrame = cellTypeDataFrame.replace(["na", "NA", "n/a", "N/A"], numpy.nan).apply(partial(pandas.to_numeric, errors="ignore"))
+				cellTypeDataFrame = cellTypeDataFrame.replace(["", "na", "NA", "n/a", "N/A"], numpy.nan)
+				try:
+					cellTypeDataFrame = cellTypeDataFrame.apply(partial(pandas.to_numeric, errors="ignore"))
+				except Exception as e:
+					raise Exception(f"Error parsing data from experiment {experimentName} as numeric: {e}") from None
+
 				cellTypeData = xarray.DataArray(cellTypeDataFrame)
 				cellTypeData = cellTypeData.rename({cellTypeData.dims[0]: "measurable", cellTypeData.dims[1]: "cell"})
 
