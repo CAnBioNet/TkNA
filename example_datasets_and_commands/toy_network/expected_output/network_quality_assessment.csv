@@ -1,13 +1,13 @@
-Property,gene<==>gene,gene<==>pheno,pheno<==>pheno
+Property,gene<==>pheno,pheno<==>pheno,gene<==>gene
 PUC (%),0.0,0.0,0.0
-Mean degree,2.0,1.0,2.0
+Mean degree,1.0,2.0,2.0
 Edges in network over edges in full graph (%),NA,NA,NA
-Observed positive:negative edge ratio,0.5,Inf,1.0
+Observed positive:negative edge ratio,NA,1.0,0.5
 Expected positive:negative edge ratio,NA,NA,NA
 Deviation from expected positive:negative edge ratio in full graph,NA,NA,NA
 Positive nodes,2,2,2
-Negative nodes,1,0,2
-Total nodes,3,2,4
-Positive edges,1,1,2
-Negative edges,2,0,2
-Total edges,3,1,4
+Negative nodes,0,2,1
+Total nodes,2,4,3
+Positive edges,1,2,1
+Negative edges,0,2,2
+Total edges,1,4,3

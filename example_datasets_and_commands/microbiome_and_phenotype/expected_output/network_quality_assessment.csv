@@ -1,13 +1,13 @@
-Property,microbe<==>microbe,microbe<==>pheno,pheno<==>pheno
-PUC (%),8.75,26.67,0.0
-Mean degree,11.583333333333334,1.8333333333333333,3.7777777777777777
-Edges in network over edges in full graph (%),16.31,16.67,NA
-Observed positive:negative edge ratio,4.957142857142857,0.0,Inf
-Expected positive:negative edge ratio,2.33,1.44,NA
-Deviation from expected positive:negative edge ratio in full graph,1.13,-1.0,NA
-Positive nodes,13.0,3.0,9
-Negative nodes,59.0,9.0,0
-Total nodes,72.0,12.0,9
-Positive edges,347.0,0.0,17
-Negative edges,70.0,11.0,0
-Total edges,417.0,11.0,17
+Property,pheno<==>pheno,pheno<==>microbe,microbe<==>microbe
+PUC (%),0.0,26.67,8.75
+Mean degree,3.7777777777777777,1.8333333333333333,11.583333333333334
+Edges in network over edges in full graph (%),NA,16.67,16.31
+Observed positive:negative edge ratio,NA,0.0,4.957142857142857
+Expected positive:negative edge ratio,NA,1.44,2.33
+Deviation from expected positive:negative edge ratio in full graph,NA,-1.0,1.13
+Positive nodes,9,3.0,13.0
+Negative nodes,0,9.0,59.0
+Total nodes,9,12.0,72.0
+Positive edges,17,0.0,347.0
+Negative edges,0,11.0,70.0
+Total edges,17,11.0,417.0
