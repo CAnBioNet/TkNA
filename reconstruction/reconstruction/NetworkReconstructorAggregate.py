@@ -306,7 +306,11 @@ def combineAndFilterFoldChanges(config, foldChanges, foldChangeSigns):
 		else:
 			return 0
 
-	percentThreshold = config["foldChangeFilterPercentAgreementThreshold"]
+	percentThresholdKey = "foldChangeFilterPercentAgreementThreshold"
+	percentThreshold = config[percentThresholdKey]
+	# Should be greater than 0.5, as otherwise there can be ties between signs
+	if not 0.5 < percentThreshold <= 1:
+		raise Exception(f"Percent agreement threshold specified in \"{percentThresholdKey}\" must be in range (0.5, 1] (configured value: {percentThreshold})")
 	def percentAgreement(experimentFoldChanges, experimentFoldChangeSigns):
 		percentAgreementDecimals = 6
 
@@ -620,8 +624,11 @@ def combineAndFilterCorrelations(config, correlations, correlationSigns):
 		return combinedSigns, filterTable, passingMetatreatments
 
 	def percentAgreement():
+		percentThresholdKey = "correlationFilterPercentAgreementThreshold"
+		percentThreshold = config[percentThresholdKey]
 		# Should be greater than 0.5, as otherwise there can be ties between signs
-		percentThreshold = config["correlationFilterPercentAgreementThreshold"]
+		if not 0.5 < percentThreshold <= 1:
+			raise Exception(f"Percent agreement threshold specified in \"{percentThresholdKey}\" must be in range (0.5, 1] (configured value: {percentThreshold})")
 
 		percentAgreementDecimals = 6
 

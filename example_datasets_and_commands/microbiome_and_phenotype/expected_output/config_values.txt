@@ -1,8 +1,8 @@
-Comparison thresholds:
+Comparison p-value thresholds:
 	microbe: individual: 0.8, combined: 0.05, corrected: 0.2
 	pheno: individual: 0.2, combined: 0.05, corrected: 0.2
 
-Correlation thresholds:
+Correlation p-value thresholds:
 	(microbe, microbe): individual: 0.8, combined: 0.05, corrected: 0.1
 	(microbe, pheno): individual: 0.8, combined: 0.05, corrected: 0.1
 	(pheno, pheno): individual: 1, combined: 0.1, corrected: 0.1
