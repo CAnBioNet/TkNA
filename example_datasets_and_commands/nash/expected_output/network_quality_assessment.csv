@@ -1,0 +1,13 @@
+Property,lipid_metab<==>lipid_metab,plasma_anthro<==>plasma_anthro,plasma_anthro<==>RNAseq,RNAseq<==>RNAseq,lipid_metab<==>plasma_anthro,lipid_metab<==>RNAseq
+PUC (%),24.76,0.0,0.0,0.05,0.0,0.0
+Mean degree,15.247787610619469,2.25,1.8461538461538463,27.428571428571427,1.5,1.3333333333333333
+Edges in network over edges in full graph (%),6.78,NA,NA,17.93,10.0,16.67
+Observed positive:negative edge ratio,1.8526490066225165,8.0,3.0,26.428571428571427,2.0,0.5
+Expected positive:negative edge ratio,1.09,NA,NA,18.64,1.18,0.8
+Deviation from expected positive:negative edge ratio in full graph,0.7,NA,NA,0.42,0.69,-0.38
+Positive nodes,138.0,7,11,150.0,11.0,5.0
+Negative nodes,88.0,1,2,4.0,5.0,4.0
+Total nodes,226.0,8,13,154.0,16.0,9.0
+Positive edges,1119.0,8,9,2035.0,8.0,2.0
+Negative edges,604.0,1,3,77.0,4.0,4.0
+Total edges,1723.0,9,12,2112.0,12.0,6.0

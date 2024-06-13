@@ -1,0 +1,55 @@
+{
+	"comparisonTreatments": ["WDO", "RD"],
+	"differencePValueThresholds": {
+		"individual": {
+			"RNAseq": 0.2,
+			"plasma_anthro": 1,
+			"lipid_metab": 0.2
+		},
+		"combined": {
+			"RNAseq": 0.05,
+			"plasma_anthro": 1,
+			"lipid_metab": 0.05
+		},
+		"corrected": {
+			"RNAseq": 0.01,
+			"plasma_anthro": 1,
+			"lipid_metab": 0.01
+		}
+	},
+	"metatreatments": {
+		"metatreatment1": [["Experiment1", "WDO"]],
+		"metatreatment2": [["Experiment1", "WDE"]],
+		"metatreatment3": [["Experiment1", "WDD"]],
+		"metatreatment4": [["Experiment2", "WDO"]],
+		"metatreatment5": [["Experiment2", "WDE"]],
+		"metatreatment6": [["Experiment2", "WDD"]]
+	},
+	"correlationPValueThresholds": {
+		"individual": {
+			"(RNAseq, RNAseq)": 0.1,
+			"(plasma_anthro, plasma_anthro)": 0.2,
+			"(lipid_metab, lipid_metab)": 0.2,
+			"(RNAseq, plasma_anthro)": 1,
+			"(RNAseq, lipid_metab)": 0.2,
+			"(plasma_anthro, lipid_metab)": 0.2
+		},
+		"combined": {
+			"(RNAseq, RNAseq)": 0.05,
+            		"(plasma_anthro, plasma_anthro)": 0.5,
+            		"(lipid_metab, lipid_metab)": 0.05,
+            		"(RNAseq, plasma_anthro)": 0.5,
+            		"(RNAseq, lipid_metab)": 0.05,
+            		"(plasma_anthro, lipid_metab)": 0.05
+		},
+		"corrected": {
+			"(RNAseq, RNAseq)": 0.01,
+            		"(plasma_anthro, plasma_anthro)": 0.2,
+            		"(lipid_metab, lipid_metab)": 0.01,
+            		"(RNAseq, plasma_anthro)": 0.2,
+            		"(RNAseq, lipid_metab)": 0.01,
+            		"(plasma_anthro, lipid_metab)": 0.1
+		}
+	}
+}
+
