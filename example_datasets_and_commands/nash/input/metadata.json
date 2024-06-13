@@ -1,0 +1,16 @@
+{
+	"name": "NASH Example Dataset",
+	"experiments": [
+		{
+			"name": "Experiment1",
+			"dataFile": "Experiment1.csv",
+			"treatmentMapFile": "Experiment1_group_map.csv"
+		},
+		{
+			"name": "Experiment2",
+			"dataFile": "Experiment2.csv",
+			"treatmentMapFile": "Experiment2_group_map.csv"
+		}
+	],
+	"measurableTypeMapFile": "type_map.csv"
+}

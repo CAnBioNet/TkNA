@@ -1,0 +1,12 @@
+Comparison p-value thresholds:
+	RNAseq: individual: 0.2, combined: 0.05, corrected: 0.01
+	plasma_anthro: individual: 1, combined: 1, corrected: 1
+	lipid_metab: individual: 0.2, combined: 0.05, corrected: 0.01
+
+Correlation p-value thresholds:
+	(RNAseq, RNAseq): individual: 0.1, combined: 0.05, corrected: 0.01
+	(plasma_anthro, plasma_anthro): individual: 0.2, combined: 0.5, corrected: 0.2
+	(lipid_metab, lipid_metab): individual: 0.2, combined: 0.05, corrected: 0.01
+	(RNAseq, plasma_anthro): individual: 1, combined: 0.5, corrected: 0.2
+	(RNAseq, lipid_metab): individual: 0.2, combined: 0.05, corrected: 0.01
+	(plasma_anthro, lipid_metab): individual: 0.2, combined: 0.05, corrected: 0.1

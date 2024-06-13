@@ -1,0 +1,550 @@
+﻿Lipid #,True Lipid Name,Type Category,,Metabolite #,True Metabolite Name,Type Category
+lipid1,C14_0,GC Lipidomic,,metabolite1,3-Hydroxybutyric acid,metabolite
+lipid2,C16_0,GC Lipidomic,,metabolite2,Myristoylcarnitine,metabolite
+lipid3,C16_1_n-7,GC Lipidomic,,metabolite3,Octanoylcarnitine,metabolite
+lipid4,C18_0,GC Lipidomic,,metabolite4,"(3Z)-4,6,6-Trihydroxy-3,5-hexadien-2-one",metabolite
+lipid5,C18_1_n-9,GC Lipidomic,,metabolite5,(R)-2-hydroperoxy-alpha-linolenic acid,metabolite
+lipid6,C18_1_n-7,GC Lipidomic,,metabolite6,1-heptadecanoyl-sn-glycero-3-phosphocholine,metabolite
+lipid7,C18_2_n-6,GC Lipidomic,,metabolite7,1-Linoleoylglycerophosphocholine,metabolite
+lipid8,C18_3_n-6,GC Lipidomic,,metabolite8,"10,16-Dihydroxyhexadecanoic acid",metabolite
+lipid9,C18_3_n-3,GC Lipidomic,,metabolite9,11-Deoxyprednisone acetate,metabolite
+lipid10,C20_0,GC Lipidomic,,metabolite10,13S-hydroxyoctadecadienoic acid,metabolite
+lipid11,C20_2_n-6,GC Lipidomic,,metabolite11,13Z-Docosenamide,metabolite
+lipid12,C20_3_n-6,GC Lipidomic,,metabolite12,"15(R),19(R)-hydroxy Prostaglandin E1",metabolite
+lipid13,C20_4_n-6,GC Lipidomic,,metabolite13,16-Oxohexadecanoic acid,metabolite
+lipid14,C20_5_n-3,GC Lipidomic,,metabolite14,2-(S-Glutathionyl)acetyl glutathione,metabolite
+lipid15,C22_4_n-6,GC Lipidomic,,metabolite15,2-C-(Hydroxymethyl)-D-ribopyranose,metabolite
+lipid16,C22_5_n-6,GC Lipidomic,,metabolite16,2-Furoic acid,metabolite
+lipid17,C22_5_n-3,GC Lipidomic,,metabolite17,"2-Hydroxy-6-keto-2,4-heptadienoate",metabolite
+lipid18,C22_6_n-3,GC Lipidomic,,metabolite18,2-Hydroxycinnamic acid,metabolite
+lipid19,SFA,GC Lipidomic,,metabolite19,2-Methylbutyroylcarnitine,metabolite
+lipid20,MUFA,GC Lipidomic,,metabolite20,"2,4-diacetamido-2,4,6-trideoxy-beta-L-altrose",metabolite
+lipid21,N3_PUFA,GC Lipidomic,,metabolite21,2'-Adenylic acid,metabolite
+lipid22,N6_PUFA,GC Lipidomic,,metabolite22,2'-Deamino-2'-hydroxyparomamine,metabolite
+lipid23,Total_FA,GC Lipidomic,,metabolite23,2'-MONOPHOSPHOADENOSINE-5'-DIPHOSPHORIBOSE,metabolite
+lipid24,Hep_TAG,GC Lipidomic,,metabolite24,3-AMINOISOBUTANOATE,metabolite
+lipid25,Hep_TC,GC Lipidomic,,metabolite25,3-Hydroxyquinine,metabolite
+lipid26,HydroPro,GC Lipidomic,,metabolite26,4-hydroxy Nonenal Glutathione,metabolite
+lipid27,2_CUDA ISTD [M+H]+,LC/MS/MS Lipidomic,,metabolite27,4-Hydroxy-L-threonine,metabolite
+lipid28,AC 12:0; [M+H]+,LC/MS/MS Lipidomic,,metabolite28,4-O-(4-Deoxy-beta-L-threo-hex-4-enopyranuronosyl)-beta-D-galactopyranuronic acid,metabolite
+lipid29,AC 14:0; [M]+,LC/MS/MS Lipidomic,,metabolite29,5-Oxonorleucine,metabolite
+lipid30,AC 14:1; [M]+,LC/MS/MS Lipidomic,,metabolite30,"5,6-dehydro Arachidonic Acid",metabolite
+lipid31,AC 15:0; [M]+,LC/MS/MS Lipidomic,,metabolite31,5'-Deoxyxanthosine,metabolite
+lipid32,AC 16:0; [M]+,LC/MS/MS Lipidomic,,metabolite32,5(S)-HpETE,metabolite
+lipid33,AC 16:1; [M]+,LC/MS/MS Lipidomic,,metabolite33,6E-Tridecenyl acetate,metabolite
+lipid34,AC 18:0; [M]+,LC/MS/MS Lipidomic,,metabolite34,7-Carboxynalidixic acid glucuronide,metabolite
+lipid35,AC 18:1; [M]+,LC/MS/MS Lipidomic,,metabolite35,"7Z, 10Z, 13Z, 16Z, 19Z-docosapentaenoic acid",metabolite
+lipid36,AC 18:2; [M+H]+,LC/MS/MS Lipidomic,,metabolite36,8-[3]-ladderane-octanoic acid,metabolite
+lipid37,AC 20:0; [M]+,LC/MS/MS Lipidomic,,metabolite37,8-hydroxy-alpha-humulene,metabolite
+lipid38,AC 20:1; [M]+,LC/MS/MS Lipidomic,,metabolite38,"9,10-epoxy-18-hydroxyoctadecanoic acid",metabolite
+lipid39,AC 20:2; [M]+,LC/MS/MS Lipidomic,,metabolite39,Acarbose,metabolite
+lipid40,AC 20:4; [M]+,LC/MS/MS Lipidomic,,metabolite40,Acetyl-DL-Leucine,metabolite
+lipid41,AC 20:5; [M]+,LC/MS/MS Lipidomic,,metabolite41,Adenine,metabolite
+lipid42,AC 22:5; [M]+,LC/MS/MS Lipidomic,,metabolite42,Adenosine diphosphate,metabolite
+lipid43,bis(monoacylglycerol)phosphate (BMP) 38:7; BMP(16:1/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,metabolite43,Adenosine triphosphate (ATP),metabolite
+lipid44,bis(monoacylglycerol)phosphate (BMP) 40:7; BMP(18:1/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,metabolite44,Adenylosuccinate,metabolite
+lipid45,bis(monoacylglycerol)phosphate (BMP) 40:8; BMP(18:2/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,metabolite45,Adenylthiomethylpentose,metabolite
+lipid46,bis(monoacylglycerol)phosphate (BMP) 42:10; BMP(20:4/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,metabolite46,ADP,metabolite
+lipid47,bis(monoacylglycerol)phosphate (BMP) 42:11; BMP(20:5/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,metabolite47,ADP-ribose,metabolite
+lipid48,bis(monoacylglycerol)phosphate (BMP) 44:11; BMP(22:5/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,metabolite48,aminocaproic acid,metabolite
+lipid49,bis(monoacylglycerol)phosphate (BMP) 44:12; BMP(22:6/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,metabolite49,Arachidonic Acid (peroxide free),metabolite
+lipid50,Cer[NDS] d34:0; Cer[NDS](d18:0/16:0); [M+H]+,LC/MS/MS Lipidomic,,metabolite50,Azelaic acid,metabolite
+lipid51,Cer[NDS] d40:0; Cer[NDS](d18:0/22:0); [M+H]+,LC/MS/MS Lipidomic,,metabolite51,Boschnialactone,metabolite
+lipid52,Cer[NS] d34:1; Cer[NS](d18:1/16:0); [M+H]+,LC/MS/MS Lipidomic,,metabolite52,Butyryl-L-carnitine,metabolite
+lipid53,Cer[NS] d36:1; Cer[NS](d18:1/18:0); [M+H]+,LC/MS/MS Lipidomic,,metabolite53,C16 Sphinganine,metabolite
+lipid54,Cer[NS] d38:1; Cer[NS](d18:1/20:0); [M+H]+,LC/MS/MS Lipidomic,,metabolite54,calcitroic acid,metabolite
+lipid55,Cer[NS] d40:1; Cer[NS](d18:1/22:0); [M+H]+,LC/MS/MS Lipidomic,,metabolite55,carbamoyl adenylate,metabolite
+lipid56,Cer[NS] d40:2; Cer[NS](d18:1/22:1); [M+H]+,LC/MS/MS Lipidomic,,metabolite56,"CDP-3,6-dideoxy-alpha-D-glucose",metabolite
+lipid57,Cer[NS] d41:1; Cer[NS](d18:1/23:0); [M+H]+,LC/MS/MS Lipidomic,,metabolite57,CDP-ribitol,metabolite
+lipid58,Cer[NS] d41:2; Cer[NS](d17:1/24:1); [M+H]+,LC/MS/MS Lipidomic,,metabolite58,Cholesterol,metabolite
+lipid59,Cer[NS] d42:1; Cer[NS](d18:1/24:0); [M+H]+,LC/MS/MS Lipidomic,,metabolite59,Cholic acid,metabolite
+lipid60,Cer[NS] d42:2; Cer[NS](d18:1/24:1); [M+H]+,LC/MS/MS Lipidomic,,metabolite60,Choline,metabolite
+lipid61,Cer[NS] d42:3; Cer[NS](d18:2/24:1); [M+H]+,LC/MS/MS Lipidomic,,metabolite61,cis-2-Carboxycyclohexyl-acetic acid,metabolite
+lipid62,Cholesteryl Ester 22:6; [M+NH4]+,LC/MS/MS Lipidomic,,metabolite62,"cis-9,10-Epoxystearic acid",metabolite
+lipid63,EtherPC 30:0e; PC(14:0e/16:0); [M+H]+,LC/MS/MS Lipidomic,,metabolite63,Citric acid,metabolite
+lipid64,EtherPC 31:0e; PC(14:0e/17:0); [M+H]+,LC/MS/MS Lipidomic,,metabolite64,CMP-3-deoxy-beta-D-manno-octulosonic acid,metabolite
+lipid65,EtherPC 32:0e; PC(14:0e/18:0); [M+H]+,LC/MS/MS Lipidomic,,metabolite65,Coenzyme A,metabolite
+lipid66,EtherPC 32:1e; PC(14:0e/18:1); [M+H]+,LC/MS/MS Lipidomic,,metabolite66,Creatine,metabolite
+lipid67,EtherPC 34:0e; PC(14:0e/20:0); [M+H]+,LC/MS/MS Lipidomic,,metabolite67,Cyanic acid,metabolite
+lipid68,EtherPC 34:1e; PC(14:0e/20:1); [M+H]+,LC/MS/MS Lipidomic,,metabolite68,Cyclic ADP-ribose,metabolite
+lipid69,EtherPC 34:2e; PC(14:0e/20:2); [M+H]+,LC/MS/MS Lipidomic,,metabolite69,Cytidine diphosphate choline (CDPcholine),metabolite
+lipid70,EtherPC 40:6e; PC(18:0e/22:6); [M+H]+,LC/MS/MS Lipidomic,,metabolite70,D-(-)-4-Hydroxyphenylglycine,metabolite
+lipid71,EtherPC 40:7e; PC(18:1e/22:6); [M+H]+,LC/MS/MS Lipidomic,,metabolite71,D-Aspartatic acid,metabolite
+lipid72,EtherPC 42:5e; PC(18:5e/24:0); [M+H]+,LC/MS/MS Lipidomic,,metabolite72,"D-glucurono-6,2-lactone",metabolite
+lipid73,EtherPC 42:6e; PC(22:6e/20:0); [M+H]+,LC/MS/MS Lipidomic,,metabolite73,D-Proline,metabolite
+lipid74,EtherPC 44:7e; PC(18:3e/26:4); [M+H]+,LC/MS/MS Lipidomic,,metabolite74,DECANOYLLEVOCARNITINE,metabolite
+lipid75,EtherPE 24:6e; PE(22:6e/2:0); [M-H]-,LC/MS/MS Lipidomic,,metabolite75,"dehydro-D-arabinono-1,4-lactone",metabolite
+lipid76,EtherPE 34:0e; PE(18:0e/16:0); [M-H]-,LC/MS/MS Lipidomic,,metabolite76,Dihomo-?-linolenic acid (DGLA),metabolite
+lipid77,EtherPE 34:3e; PE(16:1e/18:2); [M-H]-,LC/MS/MS Lipidomic,,metabolite77,Docosahexaenoic acid,metabolite
+lipid78,EtherPE 36:1e; PE(18:0e/18:1); [M-H]-,LC/MS/MS Lipidomic,,metabolite78,Dodecanedioic acid,metabolite
+lipid79,EtherPE 36:4e; PE(16:0e/20:4); [M-H]-,LC/MS/MS Lipidomic,,metabolite79,Dodecanoylcarnitine,metabolite
+lipid80,EtherPE 36:5e; PE(16:1e/20:4); [M-H]-,LC/MS/MS Lipidomic,,metabolite80,"dTDP-3-amino-2,3,6-trideoxy-C-methyl-D-erythro-hexopyranos-4-ulose",metabolite
+lipid81,EtherPE 36:6e; PE(16:1e/20:5); [M-H]-,LC/MS/MS Lipidomic,,metabolite81,Eicosapentaenoic Acid,metabolite
+lipid82,EtherPE 38:5e; PE(16:0e/22:5); [M-H]-,LC/MS/MS Lipidomic,,metabolite82,Elaidic carnitine,metabolite
+lipid83,EtherPE 38:5e; PE(18:1e/20:4); [M-H]-,LC/MS/MS Lipidomic,,metabolite83,Enicoflavine,metabolite
+lipid84,EtherPE 38:6e; PE(16:1e/22:5); [M-H]-,LC/MS/MS Lipidomic,,metabolite84,Ergocornine,metabolite
+lipid85,EtherPE 38:6e; PE(18:1e/20:5); [M-H]-,LC/MS/MS Lipidomic,,metabolite85,Ergothioneine,metabolite
+lipid86,EtherPE 38:7e; PE(16:1e/22:6); [M-H]-,LC/MS/MS Lipidomic,,metabolite86,Erythronolide B,metabolite
+lipid87,EtherPE 40:5e; PE(18:0e/22:5); [M-H]-,LC/MS/MS Lipidomic,,metabolite87,Flavin adenine dinucleotide (FAD),metabolite
+lipid88,EtherPE 40:6e; PE(18:1e/22:5); [M-H]-,LC/MS/MS Lipidomic,,metabolite88,Flavine mononucleotide (FMN),metabolite
+lipid89,EtherPE 40:7e; PE(18:1e/22:6); [M-H]-,LC/MS/MS Lipidomic,,metabolite89,Gamma-Glu-Leu,metabolite
+lipid90,EtherPE 40:7e; PE(18:2e/22:5); [M-H]-,LC/MS/MS Lipidomic,,metabolite90,GDP-L-fucose,metabolite
+lipid91,EtherPE 40:8e; PE(18:2e/22:6); [M-H]-,LC/MS/MS Lipidomic,,metabolite91,GDP-Man,metabolite
+lipid92,EtherPE 40:9e; PE(18:3e/22:6); [M-H]-,LC/MS/MS Lipidomic,,metabolite92,Gluconic acid,metabolite
+lipid93,FA (20:0) [M-H]- (arachidic acid),LC/MS/MS Lipidomic,,metabolite93,Glutamate,metabolite
+lipid94,FA (20:1) [M-H]- (eicosenoic acid),LC/MS/MS Lipidomic,,metabolite94,Glutathione,metabolite
+lipid95,FA (20:2) [M-H]- (eicosadienoic acid),LC/MS/MS Lipidomic,,metabolite95,"Glutathione, oxidized",metabolite
+lipid96,FA (20:3) [M-H]- (eicosatrienoic acid),LC/MS/MS Lipidomic,,metabolite96,glycerol 2-phosphate,metabolite
+lipid97,FA (20:3) [M-H]- (homo-gamma-linolenic acid),LC/MS/MS Lipidomic,,metabolite97,Glycocholic Acid,metabolite
+lipid98,FA (20:4) [M-H]- (arachidonic acid),LC/MS/MS Lipidomic,,metabolite98,Guanidylic acid (guanosine monophosphate),metabolite
+lipid99,FA (20:5) [M-H]- (eicosapentaenoic acid),LC/MS/MS Lipidomic,,metabolite99,Guanine,metabolite
+lipid100,FA (22:0) [M-H]- (behenic acid),LC/MS/MS Lipidomic,,metabolite100,Guanosine,metabolite
+lipid101,FA (22:1) [M-H]- (erucic acid),LC/MS/MS Lipidomic,,metabolite101,Guanosine 5'-diphosphate (GDP),metabolite
+lipid102,FA (22:6) [M-H]- (docosahexaenoic acid),LC/MS/MS Lipidomic,,metabolite102,Guanosine monophosphate,metabolite
+lipid103,HexCer[NS] d34:1; HexCer[NS](d18:1/16:0); [M+H]+,LC/MS/MS Lipidomic,,metabolite103,Guanosine triphosphate (GTP),metabolite
+lipid104,HexCer[NS] d40:1; HexCer[NS](d18:1/22:0); [M+H]+,LC/MS/MS Lipidomic,,metabolite104,Hexadecanedioic acid,metabolite
+lipid105,HexCer[NS] d42:2; HexCer[NS](d18:1/24:1); [M+H]+,LC/MS/MS Lipidomic,,metabolite105,Hexadecasphinganine,metabolite
+lipid106,LysoPC (14:0) [M+H]+,LC/MS/MS Lipidomic,,metabolite106,hydrocortisone cypionate,metabolite
+lipid107,LysoPC (15:0) [M+H]+,LC/MS/MS Lipidomic,,metabolite107,Hydroxyphenyllactic acid,metabolite
+lipid108,LysoPC (16:0) [M+HAc-H]-,LC/MS/MS Lipidomic,,metabolite108,Hypoxanthine,metabolite
+lipid109,LysoPC (16:1) [M+H]+,LC/MS/MS Lipidomic,,metabolite109,Inosine,metabolite
+lipid110,LysoPC (17:1) [M+H]+,LC/MS/MS Lipidomic,,metabolite110,Inosine 5'-monophosphate (IMP),metabolite
+lipid111,LysoPC (18:0) [M+H]+,LC/MS/MS Lipidomic,,metabolite111,Inosinic acid,metabolite
+lipid112,LysoPC (18:1) [M+H]+,LC/MS/MS Lipidomic,,metabolite112,Isoglutamine,metabolite
+lipid113,LysoPC (18:2) [M+H]+,LC/MS/MS Lipidomic,,metabolite113,Isoleucine,metabolite
+lipid114,LysoPC (20:1) [M+H]+,LC/MS/MS Lipidomic,,metabolite114,ketopantoic acid,metabolite
+lipid115,LysoPC (20:2) [M+H]+,LC/MS/MS Lipidomic,,metabolite115,L-(-)-Phenylalanine,metabolite
+lipid116,LysoPC (20:3) [M+H]+,LC/MS/MS Lipidomic,,metabolite116,L-(+)-norleucine,metabolite
+lipid117,LysoPC (20:4) [M+H]+,LC/MS/MS Lipidomic,,metabolite117,L-alpha-Glycerylphosphorylcholine,metabolite
+lipid118,LysoPC (20:5) [M+H]+,LC/MS/MS Lipidomic,,metabolite118,L-Glutamate,metabolite
+lipid119,LysoPC (22:5) [M+H]+,LC/MS/MS Lipidomic,,metabolite119,L-isoleucyl-L-proline,metabolite
+lipid120,LysoPC (22:6) [M+H]+,LC/MS/MS Lipidomic,,metabolite120,L-Malic acid,metabolite
+lipid121,LysoPC 15:0; [M+Hac-H]-,LC/MS/MS Lipidomic,,metabolite121,L-Phenylalanine,metabolite
+lipid122,LysoPC 16:0; [M+H]+,LC/MS/MS Lipidomic,,metabolite122,L-threonic acid,metabolite
+lipid123,LysoPC 16:1; [M+Hac-H]-,LC/MS/MS Lipidomic,,metabolite123,L-Tryptophan,metabolite
+lipid124,LysoPC 17:0; [M+H]+,LC/MS/MS Lipidomic,,metabolite124,L-Tyrosine,metabolite
+lipid125,LysoPC 18:0; [M+H]+,LC/MS/MS Lipidomic,,metabolite125,Linoelaidic Acid,metabolite
+lipid126,LysoPC 18:1; [M+H]+,LC/MS/MS Lipidomic,,metabolite126,Lumichrome,metabolite
+lipid127,LysoPC 18:2; [M+Hac-H]-,LC/MS/MS Lipidomic,,metabolite127,Malathion,metabolite
+lipid128,LysoPC 19:0; [M+H]+,LC/MS/MS Lipidomic,,metabolite128,Malonylcarnitine,metabolite
+lipid129,LysoPC 20:0; [M+H]+,LC/MS/MS Lipidomic,,metabolite129,Methyl tyrosinate,metabolite
+lipid130,LysoPC 20:1; [M+H]+,LC/MS/MS Lipidomic,,metabolite130,N-Acetyl-L-glutamic acid,metabolite
+lipid131,LysoPC 20:2; [M+H]+,LC/MS/MS Lipidomic,,metabolite131,N-Acetylneuraminic acid,metabolite
+lipid132,LysoPC 20:3; [M+H]+,LC/MS/MS Lipidomic,,metabolite132,N-Formyl-L-glutamic acid,metabolite
+lipid133,LysoPC 20:4; [M+Hac-H]-,LC/MS/MS Lipidomic,,metabolite133,N(2)-malonyl-D-tryptophan,metabolite
+lipid134,LysoPC 20:5; [M+H]+,LC/MS/MS Lipidomic,,metabolite134,N2-Succinyl-L-ornithine,metabolite
+lipid135,LysoPC 22:0; [M+H]+,LC/MS/MS Lipidomic,,metabolite135,Niacinamide,metabolite
+lipid136,LysoPC 22:5; [M+Hac-H]-,LC/MS/MS Lipidomic,,metabolite136,Nicotinamide adenine dinucleotide (NAD),metabolite
+lipid137,LysoPC 22:6; [M+Hac-H]-,LC/MS/MS Lipidomic,,metabolite137,Nicotinamide Adenine Dinucleotide Phosphate (NADP+),metabolite
+lipid138,LysoPC 24:0; [M+H]+,LC/MS/MS Lipidomic,,metabolite138,Nicotinamide ribotide,metabolite
+lipid139,LysoPC 24:1; [M+H]+,LC/MS/MS Lipidomic,,metabolite139,Nicotyrine,metabolite
+lipid140,LysoPE (16:0) [M-H]-,LC/MS/MS Lipidomic,,metabolite140,Nilestriol,metabolite
+lipid141,LysoPE 16:0; [M+H]+,LC/MS/MS Lipidomic,,metabolite141,NORETHINDRONE ACETATE,metabolite
+lipid142,LysoPE 16:1; [M-H]-,LC/MS/MS Lipidomic,,metabolite142,O-ACETYL-L-CARNITINE,metabolite
+lipid143,LysoPE 17:0; [M-H]-,LC/MS/MS Lipidomic,,metabolite143,O-Arachidonoyl Glycidol,metabolite
+lipid144,LysoPE 18:0; [M-H]-,LC/MS/MS Lipidomic,,metabolite144,Oleamide,metabolite
+lipid145,LysoPE 18:1; [M+H]+,LC/MS/MS Lipidomic,,metabolite145,Ononin,metabolite
+lipid146,LysoPE 18:2; [M-H]-,LC/MS/MS Lipidomic,,metabolite146,Ophthalmic acid,metabolite
+lipid147,LysoPE 19:0; [M-H]-,LC/MS/MS Lipidomic,,metabolite147,Palmitic Acid,metabolite
+lipid148,LysoPE 20:0; [M-H]-,LC/MS/MS Lipidomic,,metabolite148,Palmitic Acid ethyl ester,metabolite
+lipid149,LysoPE 20:1; [M-H]-,LC/MS/MS Lipidomic,,metabolite149,Palmitoleic acid,metabolite
+lipid150,LysoPE 20:3; [M-H]-,LC/MS/MS Lipidomic,,metabolite150,Palmitoleic Acid ethyl ester,metabolite
+lipid151,LysoPE 20:4; [M-H]-,LC/MS/MS Lipidomic,,metabolite151,Palmitoyl-L-carnitine,metabolite
+lipid152,LysoPE 20:5; [M+H]+,LC/MS/MS Lipidomic,,metabolite152,Pantothenic Acid,metabolite
+lipid153,LysoPE 22:4; [M-H]-,LC/MS/MS Lipidomic,,metabolite153,Phloionolic acid,metabolite
+lipid154,LysoPE 22:5; [M-H]-,LC/MS/MS Lipidomic,,metabolite154,Piperidine,metabolite
+lipid155,LysoPE 22:6; [M-H]-,LC/MS/MS Lipidomic,,metabolite155,Pyridoxal Phosphate,metabolite
+lipid156,LysoPI 16:0; LysoPI 16:0; [M-H]-,LC/MS/MS Lipidomic,,metabolite156,Pyroglutamic acid,metabolite
+lipid157,LysoPI 18:0; LysoPI 18:0; [M-H]-,LC/MS/MS Lipidomic,,metabolite157,Riboflavin (Vitamin B2),metabolite
+lipid158,LysoPI 18:1; LysoPI 18:1; [M-H]-,LC/MS/MS Lipidomic,,metabolite158,"S-(1,2-DICARBOXYETHYL)GLUTATHIONE",metabolite
+lipid159,LysoPI 18:2; LysoPI 18:2; [M-H]-,LC/MS/MS Lipidomic,,metabolite159,S-(Formylmethyl)glutathione,metabolite
+lipid160,LysoPI 20:3; LysoPI 20:3; [M-H]-,LC/MS/MS Lipidomic,,metabolite160,S-Adenosylhomocysteine,metabolite
+lipid161,LysoPI 20:4; LysoPI 20:4; [M-H]-,LC/MS/MS Lipidomic,,metabolite161,S-formylglutathione,metabolite
+lipid162,LysoPI 20:5; LysoPI 20:5; [M-H]-,LC/MS/MS Lipidomic,,metabolite162,Sebacic acid,metabolite
+lipid163,LysoPI 22:5; LysoPI 22:5; [M-H]-,LC/MS/MS Lipidomic,,metabolite163,sedanonic acid lactone,metabolite
+lipid164,LysoPI 22:6; LysoPI 22:6; [M-H]-,LC/MS/MS Lipidomic,,metabolite164,SM(d18:1/16:0),metabolite
+lipid165,LysoPS 20:4; LysoPS 20:4; [M-H]-,LC/MS/MS Lipidomic,,metabolite165,Sphinganine,metabolite
+lipid166,LysoPS 20:5; LysoPS 20:5; [M-H]-,LC/MS/MS Lipidomic,,metabolite166,Sphinganine-phosphate,metabolite
+lipid167,LysoPS 22:6; LysoPS 22:6; [M-H]-,LC/MS/MS Lipidomic,,metabolite167,Sphingosine 1-phosphate,metabolite
+lipid168,PA 34:1; PA(16:0/18:1); [M-H]-,LC/MS/MS Lipidomic,,metabolite168,Suberic acid,metabolite
+lipid169,PA 34:2; PA(16:0/18:2); [M-H]-,LC/MS/MS Lipidomic,,metabolite169,Succinic acid,metabolite
+lipid170,PA 36:3; PA(18:1/18:2); [M-H]-,LC/MS/MS Lipidomic,,metabolite170,Sulfoglycolithocholic acid,metabolite
+lipid171,PA 36:4; PA(18:2/18:2); [M-H]-,LC/MS/MS Lipidomic,,metabolite171,Taurochenodeoxycholic acid,metabolite
+lipid172,PA 38:4; PA(18:0/20:4); [M-H]-,LC/MS/MS Lipidomic,,metabolite172,Taurocholic acid,metabolite
+lipid173,PA 38:5; PA(18:0/20:5); [M-H]-,LC/MS/MS Lipidomic,,metabolite173,taurohyocholic acid,metabolite
+lipid174,PA 38:6; PA(16:0/22:6); [M-H]-,LC/MS/MS Lipidomic,,metabolite174,Tauropine,metabolite
+lipid175,PC (16:0/9:0(CHO)),LC/MS/MS Lipidomic,,metabolite175,Tetradecanedioic acid,metabolite
+lipid176,PC 30:0; PC(14:0/16:0); [M+H]+,LC/MS/MS Lipidomic,,metabolite176,tetrahydrocortisol,metabolite
+lipid177,PC 30:1; PC(14:0/16:1); [M+H]+,LC/MS/MS Lipidomic,,metabolite177,trans-12-elaidic acid,metabolite
+lipid178,PC 31:0; PC(15:0/16:0); [M+H]+,LC/MS/MS Lipidomic,,metabolite178,UDP-D-galactose,metabolite
+lipid179,PC 31:1; PC(15:0/16:1); [M+H]+,LC/MS/MS Lipidomic,,metabolite179,Uracil,metabolite
+lipid180,PC 32:0; PC(16:0/16:0); [M+H]+,LC/MS/MS Lipidomic,,metabolite180,Uric acid,metabolite
+lipid181,PC 32:1; PC(16:0/16:1); [M+H]+,LC/MS/MS Lipidomic,,metabolite181,Uridine,metabolite
+lipid182,PC 32:2; PC(16:1/16:1); [M+H]+,LC/MS/MS Lipidomic,,metabolite182,Uridine 5'-diphosphoglucuronic acid,metabolite
+lipid183,PC 33:0; PC(16:0/17:0); [M+H]+,LC/MS/MS Lipidomic,,metabolite183,uridine 5_A-diphosphate,metabolite
+lipid184,PC 33:0; PC(6:0/27:0); [M+H]+,LC/MS/MS Lipidomic,,metabolite184,Uridine diphosphate (UDP),metabolite
+lipid185,PC 33:1; PC(15:0/18:1); [M+H]+,LC/MS/MS Lipidomic,,metabolite185,Uridine monophosphate (UMP),metabolite
+lipid186,PC 33:2; PC(15:0/18:2); [M+H]+,LC/MS/MS Lipidomic,,metabolite186,Vitamin C,metabolite
+lipid187,PC 33:3,LC/MS/MS Lipidomic,,metabolite187,Xanthine,metabolite
+lipid188,PC 34:0; PC(16:0/18:0); [M+H]+,LC/MS/MS Lipidomic,,metabolite188,Xanthosine,metabolite
+lipid189,PC 34:1; PC(16:0/18:1); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid190,PC 34:2; PC(16:0/18:2); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid191,PC 34:3; PC(16:1/18:2); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid192,PC 34:4; PC(14:0/20:4); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid193,PC 34:5; PC(14:0/20:5); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid194,PC 35:1; PC(17:0/18:1); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid195,PC 35:2; PC(17:0/18:2); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid196,PC 35:3 ,LC/MS/MS Lipidomic,,,,
+lipid197,PC 35:4; PC(15:0/20:4); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid198,PC 35:5; PC(15:0/20:5); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid199,PC 36:1; PC(18:0/18:1); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid200,PC 36:2; PC(18:0/18:2); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid201,PC 36:3; PC(16:0/20:3); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid202,PC 36:3; PC(18:1/18:2); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid203,PC 36:4; PC(16:0/20:4); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid204,PC 36:5; PC(16:0/20:5); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid205,PC 36:5; PC(16:1/20:4); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid206,PC 36:6; PC(14:0/22:6); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid207,PC 37:1; PC(19:0/18:1); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid208,PC 37:2; PC(19:0/18:2); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid209,PC 37:3; PC(17:0/20:3); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid210,PC 37:4; PC(17:0/20:4); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid211,PC 37:5; PC(17:0/20:5); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid212,PC 37:6; PC(15:0/22:6); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid213,PC 38:2; PC(18:1/20:1); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid214,PC 38:3; PC(18:0/20:3); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid215,PC 38:4; PC(18:0/20:4); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid216,PC 38:5; PC(18:0/20:5); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid217,PC 38:6; PC(16:0/22:6); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid218,PC 38:7; PC(16:1/22:6); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid219,PC 39:4; PC(19:0/20:4); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid220,PC 39:5; PC(19:1/20:4); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid221,PC 39:6; PC(17:0/22:6); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid222,PC 39:7; PC(17:1/22:6); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid223,PC 40:10; PC(20:5/20:5); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid224,PC 40:4; PC(20:2/20:2); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid225,PC 40:5 B [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid226,PC 40:6; PC(18:0/22:6); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid227,PC 40:7; PC(18:1/22:6); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid228,PC 40:7; PC(20:3/20:4); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid229,PC 40:8; PC(20:4/20:4); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid230,PC 41:6; PC(19:0/22:6); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid231,PC 42:10; PC(20:4/22:6); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid232,PC 42:11; PC(20:5/22:6); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid233,PC 42:6; PC(20:0/22:6); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid234,PC 42:7; PC(20:1/22:6); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid235,PC 44:12; PC(22:6/22:6); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid236,PE (p-38:3) or PE (o-38:4) [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid237,PE (p-40:5) or PE (o-40:6) [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid238,PE 32:0; PE(16:0/16:0); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid239,PE 32:1; PE(16:0/16:1); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid240,PE 33:2; PE(15:0/18:2); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid241,PE 34:0; PE(16:0/18:0); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid242,PE 34:1; PE(16:0/18:1); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid243,PE 34:1; PE(18:0/16:1); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid244,PE 34:2; PE(16:0/18:2); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid245,PE 34:3; PE(16:0/18:3); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid246,PE 34:3; PE(16:1/18:2); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid247,PE 35:1; PE(17:0/18:1); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid248,PE 35:2; PE(17:0/18:2); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid249,PE 35:2; PE(17:1/18:1); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid250,PE 35:4; PE(15:0/20:4); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid251,PE 36:0; PE(18:0/18:0); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid252,PE 36:1; PE(18:0/18:1); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid253,PE 36:2; PE(18:0/18:2); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid254,PE 36:2; PE(18:1/18:1); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid255,PE 36:3; PE(16:0/20:3); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid256,PE 36:3; PE(18:1/18:2); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid257,PE 36:3; PE(18:1/18:2); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid258,PE 36:4; PE(16:0/20:4); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid259,PE 36:4; PE(18:2/18:2); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid260,PE 36:5; PE(16:0/20:5); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid261,PE 36:5; PE(16:1/20:4); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid262,PE 36:6; PE(16:1/20:5); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid263,PE 37:1; PE(18:0/19:1); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid264,PE 37:2; PE(19:0/18:2); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid265,PE 37:4; PE(17:0/20:4); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid266,PE 37:5; PE(17:0/20:5); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid267,PE 37:5; PE(17:1/20:4); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid268,PE 37:6; PE(15:0/22:6); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid269,PE 38:1; PE(18:0/20:1); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid270,PE 38:2; PE(18:0/20:2); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid271,PE 38:2; PE(18:1/20:1); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid272,PE 38:3; PE(18:0/20:3); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid273,PE 38:3; PE(20:1/18:2); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid274,PE 38:4; PE(16:0/22:4); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid275,PE 38:4; PE(18:0/20:4); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid276,PE 38:4; PE(18:1/20:3); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid277,PE 38:5; PE(16:0/22:5); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid278,PE 38:5; PE(18:0/20:5); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid279,PE 38:5; PE(18:1/20:4); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid280,PE 38:6; PE(16:0/22:6); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid281,PE 38:7; PE(16:1/22:6); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid282,PE 38:7; PE(18:2/20:5); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid283,PE 39:3; PE(19:0/20:3); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid284,PE 39:4; PE(19:0/20:4); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid285,PE 39:5; PE(19:0/20:5); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid286,PE 39:6; PE(17:0/22:6); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid287,PE 40:2; PE(20:1/20:1); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid288,PE 40:3; PE(20:0/20:3); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid289,PE 40:4; PE(18:0/22:4); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid290,PE 40:5; PE(18:0/22:5); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid291,PE 40:6; PE(18:0/22:6); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid292,PE 40:7; PE(18:1/22:6); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid293,PE 40:8; PE(20:4/20:4); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid294,PE 41:6; PE(19:0/22:6); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid295,PE 42:6; PE(20:0/22:6); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid296,PE 42:7; PE(20:1/22:6); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid297,PE 42:8; PE(20:2/22:6); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid298,PE 42:9; PE(20:3/22:6); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid299,PG 32:1; PG(16:0/16:1); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid300,PG 34:1; PG(16:0/18:1); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid301,PG 34:2; PG(16:0/18:2); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid302,PG 34:2; PG(16:1/18:1); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid303,PG 34:3; PG(16:1/18:2); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid304,PG 36:2; PG(18:0/18:2); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid305,PG 36:2; PG(18:1/18:1); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid306,PG 36:3; PG(18:1/18:2); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid307,PG 36:4; PG(16:0/20:4); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid308,PG 36:4; PG(18:2/18:2); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid309,PG 36:5; PG(16:0/20:5); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid310,PG 38:3; PG(18:0/20:3); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid311,PG 38:4; PG(18:0/20:4); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid312,PG 38:4; PG(18:1/20:3); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid313,PG 38:5; PG(16:0/22:5); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid314,PG 38:5; PG(18:1/20:4); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid315,PG 38:6; PG(16:0/22:6); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid316,PG 38:6; PG(18:1/20:5); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid317,PG 38:7; PG(16:1/22:6); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid318,PG 40:10; PG(20:5/20:5); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid319,PG 40:5; PG(18:1/22:4); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid320,PG 40:6; PG(18:1/22:5); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid321,PG 40:7; PG(18:1/22:6); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid322,PG 40:8; PG(18:2/22:6); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid323,PG 40:9; PG(18:3/22:6); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid324,PG 42:10; PG(20:4/22:6); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid325,PG 42:10; PG(20:5/22:5); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid326,PG 42:11; PG(20:5/22:6); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid327,PG 42:9; PG(20:3/22:6); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid328,PG 44:11; PG(22:5/22:6); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid329,PG 44:12; PG(22:6/22:6); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid330,PI 36:1; PI(18:0/18:1); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid331,PI 36:2; PI(18:1/18:1); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid332,PI 36:3; PI(16:0/20:3); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid333,PI 36:3; PI(18:1/18:2); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid334,PI 36:4; PI(16:0/20:4); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid335,PI 36:5; PI(16:0/20:5); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid336,PI 37:3; PI(17:0/20:3); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid337,PI 37:4; PI(17:0/20:4); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid338,PI 37:5; PI(17:0/20:5); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid339,PI 38:3; PI(18:0/20:3); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid340,PI 38:4; PI(18:0/20:4); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid341,PI 38:5; PI(18:1/20:4); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid342,PI 38:6; PI(16:0/22:6); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid343,PI 38:6; PI(18:1/20:5); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid344,PI 39:4; PI(19:0/20:4); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid345,PI 39:6; PI(17:0/22:6); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid346,PI 40:4; PI(20:0/20:4); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid347,PI 40:5; PI(18:0/22:5); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid348,PI 40:6; PI(18:0/22:6); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid349,PI 40:6; PI(18:1/22:5); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid350,PI 40:7; PI(18:1/22:6); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid351,PS 36:4; PS(16:0/20:4); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid352,PS 36:5; PS(16:0/20:5); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid353,PS 38:4; PS(18:0/20:4); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid354,PS 38:5; PS(18:0/20:5); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid355,PS 38:5; PS(18:1/20:4); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid356,PS 38:6; PS(16:0/22:6); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid357,PS 40:4; PS(18:0/22:4); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid358,PS 40:6; PS(18:0/22:6); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid359,PS 40:8; PS(20:4/20:4); [M-H]-,LC/MS/MS Lipidomic,,,,
+lipid360,SM d32:1; SM(d14:0/18:1); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid361,SM d32:2; SM(d14:0/18:2); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid362,SM d33:1; SM(d14:0/19:1); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid363,SM d33:1; SM(d17:0/16:1); [M+Hac-H]-,LC/MS/MS Lipidomic,,,,
+lipid364,SM d34:0; SM(d14:0/20:0); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid365,SM d34:1; SM(d14:1/20:0); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid366,SM d34:1; SM(d18:1/16:0); [M+Hac-H]-,LC/MS/MS Lipidomic,,,,
+lipid367,SM d34:2; SM(d16:0/18:2); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid368,SM d35:1; SM(d14:0/21:1); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid369,SM d35:1; SM(d14:1/21:0); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid370,SM d36:0; SM(d14:0/22:0); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid371,SM d36:1; SM(d14:1/22:0); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid372,SM d36:2; SM(d14:1/22:1); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid373,SM d36:3; SM(d14:2/22:1); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid374,SM d38:0; SM(d14:0/24:0); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid375,SM d38:1; SM(d14:1/24:0); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid376,SM d39:1; SM(d14:1/25:0); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid377,SM d39:1; SM(d16:1/23:0); [M+Hac-H]-,LC/MS/MS Lipidomic,,,,
+lipid378,SM d40:0; SM(d14:0/26:0); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid379,SM d40:1; SM(d14:1/26:0); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid380,SM d40:1; SM(d18:1/22:0); [M+Hac-H]-,LC/MS/MS Lipidomic,,,,
+lipid381,SM d40:2; SM(d14:1/26:1); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid382,SM d40:2; SM(d18:1/22:1); [M+Hac-H]-,LC/MS/MS Lipidomic,,,,
+lipid383,SM d41:0; SM(d14:0/27:0); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid384,SM d41:1; SM(d14:1/27:0); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid385,SM d41:2; SM(d14:1/27:1); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid386,SM d41:2; SM(d14:2/27:0); [M+Hac-H]-,LC/MS/MS Lipidomic,,,,
+lipid387,SM d42:0; SM(d14:0/28:0); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid388,SM d42:1; SM(d14:0/28:1); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid389,SM d42:1; SM(d14:1/28:0); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid390,SM d42:1; SM(d18:1/24:0); [M+Hac-H]-,LC/MS/MS Lipidomic,,,,
+lipid391,SM d42:2; SM(d14:1/28:1); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid392,SM d42:2; SM(d14:2/28:0); [M+Hac-H]-,LC/MS/MS Lipidomic,,,,
+lipid393,SM d42:3; SM(d14:2/28:1); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid394,SM d43:1; SM(d14:1/29:0); [M+H]+,LC/MS/MS Lipidomic,,,,
+lipid395,TG 44:1; TG(12:0/16:0/16:1); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid396,TG 44:1; TG(14:0/14:0/16:1); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid397,TG 44:2; TG(14:0/14:1/16:1); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid398,TG 45:0; TG(14:0/15:0/16:0); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid399,TG 46:0; TG(14:0/16:0/16:0); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid400,TG 46:1; TG(14:0/16:0/16:1); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid401,TG 46:2; TG(12:0/16:1/18:1); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid402,TG 46:2; TG(14:0/16:1/16:1); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid403,TG 46:3; TG(14:1/16:1/16:1); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid404,TG 47:0; TG(15:0/16:0/16:0); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid405,TG 47:1; TG(15:0/16:0/16:1); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid406,TG 47:2; TG(15:0/16:1/16:1); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid407,TG 48:0; TG(16:0/16:0/16:0); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid408,TG 48:1; TG(14:0/16:0/18:1); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid409,TG 48:2; TG(16:0/16:1/16:1); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid410,TG 48:3; TG(14:0/16:1/18:2); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid411,TG 48:4; TG(14:1/16:1/18:2); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid412,TG 49:1; TG(15:0/16:0/18:1); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid413,TG 49:1; TG(16:0/16:0/17:1); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid414,TG 49:2; TG(15:0/16:1/18:1); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid415,TG 49:2; TG(15:0/17:1/17:1); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid416,TG 49:3; TG(15:0/16:1/18:2); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid417,TG 49:3; TG(16:1/16:1/17:1); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid418,TG 49:4; TG(13:0/18:2/18:2); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid419,TG 50:0; TG(16:0/16:0/18:0); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid420,TG 50:1; TG(16:0/16:0/18:1); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid421,TG 50:2; TG(14:0/16:0/20:2); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid422,TG 50:2; TG(16:0/16:1/18:1); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid423,TG 50:3; TG(16:0/16:0/18:3); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid424,TG 50:3; TG(16:0/16:1/18:2); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid425,TG 50:4; TG(16:1/16:1/18:2); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid426,TG 50:5; TG(14:0/16:0/20:5); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid427,TG 50:5; TG(14:0/16:1/20:4); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid428,TG 50:5; TG(14:1/18:2/18:2); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid429,TG 50:6; TG(14:0/16:1/20:5); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid430,TG 51:1; TG(16:0/17:0/18:1); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid431,TG 51:2; TG(15:0/18:1/18:1); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid432,TG 51:2; TG(16:0/17:1/18:1); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid433,TG 51:3; TG(16:0/16:0/19:3); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid434,TG 51:3; TG(16:1/17:1/18:1); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid435,TG 51:4; TG(15:0/18:2/18:2); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid436,TG 51:6; TG(15:0/16:1/20:5); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid437,TG 52:1; TG(16:0/18:0/18:1); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid438,TG 52:2; TG(16:0/18:1/18:1); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid439,TG 52:3; TG(16:0/16:0/20:3); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid440,TG 52:3; TG(16:0/18:1/18:2); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid441,TG 52:4; TG(16:0/16:0/20:4); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid442,TG 52:4; TG(16:0/18:2/18:2); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid443,TG 52:4; TG(16:1/18:1/18:2); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid444,TG 52:5; TG(16:0/16:0/20:5); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid445,TG 52:5; TG(16:1/18:2/18:2); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid446,TG 52:6; TG(14:0/16:0/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid447,TG 52:6; TG(14:0/16:1/22:5); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid448,TG 52:6; TG(16:0/16:1/20:5); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid449,TG 52:6; TG(16:1/16:1/20:4); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid450,TG 52:7; TG(14:0/16:1/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid451,TG 52:7; TG(16:1/16:1/20:5); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid452,TG 53:3; TG(17:0/17:0/19:3); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid453,TG 53:3; TG(17:1/18:1/18:1); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid454,TG 53:5; TG(17:1/18:2/18:2); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid455,TG 53:6; TG(15:0/16:0/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid456,TG 53:7; TG(15:0/16:1/22:6); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid457,TG 54:0; TG(18:0/18:0/18:0); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid458,TG 54:10; TG(14:0/20:5/20:5); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid459,TG 54:2; TG(16:0/18:1/20:1); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid460,TG 54:3; TG(18:0/18:0/18:3); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid461,TG 54:4; TG(16:0/18:1/20:3); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid462,TG 54:4; TG(18:1/18:1/18:2); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid463,TG 54:5; TG(16:0/18:1/20:4); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid464,TG 54:5; TG(18:1/18:2/18:2); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid465,TG 54:6; TG(14:0/18:1/22:5); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid466,TG 54:6; TG(16:0/18:1/20:5); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid467,TG 54:7; TG(16:0/16:1/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid468,TG 54:7; TG(16:0/18:2/20:5); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid469,TG 54:8; TG(16:1/16:1/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid470,TG 54:9; TG(16:1/16:2/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid471,TG 54:9; TG(16:2/18:2/20:5); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid472,TG 55:3; TG(18:1/18:1/19:1); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid473,TG 55:4; TG(18:1/18:2/19:1); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid474,TG 55:4; TG(18:2/18:2/19:0); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid475,TG 55:5; TG(18:2/18:2/19:1); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid476,TG 55:6; TG(15:0/18:1/22:5); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid477,TG 55:7; TG(15:0/18:1/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid478,TG 56:0; TG(16:0/18:0/22:0); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid479,TG 56:10; TG(16:1/18:3/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid480,TG 56:11; TG(16:1/20:5/20:5); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid481,TG 56:3; TG(18:1/18:1/20:1); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid482,TG 56:4; TG(18:1/18:2/20:1); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid483,TG 56:6; TG(16:0/18:1/22:5); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid484,TG 56:6; TG(18:1/18:1/20:4); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid485,TG 56:6; TG(18:2/19:2/19:2); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid486,TG 56:7; TG(16:0/18:1/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid487,TG 56:7; TG(18:1/18:1/20:5); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid488,TG 56:8; TG(16:0/18:2/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid489,TG 56:8; TG(16:0/20:4/20:4); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid490,TG 56:9; TG(16:0/18:3/22:6); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid491,TG 56:9; TG(16:1/18:2/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid492,TG 57:6; TG(17:0/18:1/22:5); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid493,TG 57:7; TG(17:1/18:1/22:5); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid494,TG 57:8; TG(17:1/18:1/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid495,TG 57:9; TG(17:1/18:2/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid496,TG 58:10; TG(16:0/20:5/22:5); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid497,TG 58:10; TG(18:2/18:2/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid498,TG 58:11; TG(16:0/20:5/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid499,TG 58:11; TG(16:1/20:5/22:5); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid500,TG 58:11; TG(18:2/18:3/22:6); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid501,TG 58:12; TG(14:0/22:6/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid502,TG 58:12; TG(18:2/20:5/20:5); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid503,TG 58:6; TG(18:0/18:1/22:5); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid504,TG 58:7; TG(18:0/18:1/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid505,TG 58:7; TG(18:1/18:1/22:5); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid506,TG 58:7; TG(18:1/20:3/20:3); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid507,TG 58:8; TG(18:1/18:1/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid508,TG 58:9; TG(18:1/18:2/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid509,TG 58:9; TG(18:1/20:4/20:4); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid510,TG 60:10; TG(16:0/22:5/22:5); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid511,TG 60:11; TG(16:0/22:5/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid512,TG 60:12; TG(16:0/22:6/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid513,TG 60:12; TG(18:1/20:5/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid514,TG 60:13; TG(18:2/20:5/22:6); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid515,TG 60:7; TG(18:1/20:1/22:5); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid516,TG 60:7; TG(18:4/20:1/22:2); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid517,TG 60:8; TG(18:1/20:1/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid518,TG 60:8; TG(18:3/20:1/22:4); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid519,TG 60:9; TG(18:2/20:1/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid520,TG 62:12; TG(18:1/22:5/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid521,TG 62:12; TG(20:3/20:3/22:6); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid522,TG 62:13; TG(18:1/22:6/22:6); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid523,TG 62:13; TG(18:2/22:5/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid524,TG 62:13; TG(20:2/20:5/22:6); [M+Na]+,LC/MS/MS Lipidomic,,,,
+lipid525,TG 62:14; TG(18:2/22:6/22:6); [M+NH4]+,LC/MS/MS Lipidomic,,,,
+lipid526,DG (32:0) DG(16:0/16:0/0:0),LC/MS/MS Lipidomic,,,,
+lipid527,DG (32:2) DG(18:2/14:0/0:0),LC/MS/MS Lipidomic,,,,
+lipid528,DG (34:0) DG(18:0/16:0/0:0),LC/MS/MS Lipidomic,,,,
+lipid529,DG (34:1) DG(16:0/18:1/0:0),LC/MS/MS Lipidomic,,,,
+lipid530,DG (36:3) DG(18:2/18:1/0:0),LC/MS/MS Lipidomic,,,,
+lipid531,DG (36:2) DG(18:1/18:1/0:0),LC/MS/MS Lipidomic,,,,
+lipid532,DG (36:4) DG(18:1n7/0:0/18:3n3),LC/MS/MS Lipidomic,,,,
+lipid533,DG (36:4) DG(18:2/18:2/0:0),LC/MS/MS Lipidomic,,,,
+lipid534,DG(38:4) DG(20:3/18:1/0:0),LC/MS/MS Lipidomic,,,,
+lipid535,DG (38:6),LC/MS/MS Lipidomic,,,,
+lipid536,DG (38:5) DG(18:1/20:4/0:0),LC/MS/MS Lipidomic,,,,
+lipid537,Leukotriene B4,Targeted LC/MS Lipidomic,,,,
+lipid538,9(S)-HODE,Targeted LC/MS Lipidomic,,,,
+lipid539,13(S)-HODE,Targeted LC/MS Lipidomic,,,,
+lipid540,5-HETE,Targeted LC/MS Lipidomic,,,,
+lipid541,12-HETE,Targeted LC/MS Lipidomic,,,,
+lipid542,15-HETE,Targeted LC/MS Lipidomic,,,,
+lipid543,"14,15-EET",Targeted LC/MS Lipidomic,,,,
+lipid544,"14,15-DiHET",Targeted LC/MS Lipidomic,,,,
+lipid545,"17,18-DiHETE",Targeted LC/MS Lipidomic,,,,
+lipid546,"10,11-EpDPA",Targeted LC/MS Lipidomic,,,,
+lipid547,"16,17-EpDPA",Targeted LC/MS Lipidomic,,,,
+lipid548,"16,17-DiHDPA",Targeted LC/MS Lipidomic,,,,
+lipid549,"19,20-DiHDPA",Targeted LC/MS Lipidomic,,,,
